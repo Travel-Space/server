@@ -14,7 +14,17 @@ model User {
   id Int @id @default(autoincrement())
   name String
   age Int
-  userId String
+  userId String @unique
   password String
   createdAt DateTime @default(now())
+  posts Post[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  title String
+  content String?
+  published Boolean? @default(true)
+  author User? @relation(fields:[authorId], references: [id])
+  authorId Int?  
 }
