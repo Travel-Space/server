@@ -1,0 +1,23 @@
+import { PassportModule } from '@nestjs/passport';
+import { forwardRef, Module } from '@nestjs/common';
+import { UsersModule } from 'src/users/users.module';
+import { AuthService } from './auth.service';
+import { GoogleStrategy } from './strategy/google.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './strategy/jwt.strategy';
+
+@Module({
+  imports: [
+    forwardRef(() => UsersModule),
+    PassportModule.register({
+      defaultStrategy: 'jwt',
+      session: false,
+    }),
+    JwtModule.register({
+      secret: process.env.JWT_SCRECT_KEY,
+    }),
+  ],
+  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  exports: [AuthService, JwtModule, PassportModule],
+})
+export class AuthModule {}

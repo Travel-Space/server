@@ -14,7 +14,9 @@ model User {
   userId String @unique
   createdAt DateTime @default(now())
   providerId String
-
+  
+  status UserStatus @default(ACTIVE)
+  role UserRole @default(MEMBER)
   ownedPlanet Planet[]
   planetsIn PlanetMembership[]
   posts Article[]
@@ -158,24 +160,24 @@ model PlanetBookmark {
 
 model Spaceship {
   id          Int               @id @default(autoincrement())
-  title       String            // 여행 제목
-  description String?           // 여행 내용
-  maxMembers  Int               // 인원 제한
-  status      SpaceshipStatus   @default(UPCOMING) // 우주선 여행의 상태
-  startDate   DateTime          // 여행 시작 일자
-  endDate     DateTime          // 여행 종료 일자
-  planetId    Int               // 해당 여행이 어느 행성과 관련 있는지
+  title       String           
+  description String?         
+  maxMembers  Int               
+  status      SpaceshipStatus   @default(UPCOMING) 
+  startDate   DateTime          
+  endDate     DateTime          
+  planetId    Int               
   planet      Planet            @relation(fields: [planetId], references: [id])
-  members     SpaceshipMember[] // 탑승 인원들
+  members     SpaceshipMember[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 }
 
 model SpaceshipMember {
   id         Int       @id @default(autoincrement())
-  spaceshipId Int      // 해당 우주선에 대한 참조
+  spaceshipId Int      
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
-  userId     Int       // 탑승 인원의 사용자 ID
+  userId     Int      
   user       User      @relation(fields: [userId], references: [id])
   joinedAt   DateTime  @default(now())
 }
@@ -205,4 +207,14 @@ enum SpaceshipStatus {
   ONGOING
   COMPLETED
   CANCELED
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
 }
