@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,16 +12,197 @@ model User {
   name String
   age Int
   userId String @unique
-  password String
   createdAt DateTime @default(now())
-  posts Post[]
+  providerId String
+
+  ownedPlanet Planet[]
+  planetsIn PlanetMembership[]
+  posts Article[]
+  provider SocialProvider
+  spaceshipMemberships SpaceshipMember[]
+  planetBookMark PlanetBookmark[]
+  likedArticles Like[] @relation("LikeToUser")
+  comments Comment[]
+  chatMemberships ChatMembership[]
+  sentMessages Message[] 
+  notifications Notification[] 
+  reportsMade Report[] 
+  friends UserFriend[] @relation("UserToFriend")
+  friendedBy UserFriend[] @relation("FriendToUser")
 }
 
-model Post {
+model Article {
   id Int @id @default(autoincrement())
   title String
   content String?
   published Boolean? @default(true)
   author User? @relation(fields:[authorId], references: [id])
-  authorId Int?  
+  authorId Int?
+  planetId Int?
+  planet Planet? @relation(fields:[planetId], references: [id])
+
+  likes Like[] @relation("LikeToArticle")
+  comments Comment[]
+}
+
+model Planet {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  ownerId Int
+  memberLimit Int?
+  latitude  Float?
+  longitude Float?
+  published Boolean? @default(true)
+  isActive Boolean @default(true) // 관리자가 행성 삭제할시 soft delete를 위함
+  shape PlanetShape?
+  hashtags String[]
+  owner User @relation(fields: [ownerId], references:[id])
+
+  spaceships Spaceship[]
+  articles Article[]
+  members PlanetMembership[]
+  planetBookMark PlanetBookmark[]
+}
+
+model PlanetMembership {
+  planetId Int
+  planet Planet @relation(fields:[planetId], references:[id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  administrator Boolean @default(false)
+  
+  @@id([planetId,userId])
+}
+
+model Chat {
+  id          Int      @id @default(autoincrement())
+  chatMemberships ChatMembership[]
+  messages    Message[]
+}
+
+model ChatMembership {
+  chatId Int
+  chat Chat @relation(fields:[chatId], references:[id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  
+  @@id([chatId, userId])
+}
+
+model Message {
+  id          Int     @id @default(autoincrement())
+  content     String
+  senderId    Int
+  sender      User   @relation(fields: [senderId], references: [id])
+  chatId      Int
+  chat        Chat   @relation(fields: [chatId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Comment {
+  id          Int        @id @default(autoincrement())
+  content     String
+  authorId    Int
+  author      User      @relation(fields: [authorId], references: [id])
+  articleId   Int
+  article     Article   @relation(fields: [articleId], references: [id])
+  parentId    Int?      // 대댓글 기능을 위한 부모 댓글 ID
+  children    Comment[] @relation("CommentToComment")
+  parent      Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Like {
+  userId      Int
+  user        User      @relation("LikeToUser", fields: [userId], references: [id])
+  articleId   Int
+  article     Article   @relation("LikeToArticle", fields: [articleId], references: [id])
+  @@id([userId, articleId])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  content     String
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+
+model UserFriend {
+  userId   Int
+  user     User     @relation("UserToFriend", fields: [userId], references: [id])
+  friendId Int
+  friend   User     @relation("FriendToUser", fields: [friendId], references: [id])
+  @@id([userId, friendId])
+}
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  reason      String
+  reporterId  Int
+  reporter    User     @relation(fields: [reporterId], references: [id])
+  targetId    Int     
+  targetType  ReportTargetType  
+  createdAt   DateTime @default(now())
+}
+
+model PlanetBookmark {
+   userId   Int
+   user     User     @relation(fields: [userId], references: [id])
+   planetId Int
+   planet   Planet   @relation(fields: [planetId], references: [id])
+   @@id([userId, planetId])
+}
+
+model Spaceship {
+  id          Int               @id @default(autoincrement())
+  title       String            // 여행 제목
+  description String?           // 여행 내용
+  maxMembers  Int               // 인원 제한
+  status      SpaceshipStatus   @default(UPCOMING) // 우주선 여행의 상태
+  startDate   DateTime          // 여행 시작 일자
+  endDate     DateTime          // 여행 종료 일자
+  planetId    Int               // 해당 여행이 어느 행성과 관련 있는지
+  planet      Planet            @relation(fields: [planetId], references: [id])
+  members     SpaceshipMember[] // 탑승 인원들
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model SpaceshipMember {
+  id         Int       @id @default(autoincrement())
+  spaceshipId Int      // 해당 우주선에 대한 참조
+  spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
+  userId     Int       // 탑승 인원의 사용자 ID
+  user       User      @relation(fields: [userId], references: [id])
+  joinedAt   DateTime  @default(now())
+}
+
+
+enum SocialProvider {
+  GOOGLE
+  NAVER
+  KAKAO
+}
+
+enum PlanetShape {
+  SHAPE1
+  SHAPE2
+  SHAPE3
+}
+
+enum ReportTargetType {
+   USER
+   ARTICLE
+   COMMENT
+   MESSAGE
+}
+
+enum SpaceshipStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELED
 }
