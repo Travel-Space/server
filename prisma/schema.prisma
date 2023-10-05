@@ -8,72 +8,71 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  age Int
-  userId String @unique
-  createdAt DateTime @default(now())
-  providerId String
-  
-  status UserStatus @default(ACTIVE)
-  role UserRole @default(MEMBER)
-  ownedPlanet Planet[]
-  planetsIn PlanetMembership[]
-  posts Article[]
-  provider SocialProvider
+  id           Int               @id @default(autoincrement())
+  name         String
+  age          Int?
+  email        String            @unique
+  createdAt    DateTime          @default(now())
+  oauthId      String?           // 변경: providerId에서 oauthId로 이름 변경
+  provider     SocialProvider
+  status       UserStatus        @default(ACTIVE)
+  role         UserRole          @default(MEMBER)
+  ownedPlanet  Planet[]
+  planetsIn    PlanetMembership[]
+  posts        Article[]
   spaceshipMemberships SpaceshipMember[]
   planetBookMark PlanetBookmark[]
-  likedArticles Like[] @relation("LikeToUser")
-  comments Comment[]
+  likedArticles Like[]           @relation("LikeToUser")
+  comments      Comment[]
   chatMemberships ChatMembership[]
-  sentMessages Message[] 
+  sentMessages  Message[] 
   notifications Notification[] 
-  reportsMade Report[] 
-  friends UserFriend[] @relation("UserToFriend")
-  friendedBy UserFriend[] @relation("FriendToUser")
+  reportsMade   Report[] 
+  friends       UserFriend[]     @relation("UserToFriend")
+  friendedBy    UserFriend[]     @relation("FriendToUser")
+  deletedAt     DateTime?        @map("deleted_at") // 추가: soft delete 구현
 }
 
 model Article {
-  id Int @id @default(autoincrement())
-  title String
-  content String?
+  id       Int     @id @default(autoincrement())
+  title    String
+  content  String?
   published Boolean? @default(true)
-  author User? @relation(fields:[authorId], references: [id])
+  author   User? @relation(fields:[authorId], references: [id])
   authorId Int?
+  planet   Planet? @relation(fields:[planetId], references: [id])
   planetId Int?
-  planet Planet? @relation(fields:[planetId], references: [id])
-
-  likes Like[] @relation("LikeToArticle")
+  likes    Like[] @relation("LikeToArticle")
   comments Comment[]
+  deletedAt DateTime? @map("deleted_at") // 추가: soft delete 구현
 }
 
 model Planet {
-  id Int @id @default(autoincrement())
-  name String
-  description String?
-  ownerId Int
-  memberLimit Int?
-  latitude  Float?
-  longitude Float?
-  published Boolean? @default(true)
-  isActive Boolean @default(true) // 관리자가 행성 삭제할시 soft delete를 위함
-  shape PlanetShape?
-  hashtags String[]
-  owner User @relation(fields: [ownerId], references:[id])
-
-  spaceships Spaceship[]
-  articles Article[]
-  members PlanetMembership[]
+  id           Int               @id @default(autoincrement())
+  name         String
+  description  String?
+  owner        User              @relation(fields: [ownerId], references:[id])
+  ownerId      Int
+  memberLimit  Int?
+  latitude     Float?
+  longitude    Float?
+  published    Boolean?          @default(true)
+  isActive     Boolean           @default(true)
+  shape        PlanetShape?
+  hashtags     String[]
+  spaceships   Spaceship[]
+  articles     Article[]
+  members      PlanetMembership[]
   planetBookMark PlanetBookmark[]
+  deletedAt    DateTime?         @map("deleted_at") // 추가: soft delete 구현
 }
 
 model PlanetMembership {
+  planet   Planet @relation(fields:[planetId], references:[id])
   planetId Int
-  planet Planet @relation(fields:[planetId], references:[id])
-  userId Int
-  user User @relation(fields: [userId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
   administrator Boolean @default(false)
-  
   @@id([planetId,userId])
 }
 
@@ -143,11 +142,12 @@ model UserFriend {
 model Report {
   id          Int      @id @default(autoincrement())
   reason      String
-  reporterId  Int
   reporter    User     @relation(fields: [reporterId], references: [id])
-  targetId    Int     
-  targetType  ReportTargetType  
+  reporterId  Int
+  targetId    Int
+  targetType  ReportTargetType
   createdAt   DateTime @default(now())
+  deletedAt   DateTime? @map("deleted_at") // 추가: soft delete 구현
 }
 
 model PlanetBookmark {
