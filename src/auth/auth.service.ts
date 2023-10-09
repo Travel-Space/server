@@ -1,18 +1,22 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { UsersService } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import { SocialProvider, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async validateOAuthLogin(profile): Promise<User> {
     const { name, emails } = profile;
-
     if (!emails || emails.length === 0) {
       throw new InternalServerErrorException('이메일이 존재하지 않습니다.');
     }
-
     let user;
 
     try {
@@ -37,5 +41,22 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async findOrCreateSocialUser(
+    provider: SocialProvider,
+    socialUser: any,
+  ): Promise<User> {
+    let user = await this.usersService.findBySocialId(provider, socialUser.id);
+
+    if (!user) {
+      user = await this.usersService.createSocialUser(provider, socialUser);
+    }
+    return user;
+  }
+
+  generateJwt(user: User): string {
+    const payload = { username: user.email, sub: user.id };
+    return this.jwtService.sign(payload);
   }
 }
