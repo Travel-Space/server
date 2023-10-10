@@ -1,63 +1,46 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Query,
-  HttpCode,
-  UnauthorizedException,
   UseGuards,
-  Req,
-  Res,
+  Request,
+  Response,
+  Body,
+  Get,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 import { AuthService } from './auth.service';
+import { CreateUserDto, FindAccountDto, SigninDto } from './dto';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
-import { ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
-// import { NaverAuthGuard } from './guard/naver-auth.guard';
-// import { KakaoAuthGuard } from './guard/kakao-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private jwtService: JwtService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Get('google')
   @UseGuards(GoogleAuthGuard)
-  googleLogin() {}
+  @Get('google')
+  async googleAuth(@Request() req) {}
 
-  async googleLoginRedirect(@Req() req, @Res() res: Response) {
-    const user = await this.authService.findOrCreateSocialUser(
-      'GOOGLE',
-      req.user,
-    );
-
-    if (user.id) {
-      const jwt = this.authService.generateJwt(user);
-      return res.json({ access_token: jwt, user });
-    } else {
-      return;
-      // return res.redirect('/register/additional-info');
+  @Get('google/redirect')
+  async googleAuthRedirect(@Request() req, @Response() res) {
+    const token = await this.authService.login(req, 'google');
+    if (!token) {
+      throw new UnauthorizedException();
     }
+    res.redirect(`http://your_frontend_url?token=${token}`);
   }
 
-  @Post('signUp')
-  @ApiOperation({
-    summary: '회원가입 API',
-    description: '회원가입',
-  })
-  @ApiResponse({
-    status: 201,
-    description: '회원가입 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: '회원가입 실패',
-  })
-  async signup(@Body() signupDto: CreateAuthDto, @Res() res: Response) {
-    const { acecessToken };
+  @Post('signup')
+  async signup(@Body() createUserDto: CreateUserDto) {
+    return this.authService.createUser(createUserDto);
+  }
+
+  @Post('signin')
+  async signin(@Body() signinDto: SigninDto) {
+    return this.authService.login(signinDto, 'local');
+  }
+
+  @Post('find-account')
+  async findAccount(@Body() findAccountDto: FindAccountDto) {
+    return this.authService.findAccount(findAccountDto);
   }
 }

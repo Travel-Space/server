@@ -1,62 +1,73 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UsersService } from 'src/users/users.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SocialProvider, User } from '@prisma/client';
+import { CreateUserDto, SigninDto, FindAccountDto } from './dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { SocialProvider } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private usersService: UsersService,
     private jwtService: JwtService,
+    private prisma: PrismaService,
   ) {}
 
-  async validateOAuthLogin(profile): Promise<User> {
-    const { name, emails } = profile;
-    if (!emails || emails.length === 0) {
-      throw new InternalServerErrorException('이메일이 존재하지 않습니다.');
+  async login(req, provider: string): Promise<string> {
+    if (!req.user) {
+      throw new UnauthorizedException(`No user from ${provider}`);
     }
-    let user;
-
-    try {
-      user = await this.prisma.user.findUnique({
-        where: { email: emails[0].value },
-      });
-
-      if (!user) {
-        user = await this.prisma.user.create({
-          data: {
-            name: `${name.givenName} ${name.familyName}`,
-            email: emails[0].value,
-            provider: 'GOOGLE',
-          },
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(
-        '사용자를 검증하거나 만드는 중에 에러가 발생했습니다.',
-      );
-    }
-
-    return user;
-  }
-
-  async findOrCreateSocialUser(
-    provider: SocialProvider,
-    socialUser: any,
-  ): Promise<User> {
-    let user = await this.usersService.findBySocialId(provider, socialUser.id);
-
-    if (!user) {
-      user = await this.usersService.createSocialUser(provider, socialUser);
-    }
-    return user;
-  }
-
-  generateJwt(user: User): string {
-    const payload = { username: user.email, sub: user.id };
+    const user = await this.findOrCreateUser(req.user, provider);
+    const payload = { userId: user.id, userEmail: user.email };
     return this.jwtService.sign(payload);
+  }
+
+  async findOrCreateUser(userInfo, provider: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: userInfo.email },
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    let mappedProvider: 'GOOGLE' | 'NAVER' | 'KAKAO' | 'LOCAL';
+
+    switch (provider.toUpperCase()) {
+      case 'LOCAL':
+        mappedProvider = SocialProvider.LOCAL;
+        break;
+      case 'GOOGLE':
+        mappedProvider = SocialProvider.GOOGLE;
+        break;
+      case 'KAKAO':
+        mappedProvider = SocialProvider.KAKAO;
+        break;
+      default:
+        throw new UnauthorizedException('지원하지 않는 제공자입니다.');
+    }
+    return await this.prisma.user.create({
+      data: {
+        email: userInfo.email,
+        name: userInfo.name,
+        provider: mappedProvider,
+      },
+    });
+  }
+
+  async socialLogin(req, provider: string): Promise<string> {
+    if (!req.user) {
+      throw new UnauthorizedException('해당하는 유저가 존재하지 않습니다.');
+    }
+    const payload = {
+      user: req.user,
+    };
+    return this.jwtService.sign(payload);
+  }
+
+  async createUser(createUserDto: CreateUserDto) {
+    // 사용자 생성 로직 필요
+  }
+
+  async findAccount(findAccountDto: FindAccountDto) {
+    // 계정 찾기 로직 필요
   }
 }
