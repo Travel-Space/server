@@ -1,4 +1,12 @@
-import { IsEmail, IsJSON, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsJSON,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { CommonResponseDto } from 'src/common/dto';
 
 export class CreateUserDto {
@@ -7,6 +15,11 @@ export class CreateUserDto {
 
   @IsString()
   name: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(8)
+  nickName: string;
 
   @IsString()
   @MinLength(8)
@@ -22,13 +35,19 @@ export class CreateUserDto {
       message: '생년월일 양식에 맞게 작성하세요.',
     },
   )
-  birth: string;
+  birthDay: string;
 
   @IsString()
   @Matches(/^\d{3}\d{3,4}\d{4}$/, {
     message: '휴대폰번호 양식에 맞게 작성하세요.',
   })
   phone: string;
+
+  @IsString()
+  nationality: string;
+
+  @IsString()
+  verificationCode: string;
 }
 
 export class CreateUserResponse extends CommonResponseDto {

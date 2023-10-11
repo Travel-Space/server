@@ -1,26 +1,85 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto, SigninDto, FindAccountDto } from './dto';
+import { CreateUserDto, CreateUserResponse } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SocialProvider } from '@prisma/client';
+import { SocialProvider, User } from '@prisma/client';
+import * as argon from 'argon2';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
+  private transporter;
+
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
-  ) {}
-
-  async login(req, provider: string): Promise<string> {
-    if (!req.user) {
-      throw new UnauthorizedException(`No user from ${provider}`);
-    }
-    const user = await this.findOrCreateUser(req.user, provider);
-    const payload = { userId: user.id, userEmail: user.email };
-    return this.jwtService.sign(payload);
+    private verificationCodes: { [email: string]: string } = {},
+  ) {
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.naver.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'YOUR_NAVER_EMAIL@naver.com',
+        pass: 'YOUR_NAVER_EMAIL_PASSWORD',
+      },
+    });
   }
 
-  async findOrCreateUser(userInfo, provider: string) {
+  async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
+    try {
+      const hashedPassword: string = await argon.hash(createUserDto.password);
+      const newUser: User = await this.prisma.user.create({
+        data: {
+          ...createUserDto,
+          password: hashedPassword,
+          provider: SocialProvider.LOCAL,
+        },
+      });
+
+      return {
+        statusCode: 200,
+        message: '회원가입 성공',
+        user: { id: newUser.id.toString(), email: newUser.email },
+      };
+    } catch (error) {
+      throw new NotFoundException('회원가입 실패');
+    }
+  }
+
+  async login(req): Promise<{ access_token: string }> {
+    const { email, password } = req.body;
+
+    let user: User;
+    try {
+      user = await this.prisma.user.findUnique({
+        where: { email: email },
+      });
+    } catch (error) {
+      throw new BadRequestException('Invalid credentials.');
+    }
+
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    const isPasswordValid = await argon.verify(user.password, password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    const payload = { userId: user.id, userEmail: user.email };
+    const accessToken = this.jwtService.sign(payload);
+
+    return { access_token: accessToken };
+  }
+
+  async findOrCreateUser(userInfo): Promise<User> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: userInfo.email },
     });
@@ -28,46 +87,74 @@ export class AuthService {
     if (existingUser) {
       return existingUser;
     }
-
-    let mappedProvider: 'GOOGLE' | 'NAVER' | 'KAKAO' | 'LOCAL';
-
-    switch (provider.toUpperCase()) {
-      case 'LOCAL':
-        mappedProvider = SocialProvider.LOCAL;
-        break;
-      case 'GOOGLE':
-        mappedProvider = SocialProvider.GOOGLE;
-        break;
-      case 'KAKAO':
-        mappedProvider = SocialProvider.KAKAO;
-        break;
-      default:
-        throw new UnauthorizedException('지원하지 않는 제공자입니다.');
-    }
     return await this.prisma.user.create({
       data: {
         email: userInfo.email,
         name: userInfo.name,
-        provider: mappedProvider,
+        provider: SocialProvider.GOOGLE,
+        birthDay: '00000000',
+        nickName: 'UNKNOWN',
+        nationality: 'UNKNOWN',
+        password: '',
       },
     });
   }
 
-  async socialLogin(req, provider: string): Promise<string> {
+  async googleLogin(req): Promise<{ access_token: string }> {
     if (!req.user) {
       throw new UnauthorizedException('해당하는 유저가 존재하지 않습니다.');
     }
-    const payload = {
-      user: req.user,
-    };
-    return this.jwtService.sign(payload);
+    const user = req.user;
+    const payload = { userId: user.id, userEmail: user.email };
+    const accessToken = this.jwtService.sign(payload);
+
+    return { access_token: accessToken };
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    // 사용자 생성 로직 필요
+  async sendVerificationCode(email: string): Promise<void> {
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    this.verificationCodes[email] = verificationCode;
+
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+    await this.prisma.verificationCode.create({
+      data: {
+        email: email,
+        code: verificationCode,
+        expiresAt: expiresAt,
+      },
+    });
+    await this.transporter.sendMail({
+      from: 'YOUR_NAVER_EMAIL@naver.com',
+      to: email,
+      subject: 'Your Verification Code',
+      text: `Your verification code is: ${verificationCode}`,
+    });
   }
 
-  async findAccount(findAccountDto: FindAccountDto) {
-    // 계정 찾기 로직 필요
+  async verifyCode(email: string, code: string): Promise<boolean> {
+    if (
+      this.verificationCodes[email] &&
+      this.verificationCodes[email] === code
+    ) {
+      delete this.verificationCodes[email];
+      return true;
+    }
+    return false;
+  }
+  async isVerificationCodeValid(email: string, code: string): Promise<boolean> {
+    const storedCode = await this.prisma.verificationCode.findUnique({
+      where: { email: email },
+    });
+
+    if (!storedCode || storedCode.code !== code) {
+      return false;
+    }
+
+    await this.prisma.verificationCode.delete({ where: { email: email } });
+    return true;
   }
 }

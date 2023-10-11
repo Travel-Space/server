@@ -10,7 +10,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
-      signOptions: { expiresIn: '24h' },
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   providers: [AuthService, GoogleStrategy],

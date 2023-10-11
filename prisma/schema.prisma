@@ -10,10 +10,13 @@ datasource db {
 model User {
   id           Int               @id @default(autoincrement())
   name         String
-  age          Int?
+  birthDay     String
+  nickName     String
+  nationality  String
   email        String            @unique
   createdAt    DateTime          @default(now())
-  oauthId      String?           // 변경: providerId에서 oauthId로 이름 변경
+  oauthId      String?           
+  password     String
   provider     SocialProvider
   status       UserStatus        @default(ACTIVE)
   role         UserRole          @default(MEMBER)
@@ -181,7 +184,13 @@ model SpaceshipMember {
   user       User      @relation(fields: [userId], references: [id])
   joinedAt   DateTime  @default(now())
 }
-
+model VerificationCode {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  code         String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}
 
 enum SocialProvider {
   GOOGLE

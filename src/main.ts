@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('TravleSpace')
     .setDescription('The TravleSpace API description')
     .setVersion('0.1')
+    .addTag('auth')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

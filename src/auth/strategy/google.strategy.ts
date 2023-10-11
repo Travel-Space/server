@@ -21,7 +21,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       password,
       name: name.givenName,
       email: emails[0].value,
-      profileImg: photos,
       accessToken,
       refreshToken,
     };

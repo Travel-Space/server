@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "SocialProvider" AS ENUM ('GOOGLE', 'NAVER', 'KAKAO');
+CREATE TYPE "SocialProvider" AS ENUM ('GOOGLE', 'NAVER', 'KAKAO', 'LOCAL');
 
 -- CreateEnum
 CREATE TYPE "PlanetShape" AS ENUM ('SHAPE1', 'SHAPE2', 'SHAPE3');
@@ -20,14 +20,14 @@ CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'SUSPENDED');
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "age" INTEGER NOT NULL,
-    "userId" TEXT NOT NULL,
+    "age" INTEGER,
+    "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "providerId" TEXT NOT NULL,
-    "userRefreshToken" TEXT,
+    "oauthId" TEXT,
+    "provider" "SocialProvider" NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
     "role" "UserRole" NOT NULL DEFAULT 'MEMBER',
-    "provider" "SocialProvider" NOT NULL,
+    "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -40,6 +40,7 @@ CREATE TABLE "Article" (
     "published" BOOLEAN DEFAULT true,
     "authorId" INTEGER,
     "planetId" INTEGER,
+    "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "Article_pkey" PRIMARY KEY ("id")
 );
@@ -57,6 +58,7 @@ CREATE TABLE "Planet" (
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "shape" "PlanetShape",
     "hashtags" TEXT[],
+    "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "Planet_pkey" PRIMARY KEY ("id")
 );
@@ -142,6 +144,7 @@ CREATE TABLE "Report" (
     "targetId" INTEGER NOT NULL,
     "targetType" "ReportTargetType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "Report_pkey" PRIMARY KEY ("id")
 );
@@ -181,7 +184,7 @@ CREATE TABLE "SpaceshipMember" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_userId_key" ON "User"("userId");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Article" ADD CONSTRAINT "Article_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
