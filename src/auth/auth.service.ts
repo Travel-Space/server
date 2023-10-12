@@ -14,19 +14,18 @@ import * as nodemailer from 'nodemailer';
 @Injectable()
 export class AuthService {
   private transporter;
-
+  private verificationCodes: { [email: string]: string } = {};
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
-    private verificationCodes: { [email: string]: string } = {},
   ) {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.naver.com',
       port: 587,
       secure: false,
       auth: {
-        user: 'YOUR_NAVER_EMAIL@naver.com',
-        pass: 'YOUR_NAVER_EMAIL_PASSWORD',
+        user: process.env.NAVER_EMAIL,
+        pass: process.env.NAVER_EMAIL_PASSWORD,
       },
     });
   }
@@ -128,7 +127,7 @@ export class AuthService {
       },
     });
     await this.transporter.sendMail({
-      from: 'YOUR_NAVER_EMAIL@naver.com',
+      from: process.env.NAVER_EMAIL,
       to: email,
       subject: 'Your Verification Code',
       text: `Your verification code is: ${verificationCode}`,
