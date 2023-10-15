@@ -10,9 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SocialProvider, User } from '@prisma/client';
 import * as argon from 'argon2';
 import * as nodemailer from 'nodemailer';
-import * as dotenv from 'dotenv';
 
-dotenv.config();
 @Injectable()
 export class AuthService {
   private transporter;

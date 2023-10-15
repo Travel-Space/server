@@ -13,13 +13,17 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { CreateUserDto, CreateUserResponse } from './dto';
+import {
+  CreateUserDto,
+  CreateUserResponse,
+  EmailDto,
+  VerifyCodeDto,
+  LoginDto,
+} from './dto';
 import { SocialProvider } from '@prisma/client';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
-import { VerifyCodeDto } from './dto/verify-code.dto';
-import { EmailDto } from './dto/email.dto';
 
 @ApiTags('auth API')
 @Controller('auth')
@@ -47,6 +51,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiBody({ type: LoginDto })
   @ApiOperation({
     summary: '일반 로그인 API',
     description: '이메일과 비밀번호로 로그인한다.',
