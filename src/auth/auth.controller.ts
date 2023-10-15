@@ -17,6 +17,8 @@ import { SocialProvider } from '@prisma/client';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { VerifyCodeDto } from './dto/verify-code.dto';
+import { EmailDto } from './dto/email.dto';
 
 @ApiTags('auth API')
 @Controller('auth')
@@ -38,8 +40,7 @@ export class AuthController {
   async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateUserResponse> {
-    // authService의 isVerificationCodeValid 메서드를 호출
-    const isValid = await this.authService.isVerificationCodeValid(
+    const isValid = await this.authService.verifyCode(
       createUserDto.email,
       createUserDto.verificationCode,
     );
@@ -47,9 +48,9 @@ export class AuthController {
     if (!isValid) {
       throw new UnauthorizedException('Invalid verification code');
     }
-
     return this.authService.register(createUserDto);
   }
+
   @Post('login')
   @ApiOperation({
     summary: '일반 로그인 API',
@@ -99,20 +100,26 @@ export class AuthController {
     return { success: true };
   }
 
+  @ApiOperation({
+    summary: '회원가입 검증 코드 전송 API',
+    description: '유저의 이메일로 검증 코드를 전송한다.',
+  })
+  @ApiBody({ type: EmailDto })
   @Post('send-verification-code')
   async sendVerificationCode(@Body('email') email: string) {
     await this.authService.sendVerificationCode(email);
     return { success: true };
   }
 
+  @ApiBody({ type: VerifyCodeDto })
   @Post('verify-code')
-  async verifyCode(@Body() verifyDto: { email: string; code: string }) {
+  async verifyCode(@Body() verifyDto: VerifyCodeDto) {
     const isVerified = await this.authService.verifyCode(
       verifyDto.email,
       verifyDto.code,
     );
     if (!isVerified) {
-      throw new UnauthorizedException('Invalid verification code');
+      throw new UnauthorizedException('유효하지 않은 인증코드입니다.');
     }
     return { success: true };
   }

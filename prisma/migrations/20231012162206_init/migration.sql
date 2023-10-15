@@ -20,10 +20,13 @@ CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'SUSPENDED');
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "age" INTEGER,
+    "birthDay" TEXT NOT NULL,
+    "nickName" TEXT NOT NULL,
+    "nationality" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "oauthId" TEXT,
+    "password" TEXT NOT NULL,
     "provider" "SocialProvider" NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
     "role" "UserRole" NOT NULL DEFAULT 'MEMBER',
@@ -183,8 +186,22 @@ CREATE TABLE "SpaceshipMember" (
     CONSTRAINT "SpaceshipMember_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "VerificationCode" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "VerificationCode_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "VerificationCode_email_key" ON "VerificationCode"("email");
 
 -- AddForeignKey
 ALTER TABLE "Article" ADD CONSTRAINT "Article_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

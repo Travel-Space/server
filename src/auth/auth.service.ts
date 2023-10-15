@@ -10,7 +10,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SocialProvider, User } from '@prisma/client';
 import * as argon from 'argon2';
 import * as nodemailer from 'nodemailer';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 @Injectable()
 export class AuthService {
   private transporter;
@@ -20,12 +22,16 @@ export class AuthService {
     private prisma: PrismaService,
   ) {
     this.transporter = nodemailer.createTransport({
+      service: 'naver',
       host: 'smtp.naver.com',
       port: 587,
       secure: false,
       auth: {
         user: process.env.NAVER_EMAIL,
-        pass: process.env.NAVER_EMAIL_PASSWORD,
+        pass: process.env.NAVER_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
       },
     });
   }
@@ -60,16 +66,16 @@ export class AuthService {
         where: { email: email },
       });
     } catch (error) {
-      throw new BadRequestException('Invalid credentials.');
+      throw new BadRequestException('유효하지 않은 크레덴셜입니다.');
     }
 
     if (!user) {
-      throw new NotFoundException('User not found.');
+      throw new NotFoundException('해당하는 유저를 찾을 수 없습니다.');
     }
 
     const isPasswordValid = await argon.verify(user.password, password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials.');
+      throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
     }
 
     const payload = { userId: user.id, userEmail: user.email };
@@ -111,6 +117,14 @@ export class AuthService {
   }
 
   async sendVerificationCode(email: string): Promise<void> {
+    const existingCode = await this.prisma.verificationCode.findUnique({
+      where: { email: email },
+    });
+
+    if (existingCode) {
+      await this.prisma.verificationCode.delete({ where: { email: email } });
+    }
+
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
@@ -126,11 +140,20 @@ export class AuthService {
         expiresAt: expiresAt,
       },
     });
-    await this.transporter.sendMail({
+
+    const mailOptions = {
       from: process.env.NAVER_EMAIL,
       to: email,
-      subject: 'Your Verification Code',
-      text: `Your verification code is: ${verificationCode}`,
+      subject: '[TravelSpace] 회원가입 인증코드입니다',
+      text: `회원가입 인증코드: ${verificationCode}`,
+    };
+
+    this.transporter.sendMail(mailOptions, function (err, info) {
+      if (err) {
+        throw new UnauthorizedException('인증코드 전송이 실패했습니다.');
+      } else {
+        this.transporter.close();
+      }
     });
   }
 
@@ -143,17 +166,5 @@ export class AuthService {
       return true;
     }
     return false;
-  }
-  async isVerificationCodeValid(email: string, code: string): Promise<boolean> {
-    const storedCode = await this.prisma.verificationCode.findUnique({
-      where: { email: email },
-    });
-
-    if (!storedCode || storedCode.code !== code) {
-      return false;
-    }
-
-    await this.prisma.verificationCode.delete({ where: { email: email } });
-    return true;
   }
 }
