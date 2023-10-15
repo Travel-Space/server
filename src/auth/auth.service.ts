@@ -35,13 +35,23 @@ export class AuthService {
       },
     });
   }
-
   async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     try {
-      const hashedPassword: string = await argon.hash(createUserDto.password);
+      const isValid = await this.verifyCode(
+        createUserDto.email,
+        createUserDto.verificationCode,
+      );
+
+      if (!isValid) {
+        throw new UnauthorizedException('Invalid verification code');
+      }
+
+      const { verificationCode, ...userData } = createUserDto;
+      const hashedPassword: string = await argon.hash(userData.password);
+
       const newUser: User = await this.prisma.user.create({
         data: {
-          ...createUserDto,
+          ...userData,
           password: hashedPassword,
           provider: SocialProvider.LOCAL,
         },
@@ -53,6 +63,7 @@ export class AuthService {
         user: { id: newUser.id.toString(), email: newUser.email },
       };
     } catch (error) {
+      console.log(error);
       throw new NotFoundException('회원가입 실패');
     }
   }
@@ -158,13 +169,20 @@ export class AuthService {
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {
-    if (
-      this.verificationCodes[email] &&
-      this.verificationCodes[email] === code
-    ) {
-      delete this.verificationCodes[email];
+    const storedCode = await this.prisma.verificationCode.findUnique({
+      where: { email },
+    });
+
+    if (storedCode && storedCode.code === code) {
+      await this.deleteVerificationCode(email);
       return true;
     }
     return false;
+  }
+
+  async deleteVerificationCode(email: string): Promise<void> {
+    await this.prisma.verificationCode.delete({
+      where: { email },
+    });
   }
 }

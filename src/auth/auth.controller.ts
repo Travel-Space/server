@@ -8,6 +8,7 @@ import {
   HttpCode,
   Delete,
   Get,
+  Logger,
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -40,15 +41,9 @@ export class AuthController {
   async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateUserResponse> {
-    const isValid = await this.authService.verifyCode(
-      createUserDto.email,
-      createUserDto.verificationCode,
-    );
+    const response = await this.authService.register(createUserDto);
 
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid verification code');
-    }
-    return this.authService.register(createUserDto);
+    return response;
   }
 
   @Post('login')
