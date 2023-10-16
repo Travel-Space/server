@@ -36,9 +36,18 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const userId = req.user.id;
+    const planetId = createArticleDto.planetId;
+
+    if (!(await this.articlesService.isUserToPlanet(userId, planetId))) {
+      return res
+        .status(403)
+        .json({ message: '사용자는 해당 행성의 멤버가 아닙니다.' });
+    }
+
     const article = await this.articlesService.createArticle(
       createArticleDto,
-      req.user.id,
+      userId,
     );
     return res.status(201).json(article);
   }

@@ -21,4 +21,16 @@ export class ArticlesService {
       data,
     });
   }
+
+  async isUserToPlanet(userId: number, planetId: number): Promise<boolean> {
+    const membership = await this.prisma.planetMembership.findUnique({
+      where: {
+        planetId_userId: {
+          userId: userId,
+          planetId: planetId,
+        },
+      },
+    });
+    return !!membership;
+  }
 }
