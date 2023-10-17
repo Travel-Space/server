@@ -16,6 +16,9 @@ CREATE TYPE "UserRole" AS ENUM ('MEMBER', 'ADMIN');
 -- CreateEnum
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'SUSPENDED');
 
+-- CreateEnum
+CREATE TYPE "MembershipStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
@@ -55,8 +58,6 @@ CREATE TABLE "Planet" (
     "description" TEXT,
     "ownerId" INTEGER NOT NULL,
     "memberLimit" INTEGER,
-    "latitude" DOUBLE PRECISION,
-    "longitude" DOUBLE PRECISION,
     "published" BOOLEAN DEFAULT true,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "shape" "PlanetShape",
@@ -71,6 +72,7 @@ CREATE TABLE "PlanetMembership" (
     "planetId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "administrator" BOOLEAN NOT NULL DEFAULT false,
+    "status" "MembershipStatus" NOT NULL DEFAULT 'PENDING',
 
     CONSTRAINT "PlanetMembership_pkey" PRIMARY KEY ("planetId","userId")
 );
