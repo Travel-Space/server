@@ -1,14 +1,25 @@
-import { Body, Controller, Param, Post, Request, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Request,
+  Put,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { PlanetService } from './planet.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('planet')
 export class PlanetController {
   constructor(private readonly planetService: PlanetService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async createPlanet(@Body() data: CreatePlanetDto) {
-    return this.planetService.createPlanet(data);
+  async createPlanet(@Body() dto: CreatePlanetDto, @Req() req: any) {
+    return await this.planetService.createPlanet(dto, req.user.userId);
   }
 
   @Put(':planetId')

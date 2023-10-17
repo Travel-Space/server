@@ -10,9 +10,12 @@ import { CreatePlanetDto } from './dto/create-planet.dto';
 export class PlanetService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createPlanet(data: CreatePlanetDto) {
-    return this.prisma.planet.create({
-      data,
+  async createPlanet(dto: CreatePlanetDto, userId: number) {
+    return await this.prisma.planet.create({
+      data: {
+        ...dto,
+        ownerId: userId,
+      },
     });
   }
 
