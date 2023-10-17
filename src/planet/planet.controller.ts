@@ -1,9 +1,24 @@
-import { Controller, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Param, Post, Request, Put } from '@nestjs/common';
 import { PlanetService } from './planet.service';
+import { CreatePlanetDto } from './dto/create-planet.dto';
 
 @Controller('planet')
 export class PlanetController {
   constructor(private readonly planetService: PlanetService) {}
+
+  @Post()
+  async createPlanet(@Body() data: CreatePlanetDto) {
+    return this.planetService.createPlanet(data);
+  }
+
+  @Put(':planetId')
+  async updatePlanet(
+    @Param('planetId') planetId: number,
+    @Body('ownerId') ownerId: number,
+    @Body() data: CreatePlanetDto,
+  ) {
+    return this.planetService.updatePlanet(planetId, ownerId, data);
+  }
 
   @Post('join/:planetId')
   async joinPlanet(

@@ -58,8 +58,8 @@ model Planet {
   owner        User              @relation(fields: [ownerId], references:[id])
   ownerId      Int
   memberLimit  Int?
-  latitude     Float?
-  longitude    Float?
+  // latitude     Float?
+  // longitude    Float?
   published    Boolean?          @default(true)
   isActive     Boolean           @default(true)
   shape        PlanetShape?

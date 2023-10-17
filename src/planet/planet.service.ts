@@ -1,9 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreatePlanetDto } from './dto/create-planet.dto';
 
 @Injectable()
 export class PlanetService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async createPlanet(data: CreatePlanetDto) {
+    return this.prisma.planet.create({
+      data,
+    });
+  }
+
+  async updatePlanet(
+    planetId: number,
+    ownerId: number,
+    data: Partial<CreatePlanetDto>,
+  ) {
+    const planet = await this.prisma.planet.findUnique({
+      where: { id: planetId },
+    });
+
+    if (!planet) {
+      throw new NotFoundException('행성을 찾을 수 없습니다.');
+    }
+    if (planet.ownerId !== ownerId) {
+      throw new ForbiddenException('행성 주인만 업데이트 할 수 있습니다.');
+    }
+
+    return this.prisma.planet.update({
+      where: { id: planetId },
+      data,
+    });
+  }
+
+  async deletePlanet(planetId: number, ownerId: number) {
+    const planet = await this.prisma.planet.findUnique({
+      where: { id: planetId },
+    });
+
+    if (!planet) {
+      throw new NotFoundException('행성을 찾을 수 없습니다.');
+    }
+    if (planet.ownerId !== ownerId) {
+      throw new ForbiddenException('행성 주인만 업데이트 할 수 있습니다.');
+    }
+
+    return this.prisma.planet.delete({
+      where: { id: planetId },
+    });
+  }
 
   async joinPlanet(userId: number, planetId: number): Promise<boolean> {
     const existingMembership = await this.prisma.planetMembership.findUnique({
