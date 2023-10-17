@@ -7,10 +7,16 @@ import {
   Param,
   UseGuards,
   Res,
+  Delete,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
-import { CreateArticleDto, UpdateArticleDto } from './dto';
+import {
+  CreateArticleDto,
+  CreateCommentDto,
+  UpdateArticleDto,
+  UpdateCommentDto,
+} from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
@@ -67,12 +73,75 @@ export class ArticlesController {
   async updateArticle(
     @Param('id') id: number,
     @Body() updateArticleDto: UpdateArticleDto,
+    @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const userId = req.user.id;
     const updatedArticle = await this.articlesService.updateArticle(
       id,
       updateArticleDto,
+      userId,
     );
     return res.json(updatedArticle);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  @ApiOperation({
+    summary: '게시글 삭제 API',
+    description: '게시글을 삭제합니다.',
+  })
+  async deleteArticle(
+    @Param('id') id: number,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = req.user.id;
+    await this.articlesService.deleteArticle(id, userId);
+    return res.status(204).send();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':articleId/comments')
+  @ApiOperation({
+    summary: '댓글 작성 API',
+    description: '게시글에 댓글 혹은 대댓글을 작성합니다.',
+  })
+  @ApiBody({ type: CreateCommentDto })
+  async createComment(
+    @Param('articleId') articleId: number,
+    @Body() createCommentDto: CreateCommentDto,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = req.user.id;
+    const comment = await this.articlesService.createComment(
+      createCommentDto,
+      userId,
+      articleId,
+    );
+    return res.status(201).json(comment);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('comments/:commentId')
+  @ApiOperation({
+    summary: '댓글 수정 API',
+    description: '게시글의 댓글 내용을 수정합니다.',
+  })
+  @ApiBody({ type: UpdateCommentDto })
+  async updateComment(
+    @Param('commentId') commentId: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = req.user.id;
+    const updatedComment = await this.articlesService.updateComment(
+      commentId,
+      updateCommentDto,
+      userId,
+    );
+    return res.json(updatedComment);
   }
 }
