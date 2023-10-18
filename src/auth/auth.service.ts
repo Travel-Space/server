@@ -33,6 +33,7 @@ export class AuthService {
       },
     });
   }
+
   async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     try {
       const isValid = await this.verifyCode(

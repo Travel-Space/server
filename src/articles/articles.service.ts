@@ -16,6 +16,18 @@ import {
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
+  async getAllArticles() {
+    return await this.prisma.article.findMany();
+  }
+
+  async getArticlesByPlanetId(planetId: number) {
+    return await this.prisma.article.findMany({
+      where: {
+        planetId: planetId,
+      },
+    });
+  }
+
   async createArticle(data: CreateArticleDto, userId: number) {
     return this.prisma.article.create({
       data: {

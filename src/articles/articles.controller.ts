@@ -8,6 +8,10 @@ import {
   UseGuards,
   Res,
   Delete,
+  Get,
+  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
@@ -16,6 +20,7 @@ import {
   CreateCommentDto,
   UpdateArticleDto,
   UpdateCommentDto,
+  FindArticlesByPlanetDto,
 } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
@@ -24,6 +29,40 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 @Controller('articles')
 export class ArticlesController {
   constructor(private articlesService: ArticlesService) {}
+
+  @ApiOperation({
+    summary: '모든 게시글 조회 API',
+    description: '모든 게시글을 불러온다',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '게시글을 모두 불러왔습니다.',
+    type: String,
+  })
+  @Get()
+  async getAllArticles() {
+    return this.articlesService.getAllArticles();
+  }
+
+  @ApiOperation({
+    summary: '행성의 게시글 조회 API',
+    description: '행성의 모든 게시글을 불러온다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '행성의 게시글을 모두 불러왔습니다.',
+    type: String,
+  })
+  @ApiBody({ type: FindArticlesByPlanetDto })
+  @Get('byPlanet')
+  @UsePipes(ValidationPipe)
+  async getArticlesByPlanet(
+    @Query() findArticlesByPlanetDto: FindArticlesByPlanetDto,
+  ) {
+    return this.articlesService.getArticlesByPlanetId(
+      findArticlesByPlanetDto.planetId,
+    );
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()

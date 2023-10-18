@@ -28,6 +28,19 @@ import {
 export class PlanetController {
   constructor(private readonly planetService: PlanetService) {}
 
+  @Get()
+  @ApiOperation({
+    summary: '모든 행성 조회 API',
+    description: '모든 행성을 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '행성 생성 성공',
+  })
+  async getAllPlanet() {
+    return await this.planetService.getAllPlanet();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({
