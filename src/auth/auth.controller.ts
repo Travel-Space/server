@@ -20,6 +20,7 @@ import {
   EmailDto,
   VerifyCodeDto,
   LoginDto,
+  ChangePasswordDto,
 } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
@@ -160,11 +161,11 @@ export class AuthController {
     return { success: true };
   }
 
+  @ApiBody({ type: EmailDto })
   @ApiOperation({
     summary: '비밀번호 변경 요청 API',
     description: '비밀번호 변경을 위한 인증 코드 요청을 보낸다.',
   })
-  @ApiBody({ type: EmailDto })
   @ApiResponse({
     status: 200,
     description: '인증코드 전송 성공',
@@ -180,12 +181,12 @@ export class AuthController {
     summary: '비밀번호 변경 인증 코드 검증 API',
     description: '비밀번호 변경을 위한 인증 코드를 검증한다.',
   })
-  @ApiBody({ type: EmailDto })
   @ApiResponse({
     status: 200,
     description: '인증코드 검증 성공',
     type: String,
   })
+  @ApiBody({ type: VerifyCodeDto })
   @Post('passwordChange/verify')
   async verifyChangeCode(@Body() verifyDto: VerifyCodeDto) {
     const isVerified = await this.authService.verifyCode(
@@ -205,22 +206,19 @@ export class AuthController {
     summary: '비밀번호 변경 API',
     description: '비밀번호를 변경한다.',
   })
-  @ApiBody({ type: EmailDto })
   @ApiResponse({
     status: 200,
     description: '비밀번호 변경 성공',
     type: String,
   })
+  @ApiBody({ type: ChangePasswordDto })
   @Post('passwordChange')
-  async changePassword(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('confirmPassword') confirmPassword: string,
-  ) {
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    const { email, password, confirmPassword } = changePasswordDto;
+
     if (password !== confirmPassword) {
       throw new BadRequestException('입력된 비밀번호가 일치하지 않습니다.');
     }
-
     const hashedPassword = await argon2.hash(password);
     await this.prismaService.user.update({
       where: { email },
