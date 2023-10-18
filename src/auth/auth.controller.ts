@@ -214,10 +214,10 @@ export class AuthController {
   @ApiBody({ type: ChangePasswordDto })
   @Post('passwordChange')
   async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
-    const { email, password, confirmPassword } = changePasswordDto;
+    const { email, password } = changePasswordDto;
 
-    if (password !== confirmPassword) {
-      throw new BadRequestException('입력된 비밀번호가 일치하지 않습니다.');
+    if (!password) {
+      throw new BadRequestException('유효하지 않은 비밀번호입니다.');
     }
     const hashedPassword = await argon2.hash(password);
     await this.prismaService.user.update({

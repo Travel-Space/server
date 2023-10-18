@@ -10,9 +10,4 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(6, { message: '비밀번호는 최소 6자 이상이어야 합니다.' })
   password: string;
-
-  @ApiProperty({ description: '비밀번호 일치 확인' })
-  @IsString()
-  @Equals('password', { message: '비밀번호가 일치하지 않습니다.' })
-  confirmPassword: string;
 }

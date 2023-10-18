@@ -107,7 +107,6 @@ export class AuthService {
         email: userInfo.email,
         name: userInfo.name,
         provider: SocialProvider.GOOGLE,
-        birthDay: '00000000',
         nickName: 'UNKNOWN',
         nationality: 'UNKNOWN',
         password: '',

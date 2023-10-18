@@ -36,16 +36,6 @@ export class CreateUserDto {
   })
   password: string;
 
-  @ApiProperty({ description: '유저 생년월일', example: '20000619' })
-  @IsString()
-  @Matches(
-    /^(19[0-9][0-9]|20\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/,
-    {
-      message: '생년월일 양식에 맞게 작성하세요.',
-    },
-  )
-  birthDay: string;
-
   @ApiProperty({ description: '유저 국적', example: '대한민국' })
   @IsString()
   nationality: string;
