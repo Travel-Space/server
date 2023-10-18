@@ -35,7 +35,7 @@ export class PlanetController {
   })
   @ApiResponse({
     status: 201,
-    description: '행성 생성 성공',
+    description: '모든 행성을 불러왔습니다.',
   })
   async getAllPlanet() {
     return await this.planetService.getAllPlanet();
