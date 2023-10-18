@@ -10,6 +10,7 @@ import {
   Get,
   Logger,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -20,15 +21,19 @@ import {
   VerifyCodeDto,
   LoginDto,
 } from './dto';
-import { SocialProvider } from '@prisma/client';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import * as argon2 from 'argon2';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @ApiTags('auth API')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   @HttpCode(201)
   @Post('register')
@@ -124,10 +129,23 @@ export class AuthController {
     return { success: true };
   }
 
+  @ApiOperation({
+    summary: 'Google API',
+    description: 'Google 인증을 시작하는 엔드포인트',
+  })
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleAuth(@Req() req) {}
 
+  @ApiOperation({
+    summary: 'Google Auth Callback',
+    description: 'Google 로그인 후 콜백 처리를 위한 엔드포인트',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Google 로그인 후 콜백 처리 성공',
+    type: String,
+  })
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(
@@ -140,5 +158,75 @@ export class AuthController {
       maxAge: 3600000,
     });
     return { success: true };
+  }
+
+  @ApiOperation({
+    summary: '비밀번호 변경 요청 API',
+    description: '비밀번호 변경을 위한 인증 코드 요청을 보낸다.',
+  })
+  @ApiBody({ type: EmailDto })
+  @ApiResponse({
+    status: 200,
+    description: '인증코드 전송 성공',
+    type: String,
+  })
+  @Post('password-change/request')
+  async requestPasswordChange(@Body('email') email: string) {
+    await this.authService.sendVerificationCode(email);
+    return { success: true, message: '인증코드가 전송되었습니다.' };
+  }
+
+  @ApiOperation({
+    summary: '비밀번호 변경 인증 코드 검증 API',
+    description: '비밀번호 변경을 위한 인증 코드를 검증한다.',
+  })
+  @ApiBody({ type: EmailDto })
+  @ApiResponse({
+    status: 200,
+    description: '인증코드 검증 성공',
+    type: String,
+  })
+  @Post('passwordChange/verify')
+  async verifyChangeCode(@Body() verifyDto: VerifyCodeDto) {
+    const isVerified = await this.authService.verifyCode(
+      verifyDto.email,
+      verifyDto.code,
+    );
+    if (!isVerified) {
+      throw new UnauthorizedException('유효하지 않은 인증코드입니다.');
+    }
+    return {
+      success: true,
+      message: '인증에 성공했습니다. 비밀번호를 재설정하세요.',
+    };
+  }
+
+  @ApiOperation({
+    summary: '비밀번호 변경 API',
+    description: '비밀번호를 변경한다.',
+  })
+  @ApiBody({ type: EmailDto })
+  @ApiResponse({
+    status: 200,
+    description: '비밀번호 변경 성공',
+    type: String,
+  })
+  @Post('passwordChange')
+  async changePassword(
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Body('confirmPassword') confirmPassword: string,
+  ) {
+    if (password !== confirmPassword) {
+      throw new BadRequestException('입력된 비밀번호가 일치하지 않습니다.');
+    }
+
+    const hashedPassword = await argon2.hash(password);
+    await this.prismaService.user.update({
+      where: { email },
+      data: { password: hashedPassword },
+    });
+
+    return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' };
   }
 }

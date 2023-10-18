@@ -78,6 +78,7 @@ export class ArticlesService {
           '부모 댓글의 게시글 ID와 일치하지 않습니다.',
         );
     }
+
     return this.prisma.comment.create({
       data: {
         ...data,
