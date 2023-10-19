@@ -88,6 +88,8 @@ export class AuthController {
     type: String,
   })
   async googleLogin(@Req() req: any): Promise<{ access_token: string }> {
+    console.log('JWT Secret Key:', process.env.JWT_SECRET_KEY);
+
     return this.authService.googleLogin(req);
   }
 

@@ -9,7 +9,14 @@ import { UserModule } from './user/user.module';
 import { SpaceshipModule } from './spaceship/spaceship.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ArticlesModule, PlanetModule, UserModule, SpaceshipModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    ArticlesModule,
+    PlanetModule,
+    UserModule,
+    SpaceshipModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
