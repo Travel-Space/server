@@ -51,8 +51,15 @@ export class AuthController {
   async register(
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateUserResponse> {
-    const response = await this.authService.register(createUserDto);
+    const isEmailVerified = await this.authService.isEmailVerified(
+      createUserDto.email,
+    );
 
+    if (!isEmailVerified) {
+      throw new UnauthorizedException('이메일이 인증되지 않았습니다.');
+    }
+
+    const response = await this.authService.register(createUserDto);
     return response;
   }
 

@@ -35,19 +35,14 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
+    const { password, ...userData } = createUserDto;
+
+    if (!(await this.isEmailVerified(userData.email))) {
+      throw new UnauthorizedException('이메일이 인증되지 않았습니다.');
+    }
+
     try {
-      const isValid = await this.verifyCode(
-        createUserDto.email,
-        createUserDto.verificationCode,
-      );
-
-      if (!isValid) {
-        throw new UnauthorizedException('Invalid verification code');
-      }
-
-      const { verificationCode, ...userData } = createUserDto;
-      const hashedPassword: string = await argon.hash(userData.password);
-
+      const hashedPassword: string = await argon.hash(password);
       const newUser: User = await this.prisma.user.create({
         data: {
           ...userData,
@@ -56,6 +51,8 @@ export class AuthService {
         },
       });
 
+      await this.deleteVerificationCode(userData.email);
+
       return {
         statusCode: 200,
         message: '회원가입 성공',
@@ -63,7 +60,7 @@ export class AuthService {
       };
     } catch (error) {
       console.log(error);
-      throw new NotFoundException('회원가입 실패');
+      throw new BadRequestException('회원가입 실패');
     }
   }
 
@@ -137,7 +134,6 @@ export class AuthService {
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
-    this.verificationCodes[email] = verificationCode;
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
@@ -147,6 +143,7 @@ export class AuthService {
         email: email,
         code: verificationCode,
         expiresAt: expiresAt,
+        isVerified: false,
       },
     });
 
@@ -165,17 +162,25 @@ export class AuthService {
       }
     });
   }
-
   async verifyCode(email: string, code: string): Promise<boolean> {
     const storedCode = await this.prisma.verificationCode.findUnique({
       where: { email },
     });
 
     if (storedCode && storedCode.code === code) {
-      await this.deleteVerificationCode(email);
+      await this.prisma.verificationCode.update({
+        where: { email },
+        data: { isVerified: true },
+      });
       return true;
     }
     return false;
+  }
+  async isEmailVerified(email: string): Promise<boolean> {
+    const verificationRecord = await this.prisma.verificationCode.findUnique({
+      where: { email },
+    });
+    return verificationRecord && verificationRecord.isVerified;
   }
 
   async deleteVerificationCode(email: string): Promise<void> {

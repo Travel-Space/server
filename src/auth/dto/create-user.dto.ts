@@ -39,10 +39,6 @@ export class CreateUserDto {
   @ApiProperty({ description: '유저 국적', example: '대한민국' })
   @IsString()
   nationality: string;
-
-  @ApiProperty({ description: '유저 검증 코드', example: '쏼라쏼라' })
-  @IsString()
-  verificationCode: string;
 }
 
 export class CreateUserResponse extends CommonResponseDto {
