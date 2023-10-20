@@ -17,11 +17,6 @@ export class CreatePlanetDto {
   @IsBoolean()
   published?: boolean;
 
-  @ApiProperty({ description: '행성 주인 ID' })
-  @IsOptional()
-  @IsInt()
-  ownerId: number;
-
   @ApiProperty({ description: '행성 모양' })
   @IsOptional()
   @IsString()

@@ -13,12 +13,13 @@ export class PlanetService {
   async getAllPlanet() {
     return await this.prisma.planet.findMany();
   }
-
   async createPlanet(dto: CreatePlanetDto, userId: number) {
     return await this.prisma.planet.create({
       data: {
         ...dto,
-        ownerId: userId,
+        owner: {
+          connect: { id: userId },
+        },
       },
     });
   }
