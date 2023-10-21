@@ -86,7 +86,7 @@ export class PlanetService {
       where: {
         planetId_userId: {
           userId: userId,
-          planetId: planetId,
+          planetId: Number(planetId),
         },
       },
     });
