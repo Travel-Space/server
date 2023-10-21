@@ -10,6 +10,7 @@ import {
   Get,
   Delete,
   ForbiddenException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PlanetService } from './planet.service';
 import { CreatePlanetDto, UpdateMemberRoleDto, UpdatePlanetDto } from './dto';
@@ -86,7 +87,7 @@ export class PlanetController {
   @ApiParam({ name: 'planetId', description: '행성의 고유 ID' })
   async joinPlanet(
     @Req() req: any,
-    @Param('planetId') planetId: number,
+    @Param('planetId', ParseIntPipe) planetId: number,
   ): Promise<any> {
     const userId = req.user.userId;
     const result = await this.planetService.joinPlanet(userId, planetId);
