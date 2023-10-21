@@ -22,7 +22,13 @@ import {
   UpdateCommentDto,
   FindArticlesByPlanetDto,
 } from './dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('게시글 API')
@@ -53,15 +59,16 @@ export class ArticlesController {
     description: '행성의 게시글을 모두 불러왔습니다.',
     type: String,
   })
-  @ApiBody({ type: FindArticlesByPlanetDto })
+  @ApiQuery({
+    name: 'planetId',
+    required: true,
+    type: Number,
+    description: '조회하려는 행성의 ID',
+  })
   @Get('byPlanet')
   @UsePipes(ValidationPipe)
-  async getArticlesByPlanet(
-    @Query() findArticlesByPlanetDto: FindArticlesByPlanetDto,
-  ) {
-    return this.articlesService.getArticlesByPlanetId(
-      findArticlesByPlanetDto.planetId,
-    );
+  async getArticlesByPlanet(@Query('planetId') planetId: number) {
+    return this.articlesService.getArticlesByPlanetId(planetId);
   }
 
   @UseGuards(JwtAuthGuard)

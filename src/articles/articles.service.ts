@@ -29,12 +29,17 @@ export class ArticlesService {
   }
 
   async createArticle(data: CreateArticleDto, userId: number) {
-    return this.prisma.article.create({
-      data: {
-        ...data,
-        authorId: userId,
-      },
-    });
+    try {
+      return await this.prisma.article.create({
+        data: {
+          ...data,
+          authorId: userId,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException('게시글 생성 중 오류가 발생했습니다.');
+    }
   }
 
   async isUserToPlanet(userId: number, planetId: number): Promise<boolean> {
