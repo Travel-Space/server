@@ -81,7 +81,7 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const planetId = createArticleDto.planetId;
 
     if (!(await this.articlesService.isUserToPlanet(userId, planetId))) {
@@ -115,7 +115,7 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const updatedArticle = await this.articlesService.updateArticle(
       id,
       updateArticleDto,
@@ -135,7 +135,7 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     await this.articlesService.deleteArticle(id, userId);
     return res.status(204).send();
   }
@@ -153,7 +153,7 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const comment = await this.articlesService.createComment(
       createCommentDto,
       userId,
@@ -175,7 +175,7 @@ export class ArticlesController {
     @Req() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const updatedComment = await this.articlesService.updateComment(
       commentId,
       updateCommentDto,
