@@ -47,6 +47,7 @@ model Article {
   planetId Int?
   likes    Like[] @relation("LikeToArticle")
   comments Comment[]
+  createdAt DateTime @default(now()) @map("created_at")
   deletedAt DateTime? @map("deleted_at") // 추가: soft delete 구현
 }
 

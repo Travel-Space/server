@@ -190,4 +190,10 @@ export class ArticlesController {
     );
     return res.json(updatedComment);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-articles')
+  async getUserArticles(@Req() req: any) {
+    return this.articlesService.getArticlesByAuthor(req.user.userId);
+  }
 }

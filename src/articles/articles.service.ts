@@ -17,13 +17,26 @@ export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   async getAllArticles() {
-    return await this.prisma.article.findMany();
+    return await this.prisma.article.findMany({
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+      },
+    });
   }
 
   async getArticlesByPlanetId(planetId: number) {
     return await this.prisma.article.findMany({
       where: {
         planetId: planetId,
+      },
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
       },
     });
   }
@@ -124,5 +137,19 @@ export class ArticlesService {
       throw new ForbiddenException('권한이 없습니다.');
 
     return this.prisma.comment.delete({ where: { id } });
+  }
+
+  async getArticlesByAuthor(userId: number) {
+    return await this.prisma.article.findMany({
+      where: {
+        authorId: userId,
+      },
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+      },
+    });
   }
 }
