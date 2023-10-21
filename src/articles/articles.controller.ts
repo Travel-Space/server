@@ -193,6 +193,15 @@ export class ArticlesController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my-articles')
+  @ApiOperation({
+    summary: '내 게시글 조회 API',
+    description: '로그인한 사용자의 게시글을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '내 게시글을 모두 불러왔습니다.',
+    type: String,
+  })
   async getUserArticles(@Req() req: any) {
     return this.articlesService.getArticlesByAuthor(req.user.userId);
   }
