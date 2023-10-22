@@ -12,6 +12,7 @@ import {
   UseGuards,
   BadRequestException,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -22,12 +23,15 @@ import {
   VerifyCodeDto,
   LoginDto,
   ChangePasswordDto,
+  UpdateUserDto,
 } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import * as argon2 from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Request } from 'express';
+import { User } from '@prisma/client';
 
 @ApiTags('auth API')
 @Controller('auth')
@@ -282,5 +286,24 @@ export class AuthController {
     });
 
     return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' };
+  }
+
+  @Put('update')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '회원 정보 수정 API',
+    description: '회원 정보를 수정한다.',
+  })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: '회원 정보 수정 성공',
+  })
+  async updateUserInfo(
+    @Req() req: any,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    const userId = req.user.userId;
+    return this.authService.updateUser(userId, updateUserDto);
   }
 }

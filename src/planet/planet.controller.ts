@@ -54,6 +54,19 @@ export class PlanetController {
     return await this.planetService.getMyPlanets(req.user.userId);
   }
 
+  @Get(':planetId')
+  @ApiOperation({
+    summary: '특정 행성 조회 API',
+    description: 'ID를 사용하여 특정 행성을 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '특정 행성을 불러왔습니다.',
+  })
+  async getPlanetById(@Param('planetId') planetId: number) {
+    return await this.planetService.getPlanetById(planetId);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({

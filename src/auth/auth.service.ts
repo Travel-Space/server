@@ -1,11 +1,12 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto, CreateUserResponse } from './dto';
+import { CreateUserDto, CreateUserResponse, UpdateUserDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SocialProvider, User } from '@prisma/client';
 import * as argon from 'argon2';
@@ -39,6 +40,20 @@ export class AuthService {
   async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     const { password, ...userData } = createUserDto;
 
+    const existingEmail = await this.prisma.user.findUnique({
+      where: { email: userData.email },
+    });
+    if (existingEmail) {
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
+
+    const existingNickName = await this.prisma.user.findFirst({
+      where: { nickName: userData.nickName },
+    });
+    if (existingNickName) {
+      throw new ConflictException('이미 존재하는 닉네임입니다.');
+    }
+
     if (!(await this.isEmailVerified(userData.email))) {
       throw new UnauthorizedException('이메일이 인증되지 않았습니다.');
     }
@@ -56,14 +71,37 @@ export class AuthService {
       await this.deleteVerificationCode(userData.email);
 
       return {
-        statusCode: 200,
+        statusCode: 201,
         message: '회원가입 성공',
         user: { id: newUser.id.toString(), email: newUser.email },
       };
     } catch (error) {
-      console.log(error);
+      if (error.code === 'P2002') {
+        if (error.meta.target.includes('email')) {
+          throw new ConflictException('이미 존재하는 이메일입니다.');
+        } else if (error.meta.target.includes('nickname')) {
+          throw new ConflictException('이미 존재하는 닉네임입니다.');
+        }
+      }
       throw new BadRequestException('회원가입 실패');
     }
+  }
+
+  async updateUser(userId: number, updateData: UpdateUserDto): Promise<User> {
+    const existingNickName =
+      updateData.nickName &&
+      (await this.prisma.user.findFirst({
+        where: { nickName: updateData.nickName },
+      }));
+
+    if (existingNickName && existingNickName.id !== userId) {
+      throw new ConflictException('이미 존재하는 닉네임입니다.');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
   }
 
   async login(req): Promise<{ access_token: string }> {
@@ -211,6 +249,31 @@ export class AuthService {
       ...createUserDto,
     };
 
-    return await this.userService.createUser(finalUserInfo);
+    const existingEmail = await this.prisma.user.findUnique({
+      where: { email: finalUserInfo.email },
+    });
+    if (existingEmail) {
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
+
+    const existingNickName = await this.prisma.user.findFirst({
+      where: { nickName: finalUserInfo.nickName },
+    });
+    if (existingNickName) {
+      throw new ConflictException('이미 존재하는 닉네임입니다.');
+    }
+
+    try {
+      return await this.userService.createUser(finalUserInfo);
+    } catch (error) {
+      if (error.code === 'P2002') {
+        if (error.meta.target.includes('email')) {
+          throw new ConflictException('이미 존재하는 이메일입니다.');
+        } else if (error.meta.target.includes('nickname')) {
+          throw new ConflictException('이미 존재하는 닉네임입니다.');
+        }
+      }
+      throw new BadRequestException('회원가입 실패');
+    }
   }
 }
