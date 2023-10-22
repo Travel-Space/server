@@ -1,6 +1,6 @@
 generator client {
-  provider             = "prisma-client-js"
-  log                 = ["query", "info", "warn", "error"]
+  provider = "prisma-client-js"
+  log      = ["query", "info", "warn", "error"]
 }
 
 datasource db {
@@ -9,190 +9,192 @@ datasource db {
 }
 
 model User {
-  id           Int               @id @default(autoincrement())
-  name         String
-  nickName     String
-  nationality  String
-  email        String            @unique
-  createdAt    DateTime          @default(now())
-  oauthId      String?           
-  password     String
-  provider     SocialProvider
-  status       UserStatus        @default(ACTIVE)
-  role         UserRole          @default(MEMBER)
-  ownedPlanet  Planet[]
-  planetsIn    PlanetMembership[]
-  posts        Article[]
+  id                   Int                @id @default(autoincrement())
+  name                 String
+  nickName             String
+  nationality          String
+  email                String             @unique
+  createdAt            DateTime           @default(now())
+  oauthId              String?
+  password             String
+  provider             SocialProvider
+  status               UserStatus         @default(ACTIVE)
+  role                 UserRole           @default(MEMBER)
+  deletedAt            DateTime?          @map("deleted_at")
+  posts                Article[]
+  chatMemberships      ChatMembership[]
+  comments             Comment[]
+  likedArticles        Like[]             @relation("LikeToUser")
+  sentMessages         Message[]
+  notifications        Notification[]
+  ownedPlanet          Planet[]
+  planetBookMark       PlanetBookmark[]
+  planetsIn            PlanetMembership[]
+  reportsMade          Report[]
   spaceshipMemberships SpaceshipMember[]
-  planetBookMark PlanetBookmark[]
-  likedArticles Like[]           @relation("LikeToUser")
-  comments      Comment[]
-  chatMemberships ChatMembership[]
-  sentMessages  Message[] 
-  notifications Notification[] 
-  reportsMade   Report[] 
-  friends       UserFriend[]     @relation("UserToFriend")
-  friendedBy    UserFriend[]     @relation("FriendToUser")
-  deletedAt     DateTime?        @map("deleted_at") // 추가: soft delete 구현
+  friendedBy           UserFriend[]       @relation("FriendToUser")
+  friends              UserFriend[]       @relation("UserToFriend")
 }
 
 model Article {
-  id       Int     @id @default(autoincrement())
-  title    String
-  content  String?
-  published Boolean? @default(true)
-  author   User? @relation(fields:[authorId], references: [id])
-  authorId Int?
-  planet   Planet? @relation(fields:[planetId], references: [id])
-  planetId Int?
-  likes    Like[] @relation("LikeToArticle")
-  comments Comment[]
-  createdAt DateTime @default(now()) @map("created_at")
-  deletedAt DateTime? @map("deleted_at") // 추가: soft delete 구현
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean?  @default(true)
+  authorId  Int?
+  planetId  Int?
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  author    User?     @relation(fields: [authorId], references: [id])
+  planet    Planet?   @relation(fields: [planetId], references: [id])
+  comments  Comment[]
+  likes     Like[]    @relation("LikeToArticle")
 }
 
 model Planet {
-  id           Int               @id @default(autoincrement())
-  name         String
-  description  String?
-  owner        User              @relation(fields: [ownerId], references:[id])
-  ownerId      Int
-  memberLimit  Int?
-  // latitude     Float?
-  // longitude    Float?
-  published    Boolean?          @default(true)
-  isActive     Boolean           @default(true)
-  shape        PlanetShape?
-  hashtags     String[]
-  spaceships   Spaceship[]
-  articles     Article[]
-  members      PlanetMembership[]
+  id             Int                @id @default(autoincrement())
+  name           String
+  description    String?
+  ownerId        Int
+  memberLimit    Int?
+  published      Boolean?           @default(true)
+  isActive       Boolean            @default(true)
+  shape          PlanetShape?
+  hashtags       String[]
+  deletedAt      DateTime?          @map("deleted_at")
+  articles       Article[]
+  owner          User               @relation(fields: [ownerId], references: [id])
   planetBookMark PlanetBookmark[]
-  deletedAt    DateTime?         @map("deleted_at") // 추가: soft delete 구현
+  members        PlanetMembership[]
+  spaceships     Spaceship[]
 }
 
 model PlanetMembership {
-  planet        Planet           @relation(fields:[planetId], references:[id])
   planetId      Int
-  user          User             @relation(fields: [userId], references: [id])
   userId        Int
   administrator Boolean          @default(false)
   status        MembershipStatus @default(PENDING)
-  @@id([planetId,userId])
+  planet        Planet           @relation(fields: [planetId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
+
+  @@id([planetId, userId])
 }
 
 model Chat {
-  id          Int      @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   chatMemberships ChatMembership[]
-  messages    Message[]
+  messages        Message[]
 }
 
 model ChatMembership {
   chatId Int
-  chat Chat @relation(fields:[chatId], references:[id])
   userId Int
-  user User @relation(fields: [userId], references: [id])
-  
+  chat   Chat @relation(fields: [chatId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
+
   @@id([chatId, userId])
 }
 
 model Message {
-  id          Int     @id @default(autoincrement())
-  content     String
-  senderId    Int
-  sender      User   @relation(fields: [senderId], references: [id])
-  chatId      Int
-  chat        Chat   @relation(fields: [chatId], references: [id])
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  content   String
+  senderId  Int
+  chatId    Int
+  createdAt DateTime @default(now())
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
 }
 
 model Comment {
-  id          Int        @id @default(autoincrement())
-  content     String
-  authorId    Int
-  author      User      @relation(fields: [authorId], references: [id])
-  articleId   Int
-  article     Article   @relation(fields: [articleId], references: [id])
-  parentId    Int?      // 대댓글 기능을 위한 부모 댓글 ID
-  children    Comment[] @relation("CommentToComment")
-  parent      Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
-  createdAt   DateTime  @default(now())
+  id        Int       @id @default(autoincrement())
+  content   String
+  authorId  Int
+  articleId Int
+  parentId  Int?
+  createdAt DateTime  @default(now())
+  article   Article   @relation(fields: [articleId], references: [id])
+  author    User      @relation(fields: [authorId], references: [id])
+  parent    Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  children  Comment[] @relation("CommentToComment")
 }
 
 model Like {
-  userId      Int
-  user        User      @relation("LikeToUser", fields: [userId], references: [id])
-  articleId   Int
-  article     Article   @relation("LikeToArticle", fields: [articleId], references: [id])
+  userId    Int
+  articleId Int
+  article   Article @relation("LikeToArticle", fields: [articleId], references: [id])
+  user      User    @relation("LikeToUser", fields: [userId], references: [id])
+
   @@id([userId, articleId])
 }
 
 model Notification {
-  id          Int      @id @default(autoincrement())
-  content     String
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
-
 
 model UserFriend {
   userId   Int
-  user     User     @relation("UserToFriend", fields: [userId], references: [id])
   friendId Int
-  friend   User     @relation("FriendToUser", fields: [friendId], references: [id])
+  friend   User @relation("FriendToUser", fields: [friendId], references: [id])
+  user     User @relation("UserToFriend", fields: [userId], references: [id])
+
   @@id([userId, friendId])
 }
 
 model Report {
-  id          Int      @id @default(autoincrement())
-  reason      String
-  reporter    User     @relation(fields: [reporterId], references: [id])
-  reporterId  Int
-  targetId    Int
-  targetType  ReportTargetType
-  createdAt   DateTime @default(now())
-  deletedAt   DateTime? @map("deleted_at") // 추가: soft delete 구현
+  id         Int              @id @default(autoincrement())
+  reason     String
+  reporterId Int
+  targetId   Int
+  targetType ReportTargetType
+  createdAt  DateTime         @default(now())
+  deletedAt  DateTime?        @map("deleted_at")
+  reporter   User             @relation(fields: [reporterId], references: [id])
 }
 
 model PlanetBookmark {
-   userId   Int
-   user     User     @relation(fields: [userId], references: [id])
-   planetId Int
-   planet   Planet   @relation(fields: [planetId], references: [id])
-   @@id([userId, planetId])
+  userId   Int
+  planetId Int
+  planet   Planet @relation(fields: [planetId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@id([userId, planetId])
 }
 
 model Spaceship {
   id          Int               @id @default(autoincrement())
-  title       String           
-  description String?         
-  maxMembers  Int               
-  status      SpaceshipStatus   @default(UPCOMING) 
-  startDate   DateTime          
-  endDate     DateTime          
-  planetId    Int               
-  planet      Planet            @relation(fields: [planetId], references: [id])
-  members     SpaceshipMember[]
+  title       String
+  description String?
+  maxMembers  Int
+  status      SpaceshipStatus   @default(UPCOMING)
+  startDate   DateTime
+  endDate     DateTime
+  planetId    Int
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+  planet      Planet            @relation(fields: [planetId], references: [id])
+  members     SpaceshipMember[]
 }
 
 model SpaceshipMember {
-  id         Int       @id @default(autoincrement())
-  spaceshipId Int      
+  id          Int       @id @default(autoincrement())
+  spaceshipId Int
+  userId      Int
+  joinedAt    DateTime  @default(now())
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
-  userId     Int      
-  user       User      @relation(fields: [userId], references: [id])
-  joinedAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
 }
+
 model VerificationCode {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  code         String
-  isVerified   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  code       String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  isVerified Boolean  @default(false)
 }
 
 enum SocialProvider {
@@ -209,10 +211,10 @@ enum PlanetShape {
 }
 
 enum ReportTargetType {
-   USER
-   ARTICLE
-   COMMENT
-   MESSAGE
+  USER
+  ARTICLE
+  COMMENT
+  MESSAGE
 }
 
 enum SpaceshipStatus {
