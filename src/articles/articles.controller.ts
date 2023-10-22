@@ -12,6 +12,7 @@ import {
   Query,
   UsePipes,
   ValidationPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
@@ -25,6 +26,7 @@ import {
 import {
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -46,8 +48,8 @@ export class ArticlesController {
     type: String,
   })
   @Get()
-  async getAllArticles() {
-    return this.articlesService.getAllArticles();
+  async getAllArticles(@Req() req: any) {
+    return this.articlesService.getAllArticles(req.user.userId);
   }
 
   @ApiOperation({
@@ -67,8 +69,14 @@ export class ArticlesController {
   })
   @Get('byPlanet')
   @UsePipes(ValidationPipe)
-  async getArticlesByPlanet(@Query('planetId') planetId: number) {
-    return this.articlesService.getArticlesByPlanetId(planetId);
+  async getArticlesByPlanet(
+    @Req() req: any,
+    @Query('planetId') planetId: number,
+  ) {
+    return this.articlesService.getArticlesByPlanetId(
+      planetId,
+      req.user.userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -203,6 +211,36 @@ export class ArticlesController {
     type: String,
   })
   async getUserArticles(@Req() req: any) {
-    return this.articlesService.getArticlesByAuthor(req.user.userId);
+    return this.articlesService.getArticlesByAuthor(
+      req.user.userId,
+      req.user.userId,
+    );
+  }
+  @UseGuards(JwtAuthGuard)
+  @Post(':articleId/like')
+  @ApiOperation({
+    summary: '게시글 좋아요 API',
+    description: '게시글에 좋아요를 추가합니다.',
+  })
+  @ApiParam({ name: 'articleId', description: '게시글의 고유 ID' })
+  async addLike(
+    @Req() req: any,
+    @Param('articleId', ParseIntPipe) articleId: number,
+  ) {
+    return await this.articlesService.addLike(req.user.userId, articleId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':articleId/like')
+  @ApiOperation({
+    summary: '게시글 좋아요 취소 API',
+    description: '게시글의 좋아요를 취소합니다.',
+  })
+  @ApiParam({ name: 'articleId', description: '게시글의 고유 ID' })
+  async removeLike(
+    @Req() req: any,
+    @Param('articleId', ParseIntPipe) articleId: number,
+  ) {
+    return await this.articlesService.removeLike(req.user.userId, articleId);
   }
 }

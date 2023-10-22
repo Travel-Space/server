@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -16,8 +17,8 @@ import {
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllArticles() {
-    return await this.prisma.article.findMany({
+  async getAllArticles(userId: number) {
+    const articles = await this.prisma.article.findMany({
       include: {
         author: true,
         planet: true,
@@ -25,10 +26,16 @@ export class ArticlesService {
         comments: true,
       },
     });
+
+    return articles.map((article) => ({
+      ...article,
+      likeCount: article.likes.length,
+      isLiked: article.likes.some((like) => like.userId === userId),
+    }));
   }
 
-  async getArticlesByPlanetId(planetId: number) {
-    return await this.prisma.article.findMany({
+  async getArticlesByPlanetId(planetId: number, userId: number) {
+    const articles = await this.prisma.article.findMany({
       where: {
         planetId: planetId,
       },
@@ -39,6 +46,12 @@ export class ArticlesService {
         comments: true,
       },
     });
+
+    return articles.map((article) => ({
+      ...article,
+      likeCount: article.likes.length,
+      isLiked: article.likes.some((like) => like.userId === userId),
+    }));
   }
 
   async createArticle(data: CreateArticleDto, userId: number) {
@@ -138,17 +151,68 @@ export class ArticlesService {
 
     return this.prisma.comment.delete({ where: { id } });
   }
-
-  async getArticlesByAuthor(userId: number) {
-    return await this.prisma.article.findMany({
+  async getArticlesByAuthor(authorId: number, userId: number) {
+    const articles = await this.prisma.article.findMany({
       where: {
-        authorId: userId,
+        authorId: authorId,
       },
       include: {
         author: true,
         planet: true,
         likes: true,
         comments: true,
+      },
+    });
+
+    return articles.map((article) => ({
+      ...article,
+      likeCount: article.likes.length,
+      isLiked: article.likes.some((like) => like.userId === userId),
+    }));
+  }
+
+  async addLike(userId: number, articleId: number) {
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_articleId: {
+          userId: userId,
+          articleId: articleId,
+        },
+      },
+    });
+
+    if (existingLike) {
+      throw new ConflictException('이미 좋아요를 눌렀습니다.');
+    }
+
+    return await this.prisma.like.create({
+      data: {
+        userId: userId,
+        articleId: articleId,
+      },
+    });
+  }
+
+  async removeLike(userId: number, articleId: number) {
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_articleId: {
+          userId: userId,
+          articleId: articleId,
+        },
+      },
+    });
+
+    if (!existingLike) {
+      throw new NotFoundException('좋아요 정보를 찾을 수 없습니다.');
+    }
+
+    return await this.prisma.like.delete({
+      where: {
+        userId_articleId: {
+          userId: userId,
+          articleId: articleId,
+        },
       },
     });
   }
