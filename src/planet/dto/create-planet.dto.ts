@@ -31,6 +31,6 @@ export class CreatePlanetDto {
   @ApiProperty({ description: '행성 해시태그' })
   @IsOptional()
   @IsArray()
-  @IsString()
+  @IsString({ each: true })
   hashtags?: string[];
 }
