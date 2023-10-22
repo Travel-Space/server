@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PlanetShape } from '@prisma/client';
-import { IsString, IsOptional, IsBoolean, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  IsArray,
+} from 'class-validator';
 
 export class CreatePlanetDto {
   @ApiProperty({ description: '행성 이름' })
@@ -24,6 +30,7 @@ export class CreatePlanetDto {
 
   @ApiProperty({ description: '행성 해시태그' })
   @IsOptional()
+  @IsArray()
   @IsString()
   hashtags?: string[];
 }
