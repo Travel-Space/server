@@ -13,8 +13,9 @@ export class PlanetService {
   async getAllPlanet() {
     return await this.prisma.planet.findMany();
   }
+
   async createPlanet(dto: CreatePlanetDto, userId: number) {
-    return await this.prisma.planet.create({
+    const newPlanet = await this.prisma.planet.create({
       data: {
         ...dto,
         owner: {
@@ -22,6 +23,17 @@ export class PlanetService {
         },
       },
     });
+
+    await this.prisma.planetMembership.create({
+      data: {
+        userId: userId,
+        planetId: newPlanet.id,
+        status: MembershipStatus.APPROVED,
+        administrator: true,
+      },
+    });
+
+    return newPlanet;
   }
 
   async updatePlanet(
@@ -109,16 +121,14 @@ export class PlanetService {
       throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
 
-    const membershipStatus = planet.isActive
-      ? MembershipStatus.APPROVED
-      : MembershipStatus.PENDING;
+    const membershipStatus = MembershipStatus.PENDING;
 
     await this.prisma.planetMembership.create({
       data: {
         userId: userId,
         planetId: planetId,
         status: membershipStatus,
-        administrator: false, // 기본적으로 관리자가 아님
+        administrator: false,
       },
     });
 
@@ -275,6 +285,35 @@ export class PlanetService {
     }
 
     return membership;
+  }
+
+  async getPendingApplications(adminUserId: number): Promise<any> {
+    const adminPlanets = await this.prisma.planetMembership.findMany({
+      where: {
+        userId: adminUserId,
+        administrator: true,
+      },
+      select: {
+        planetId: true,
+      },
+    });
+
+    const planetIds = adminPlanets.map((p) => p.planetId);
+
+    const pendingApplications = await this.prisma.planetMembership.findMany({
+      where: {
+        planetId: {
+          in: planetIds,
+        },
+        status: MembershipStatus.PENDING,
+      },
+      include: {
+        user: true,
+        planet: true,
+      },
+    });
+
+    return pendingApplications;
   }
 }
 

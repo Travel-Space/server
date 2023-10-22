@@ -219,4 +219,17 @@ export class PlanetController {
     await this.planetService.leavePlanet(targetUserId, planetId);
     return { message: '사용자가 행성에서 성공적으로 추방되었습니다.' };
   }
+
+  @Get('pending-applications')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '가입 대기 중인 신청 목록 조회 API',
+    description: '관리자로 속한 행성의 가입 대기 중인 신청 목록을 조회합니다.',
+  })
+  async getPendingApplications(@Req() req: any): Promise<any> {
+    const userId = req.user.userId;
+    const applications =
+      await this.planetService.getPendingApplications(userId);
+    return applications;
+  }
 }
