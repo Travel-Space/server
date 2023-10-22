@@ -11,6 +11,7 @@ import {
   Logger,
   UseGuards,
   BadRequestException,
+  HttpException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -167,7 +168,53 @@ export class AuthController {
       httpOnly: true,
       maxAge: 3600000,
     });
-    return { success: true };
+    // res.redirect('https://your-frontend-domain.com/success-page');
+  }
+
+  @Get('google/callback')
+  @ApiOperation({
+    summary: 'Google 로그인 콜백 API',
+    description: 'Google 로그인 후에 콜백 처리를 합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Google 로그인 성공',
+    type: String,
+  })
+  async googleLoginCallback(@Req() req): Promise<any> {
+    try {
+      const user = await this.authService.googleLoginCallback(req.user.profile);
+      console.log(req.user.profile);
+      return this.authService.googleLogin(req);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException('추가 정보를 입력해주세요.', 401);
+      }
+      throw error;
+    }
+  }
+
+  @Post('register-with-google')
+  @ApiOperation({
+    summary: 'Google을 사용하여 회원가입 API',
+    description: 'Google 프로필 정보와 함께 회원가입을 합니다.',
+  })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Google을 사용한 회원가입 성공',
+    type: CreateUserResponse,
+  })
+  async registerWithGoogle(
+    @Body() createUserDto: CreateUserDto,
+    @Req() req,
+  ): Promise<any> {
+    if (!req.user?.profile) {
+      throw new HttpException('Google 사용자 정보가 필요합니다.', 400);
+    }
+
+    const profile = req.user.profile;
+    return this.authService.registerWithGoogle(profile, createUserDto);
   }
 
   @ApiBody({ type: EmailDto })

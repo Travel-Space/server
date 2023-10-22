@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SocialProvider, User } from '@prisma/client';
 import * as argon from 'argon2';
 import * as nodemailer from 'nodemailer';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
+    private userService: UserService,
   ) {
     this.transporter = nodemailer.createTransport({
       service: 'naver',
@@ -187,5 +189,28 @@ export class AuthService {
     await this.prisma.verificationCode.delete({
       where: { email },
     });
+  }
+
+  async googleLoginCallback(profile: any): Promise<any> {
+    const user = await this.userService.findByEmail(profile.email);
+
+    if (user) {
+      return user;
+    } else {
+      throw new UnauthorizedException('추가 정보를 입력해주세요.');
+    }
+  }
+
+  async registerWithGoogle(
+    profile: any,
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
+    const finalUserInfo = {
+      email: profile.email,
+      name: profile.name,
+      ...createUserDto,
+    };
+
+    return await this.userService.createUser(finalUserInfo);
   }
 }
