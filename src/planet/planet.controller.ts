@@ -41,6 +41,18 @@ export class PlanetController {
   async getAllPlanet() {
     return await this.planetService.getAllPlanet();
   }
+  @Get('my-planets')
+  @ApiOperation({
+    summary: '내가 가입된 행성 조회 API',
+    description: '사용자가 가입된 모든 행성을 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '내가 가입된 행성을 불러왔습니다.',
+  })
+  async getMyPlanets(@Req() req: any) {
+    return await this.planetService.getMyPlanets(req.user.userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()

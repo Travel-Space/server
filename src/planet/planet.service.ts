@@ -14,6 +14,22 @@ export class PlanetService {
     return await this.prisma.planet.findMany();
   }
 
+  async getMyPlanets(userId: number) {
+    return this.prisma.planetMembership
+      .findMany({
+        where: {
+          userId: userId,
+          status: 'APPROVED',
+        },
+        include: {
+          planet: true,
+        },
+      })
+      .then((memberships) =>
+        memberships.map((membership) => membership.planet),
+      );
+  }
+
   async createPlanet(dto: CreatePlanetDto, userId: number) {
     const newPlanet = await this.prisma.planet.create({
       data: {
