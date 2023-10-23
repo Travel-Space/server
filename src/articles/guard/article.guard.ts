@@ -14,8 +14,20 @@ export class ArticleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
+    let memberQuery = {};
+    if (user?.id) {
+      memberQuery = {
+        where: { userId: user.id },
+        select: { userId: true },
+      };
+    }
+
     if (request.params.id) {
       const articleId = parseInt(request.params.id, 10);
+
+      if (!Number.isInteger(articleId)) {
+        throw new ForbiddenException('게시글 ID가 올바르지 않습니다.');
+      }
 
       const articleWithMembership = await this.prisma.article.findUnique({
         where: { id: articleId },
@@ -23,10 +35,7 @@ export class ArticleGuard implements CanActivate {
           planet: {
             select: {
               published: true,
-              members: {
-                where: { userId: user?.id },
-                select: { userId: true },
-              },
+              members: memberQuery,
             },
           },
         },
@@ -36,17 +45,14 @@ export class ArticleGuard implements CanActivate {
         throw new ForbiddenException('게시글을 찾을 수 없습니다.');
       }
 
-      if (articleWithMembership.planet.published) {
-        return true;
-      } else {
-        if (!user || articleWithMembership.planet.members.length === 0) {
-          throw new ForbiddenException('해당 게시글에 액세스 권한이 없습니다.');
-        }
-        return true;
+      if (
+        !articleWithMembership.planet.published &&
+        articleWithMembership.planet.members.length === 0
+      ) {
+        throw new ForbiddenException('해당 게시글에 액세스 권한이 없습니다.');
       }
     }
 
-    // 행성 ID를 기반으로 검색하는 경우
     if (request.query.planetId) {
       const planetId = parseInt(request.query.planetId, 10);
 
@@ -55,8 +61,7 @@ export class ArticleGuard implements CanActivate {
         select: {
           published: true,
           members: {
-            where: { userId: user?.id },
-            select: { userId: true },
+            where: { userId: user?.id }, // 현재 로그인한 사용자만 선택
           },
         },
       });
@@ -65,15 +70,10 @@ export class ArticleGuard implements CanActivate {
         throw new ForbiddenException('행성을 찾을 수 없습니다.');
       }
 
-      if (planet.published) {
-        return true;
-      } else {
-        if (!user || planet.members.length === 0) {
-          throw new ForbiddenException(
-            '해당 행성의 게시글에 액세스 권한이 없습니다.',
-          );
-        }
-        return true;
+      if (!planet.published && planet.members.length === 0) {
+        throw new ForbiddenException(
+          '해당 행성의 게시글에 액세스 권한이 없습니다.',
+        );
       }
     }
 
