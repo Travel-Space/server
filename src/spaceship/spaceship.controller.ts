@@ -19,6 +19,14 @@ export class SpaceshipController {
   constructor(private spaceshipService: SpaceshipService) {}
 
   @Post()
+  @ApiOperation({
+    summary: '우주선 생성 API',
+    description: '우주선을 생성합니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '우주선이 생성되었습니다.',
+  })
   async createSpaceship(
     @Body() createSpaceshipDto: CreateSpaceshipDto,
     @Req() req: any,
