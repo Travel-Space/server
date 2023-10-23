@@ -31,22 +31,38 @@ export class SpaceshipController {
 
   @Get()
   @ApiOperation({
-    summary: '모든 행성 조회 API',
-    description: '모든 행성을 불러옵니다.',
+    summary: '모든 우주선 조회 API',
+    description: '모든 우주선을 불러옵니다.',
   })
   @ApiResponse({
     status: 201,
-    description: '모든 행성을 불러왔습니다.',
+    description: '모든 우주선을 불러왔습니다.',
   })
   async getAllSpaceships() {
     return this.spaceshipService.getAllSpaceships();
   }
 
+  @ApiOperation({
+    summary: '특정 우주선 조회 API',
+    description: '특정 우주선을 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '우주선을 불러왔습니다.',
+  })
   @Get(':id')
   async getSpaceshipById(@Param('id') id: number) {
     return this.spaceshipService.getSpaceshipById(id);
   }
 
+  @ApiOperation({
+    summary: '우주선 수정 API',
+    description: '우주선 정보를 수정합니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '우주선 정보가 업데이트 되었습니다.',
+  })
   @Put(':id')
   async updateSpaceship(
     @Param('id') id: number,
@@ -60,6 +76,14 @@ export class SpaceshipController {
     );
   }
 
+  @ApiOperation({
+    summary: '우주선 폭파 API',
+    description: '우주선을 폭파합니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '우주선이 폭파되었습니다.',
+  })
   @Delete(':id')
   async deleteSpaceship(@Param('id') id: number, @Req() req: any) {
     return this.spaceshipService.deleteSpaceship(req.user.id, id);
