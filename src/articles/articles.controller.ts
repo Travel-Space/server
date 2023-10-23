@@ -32,7 +32,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guard';
+import { ArticleGuard } from './guard';
 
 @ApiTags('게시글 API')
 @Controller('articles')
@@ -63,6 +64,7 @@ export class ArticlesController {
     type: String,
   })
   @Get(':id')
+  @UseGuards(ArticleGuard)
   async getArticleById(@Param('id') articleId: number, @Req() req: any) {
     const userId = req.user.id;
     const article = await this.articlesService.getArticleById(
@@ -92,6 +94,7 @@ export class ArticlesController {
   })
   @Get('byPlanet')
   @UsePipes(ValidationPipe)
+  @UseGuards(ArticleGuard)
   async getArticlesByPlanet(
     @Req() req: any,
     @Query('planetId') planetId: number,
