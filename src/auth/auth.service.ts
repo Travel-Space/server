@@ -276,4 +276,13 @@ export class AuthService {
       throw new BadRequestException('회원가입 실패');
     }
   }
+
+  async validateToken(token: string): Promise<any> {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
+    }
+  }
 }
