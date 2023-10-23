@@ -13,7 +13,7 @@ import { CreateSpaceshipDto } from './dto/create-spaceship.dto';
 import { UpdateSpaceshipDto } from './dto/update-spaceship.dto';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 
-ApiTags('우주선 API');
+@ApiTags('우주선 API')
 @Controller('spaceship')
 export class SpaceshipController {
   constructor(private spaceshipService: SpaceshipService) {}
