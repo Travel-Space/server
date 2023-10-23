@@ -167,9 +167,11 @@ model PlanetBookmark {
 
 model Spaceship {
   id          Int               @id @default(autoincrement())
-  title       String
+  name       String
+  image String
   description String?
   maxMembers  Int
+  ownerId        Int
   status      SpaceshipStatus   @default(UPCOMING)
   startDate   DateTime
   endDate     DateTime

@@ -24,7 +24,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 
-@ApiTags('Planet API')
+@ApiTags('행성 API')
 @Controller('planet')
 export class PlanetController {
   constructor(private readonly planetService: PlanetService) {}
