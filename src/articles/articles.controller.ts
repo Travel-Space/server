@@ -32,7 +32,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guard';
+import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ArticleGuard } from './guard';
 
 @ApiTags('게시글 API')
@@ -50,6 +50,7 @@ export class ArticlesController {
     type: String,
   })
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getAllArticles(@Req() req: any) {
     return this.articlesService.getAllArticles(req.user.userId);
   }
@@ -64,7 +65,7 @@ export class ArticlesController {
     type: String,
   })
   @Get(':id')
-  @UseGuards(ArticleGuard)
+  @UseGuards(JwtAuthGuard, ArticleGuard)
   async getArticleById(@Param('id') articleId: number, @Req() req: any) {
     const userId = req.user.id;
     const article = await this.articlesService.getArticleById(
@@ -94,7 +95,7 @@ export class ArticlesController {
   })
   @Get('byPlanet')
   @UsePipes(ValidationPipe)
-  @UseGuards(ArticleGuard)
+  @UseGuards(JwtAuthGuard, ArticleGuard)
   async getArticlesByPlanet(
     @Req() req: any,
     @Query('planetId') planetId: number,
@@ -138,7 +139,7 @@ export class ArticlesController {
     return res.status(201).json(article);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Put(':id')
   @ApiOperation({
     summary: '게시글 업데이트 API',
@@ -165,7 +166,7 @@ export class ArticlesController {
     return res.json(updatedArticle);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Delete(':id')
   @ApiOperation({
     summary: '게시글 삭제 API',
@@ -181,7 +182,7 @@ export class ArticlesController {
     return res.status(204).send();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post(':articleId/comments')
   @ApiOperation({
     summary: '댓글 작성 API',
@@ -203,7 +204,7 @@ export class ArticlesController {
     return res.status(201).json(comment);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Put('comments/:commentId')
   @ApiOperation({
     summary: '댓글 수정 API',
@@ -225,7 +226,7 @@ export class ArticlesController {
     return res.json(updatedComment);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('my-articles')
   @ApiOperation({
     summary: '내 게시글 조회 API',
@@ -242,7 +243,7 @@ export class ArticlesController {
       req.user.userId,
     );
   }
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post(':articleId/like')
   @ApiOperation({
     summary: '게시글 좋아요 API',
@@ -256,7 +257,7 @@ export class ArticlesController {
     return await this.articlesService.addLike(req.user.userId, articleId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Delete(':articleId/like')
   @ApiOperation({
     summary: '게시글 좋아요 취소 API',

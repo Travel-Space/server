@@ -23,6 +23,7 @@ import {
   ApiResponse,
   ApiParam,
 } from '@nestjs/swagger';
+import { LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('행성 API')
 @Controller('planet')
@@ -67,7 +68,7 @@ export class PlanetController {
     return await this.planetService.getPlanetById(planetId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post()
   @ApiOperation({
     summary: '행성 생성 API',
@@ -82,7 +83,7 @@ export class PlanetController {
     return await this.planetService.createPlanet(dto, req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Put(':planetId')
   @ApiOperation({
     summary: '행성 수정 API',
@@ -103,7 +104,7 @@ export class PlanetController {
     return this.planetService.updatePlanet(planetId, userId, data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post('join/:planetId')
   @ApiOperation({
     summary: '행성 가입 API',
@@ -129,7 +130,7 @@ export class PlanetController {
   }
 
   @Post('leave/:planetId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '행성 탈출 API',
     description: '행성을 탈출합니다.',
@@ -142,7 +143,7 @@ export class PlanetController {
   }
 
   @Get('members/:planetId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '행성 멤버 리스트 조회 API',
     description: '해당 행성의 모든 멤버를 조회합니다.',
@@ -152,7 +153,7 @@ export class PlanetController {
     return await this.planetService.listPlanetMembers(planetId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Put('members/:planetId/:userId')
   @ApiOperation({
     summary: '행성 멤버 권한 수정 API',
@@ -171,7 +172,7 @@ export class PlanetController {
   }
 
   @Post('approve/:planetId/:userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '행성 가입 승인 API',
     description: '행성 가입 신청을 승인합니다.',
@@ -192,7 +193,7 @@ export class PlanetController {
   }
 
   @Post('reject/:planetId/:userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '행성 가입 거절 API',
     description: '행성 가입 신청을 거절합니다.',
@@ -213,7 +214,7 @@ export class PlanetController {
   }
 
   @Delete('kick/:planetId/:userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '행성 추방 API',
     description: '행성에 속한 멤버를 추방시킵니다..',
@@ -246,7 +247,7 @@ export class PlanetController {
   }
 
   @Get('pending-applications')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '가입 대기 중인 신청 목록 조회 API',
     description: '관리자로 속한 행성의 가입 대기 중인 신청 목록을 조회합니다.',

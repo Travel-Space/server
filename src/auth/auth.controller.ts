@@ -32,6 +32,7 @@ import * as argon2 from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 import { User } from '@prisma/client';
+import { LoggedInGuard } from './guard';
 
 @ApiTags('auth API')
 @Controller('auth')
@@ -106,7 +107,7 @@ export class AuthController {
   }
 
   @Delete('logout')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '로그아웃 API',
     description: '사용자 로그아웃 처리.',
@@ -289,7 +290,7 @@ export class AuthController {
   }
 
   @Put('update')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '회원 정보 수정 API',
     description: '회원 정보를 수정한다.',
