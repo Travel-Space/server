@@ -10,8 +10,10 @@ import {
 } from '@nestjs/common';
 import { SpaceshipService } from './spaceship.service';
 import { CreateSpaceshipDto } from './dto/create-spaceship.dto';
-import { UpdateSpaceshipDto } from './dto/update-spaceship.dto'; // 필요하다면 추가
+import { UpdateSpaceshipDto } from './dto/update-spaceship.dto';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 
+ApiTags('우주선 API');
 @Controller('spaceship')
 export class SpaceshipController {
   constructor(private spaceshipService: SpaceshipService) {}
@@ -28,6 +30,14 @@ export class SpaceshipController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: '모든 행성 조회 API',
+    description: '모든 행성을 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '모든 행성을 불러왔습니다.',
+  })
   async getAllSpaceships() {
     return this.spaceshipService.getAllSpaceships();
   }

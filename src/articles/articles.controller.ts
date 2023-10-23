@@ -13,6 +13,7 @@ import {
   UsePipes,
   ValidationPipe,
   ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
@@ -50,6 +51,28 @@ export class ArticlesController {
   @Get()
   async getAllArticles(@Req() req: any) {
     return this.articlesService.getAllArticles(req.user.userId);
+  }
+
+  @ApiOperation({
+    summary: '특정 게시글 조회 API',
+    description: '특정 게시글을 불러온다',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '게시글을 불러왔습니다.',
+    type: String,
+  })
+  @Get(':id')
+  async getArticleById(@Param('id') articleId: number, @Req() req: any) {
+    const userId = req.user.id;
+    const article = await this.articlesService.getArticleById(
+      articleId,
+      userId,
+    );
+    if (!article) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+    return article;
   }
 
   @ApiOperation({

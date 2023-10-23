@@ -33,6 +33,27 @@ export class ArticlesService {
       isLiked: article.likes.some((like) => like.userId === userId),
     }));
   }
+  async getArticleById(articleId: number, userId: number) {
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+      },
+    });
+
+    if (!article) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+
+    return {
+      ...article,
+      likeCount: article.likes.length,
+      isLiked: article.likes.some((like) => like.userId === userId),
+    };
+  }
 
   async getArticlesByPlanetId(planetId: number, userId: number) {
     const articles = await this.prisma.article.findMany({

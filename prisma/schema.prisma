@@ -18,6 +18,7 @@ model User {
   oauthId              String?
   password             String
   profileImage   String?
+   applications SpaceshipApplication[]
   provider             SocialProvider
   status               UserStatus         @default(ACTIVE)
   role                 UserRole           @default(MEMBER)
@@ -180,6 +181,7 @@ model Spaceship {
   updatedAt   DateTime          @updatedAt
   planet      Planet            @relation(fields: [planetId], references: [id])
   members     SpaceshipMember[]
+  applications SpaceshipApplication[]
 }
 
 model SpaceshipMember {
@@ -189,6 +191,16 @@ model SpaceshipMember {
   joinedAt    DateTime  @default(now())
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
+}
+
+model SpaceshipApplication {
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  spaceshipId   Int
+  status        ApplicationStatus @default(PENDING)
+  appliedAt     DateTime   @default(now())
+  user          User       @relation(fields: [userId], references: [id])
+  spaceship     Spaceship  @relation(fields: [spaceshipId], references: [id])
 }
 
 model VerificationCode {
@@ -238,6 +250,12 @@ enum UserStatus {
 }
 
 enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationStatus {
   PENDING
   APPROVED
   REJECTED
