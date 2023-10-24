@@ -1,7 +1,6 @@
-// auth.middleware.ts
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from './auth.service'; // 여기서 AuthService는 토큰을 검증하는 서비스입니다.
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class OptionalAuthMiddleware implements NestMiddleware {

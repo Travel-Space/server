@@ -42,7 +42,9 @@ export class PlanetController {
   async getAllPlanet() {
     return await this.planetService.getAllPlanet();
   }
+
   @Get('my-planets')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '내가 가입된 행성 조회 API',
     description: '사용자가 가입된 모든 행성을 불러옵니다.',
