@@ -11,7 +11,15 @@ export class PlanetService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAllPlanet() {
-    return await this.prisma.planet.findMany();
+    return await this.prisma.planet.findMany({
+      include: {
+        articles: true,
+        owner: true,
+        planetBookMark: true,
+        members: true,
+        spaceships: true,
+      },
+    });
   }
 
   async getMyPlanets(userId: number) {
@@ -22,7 +30,15 @@ export class PlanetService {
           status: 'APPROVED',
         },
         include: {
-          planet: true,
+          planet: {
+            include: {
+              articles: true,
+              owner: true,
+              planetBookMark: true,
+              members: true,
+              spaceships: true,
+            },
+          },
         },
       })
       .then((memberships) =>
@@ -280,6 +296,13 @@ export class PlanetService {
   async getPlanetById(planetId: number) {
     return await this.prisma.planet.findUnique({
       where: { id: planetId },
+      include: {
+        articles: true,
+        owner: true,
+        planetBookMark: true,
+        members: true,
+        spaceships: true,
+      },
     });
   }
 
