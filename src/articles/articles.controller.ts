@@ -243,6 +243,7 @@ export class ArticlesController {
       req.user.userId,
     );
   }
+
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post(':articleId/like')
   @ApiOperation({

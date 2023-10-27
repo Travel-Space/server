@@ -101,7 +101,8 @@ export class PlanetController {
     @Request() req: any,
     @Body() data: UpdatePlanetDto,
   ): Promise<any> {
-    const userId = req.user.id;
+    const userId = req.user.userId;
+    console.log(userId);
 
     return this.planetService.updatePlanet(planetId, userId, data);
   }
