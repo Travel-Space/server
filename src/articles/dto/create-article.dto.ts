@@ -52,7 +52,7 @@ export class CreateArticleDto {
   @ApiProperty({ description: '게시글 이미지 URL 목록' })
   @IsArray()
   @IsString({ each: true })
-  imageUrls: string[];
+  imageUrls?: string[];
 
   @ApiProperty({ description: '행성 해시태그' })
   @IsOptional()
