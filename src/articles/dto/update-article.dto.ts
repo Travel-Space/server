@@ -51,4 +51,9 @@ export class UpdateArticleDto {
   @ValidateNested({ each: true })
   @Type(() => LocationDto)
   locations?: LocationDto[];
+
+  @ApiProperty({ description: '게시글 이미지 URL 목록' })
+  @IsArray()
+  @IsString({ each: true })
+  imageUrls?: string[];
 }
