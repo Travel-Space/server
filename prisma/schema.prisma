@@ -47,6 +47,8 @@ model Article {
   planetId  Int?
   deletedAt DateTime? @map("deleted_at")
   createdAt DateTime  @default(now()) @map("created_at")
+  address   String?
+  locations Location[]
   author    User?     @relation(fields: [authorId], references: [id])
   planet    Planet?   @relation(fields: [planetId], references: [id])
   comments  Comment[]
@@ -74,7 +76,7 @@ model Planet {
 model PlanetMembership {
   planetId      Int
   userId        Int
-  administrator Boolean          @default(false)
+  role          PlanetMemberRole @default(MEMBER)
   status        MembershipStatus @default(PENDING)
   planet        Planet           @relation(fields: [planetId], references: [id])
   user          User             @relation(fields: [userId], references: [id])
@@ -212,6 +214,14 @@ model VerificationCode {
   isVerified Boolean  @default(false)
 }
 
+model Location {
+  id        Int @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+  articleId Int 
+  article   Article? @relation(fields: [articleId], references: [id])
+}
+
 enum SocialProvider {
   GOOGLE
   NAVER
@@ -260,3 +270,11 @@ enum ApplicationStatus {
   APPROVED
   REJECTED
 }
+
+enum PlanetMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+

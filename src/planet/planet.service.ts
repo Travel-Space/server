@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
+import { PlanetMemberRole } from '@prisma/client';
 
 @Injectable()
 export class PlanetService {
@@ -61,7 +62,7 @@ export class PlanetService {
         userId: userId,
         planetId: newPlanet.id,
         status: MembershipStatus.APPROVED,
-        administrator: true,
+        role: PlanetMemberRole.OWNER,
       },
     });
 
@@ -92,7 +93,7 @@ export class PlanetService {
 
     if (
       !membership ||
-      (!membership.administrator && planet.ownerId !== userId)
+      (membership.role !== PlanetMemberRole.ADMIN && planet.ownerId !== userId)
     ) {
       throw new ForbiddenException(
         '관리자 또는 행성 주인만 업데이트 할 수 있습니다.',
@@ -160,7 +161,7 @@ export class PlanetService {
         userId: userId,
         planetId: planetId,
         status: membershipStatus,
-        administrator: false,
+        role: PlanetMemberRole.MEMBER,
       },
     });
 
@@ -208,8 +209,14 @@ export class PlanetService {
       },
     });
 
-    if (!membership || !membership.administrator) {
-      throw new ForbiddenException('관리자만 승인/거절을 할 수 있습니다.');
+    if (
+      !membership ||
+      (membership.role !== PlanetMemberRole.ADMIN &&
+        membership.role !== PlanetMemberRole.OWNER)
+    ) {
+      throw new ForbiddenException(
+        '관리자나 주인만 승인/거절을 할 수 있습니다.',
+      );
     }
 
     const targetMembership = await this.prisma.planetMembership.findUnique({
@@ -281,7 +288,48 @@ export class PlanetService {
     });
   }
 
-  async updateMemberRole(planetId: number, userId: number, isAdmin: boolean) {
+  async updateMemberRole(
+    planetId: number,
+    userId: number,
+    isAdmin: boolean,
+    currentUserId: number,
+  ) {
+    const currentUserMembership = await this.prisma.planetMembership.findUnique(
+      {
+        where: {
+          planetId_userId: {
+            planetId: planetId,
+            userId: currentUserId,
+          },
+        },
+        select: {
+          role: true,
+        },
+      },
+    );
+    if (
+      !currentUserMembership ||
+      currentUserMembership.role !== PlanetMemberRole.OWNER
+    ) {
+      throw new ForbiddenException('멤버의 역할을 수정할 권한이 없습니다.');
+    }
+
+    const targetMembership = await this.prisma.planetMembership.findUnique({
+      where: {
+        planetId_userId: {
+          planetId: planetId,
+          userId: userId,
+        },
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    if (targetMembership && targetMembership.role === PlanetMemberRole.OWNER) {
+      throw new ForbiddenException('행성의 주인의 역할은 수정할 수 없습니다.');
+    }
+
     return await this.prisma.planetMembership.update({
       where: {
         planetId_userId: {
@@ -289,7 +337,9 @@ export class PlanetService {
           userId: userId,
         },
       },
-      data: { administrator: isAdmin },
+      data: {
+        role: isAdmin ? PlanetMemberRole.ADMIN : PlanetMemberRole.MEMBER,
+      },
     });
   }
 
@@ -330,7 +380,7 @@ export class PlanetService {
     const adminPlanets = await this.prisma.planetMembership.findMany({
       where: {
         userId: adminUserId,
-        administrator: true,
+        role: PlanetMemberRole.ADMIN,
       },
       select: {
         planetId: true,

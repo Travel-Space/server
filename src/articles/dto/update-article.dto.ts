@@ -1,10 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+class LocationDto {
+  @ApiProperty({ description: '위도' })
+  @IsOptional()
+  @IsString()
+  latitude?: string;
+
+  @ApiProperty({ description: '경도' })
+  @IsString()
+  longitude?: string;
+}
 
 export class UpdateArticleDto {
   @ApiProperty({ description: '게시글 제목' })
-  @IsOptional()
   @IsString()
+  @IsOptional()
   title?: string;
 
   @ApiProperty({ description: '게시글 내용' })
@@ -21,4 +40,15 @@ export class UpdateArticleDto {
   @IsOptional()
   @IsInt()
   planetId?: number;
+
+  @ApiProperty({ description: '게시글 주소' })
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiProperty({ description: '게시글 위치 정보', type: [LocationDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LocationDto)
+  locations?: LocationDto[];
 }

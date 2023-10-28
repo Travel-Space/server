@@ -77,9 +77,10 @@ export class ArticlesService {
 
   async createArticle(data: CreateArticleDto, userId: number) {
     try {
+      const prismaInput = this.transformArticleDtoToPrismaInput(data);
       return await this.prisma.article.create({
         data: {
-          ...data,
+          ...prismaInput,
           authorId: userId,
         },
       });
@@ -100,15 +101,17 @@ export class ArticlesService {
     });
     return !!membership;
   }
+
   async updateArticle(id: number, data: UpdateArticleDto, userId: number) {
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('게시글을 찾을 수 없습니다.');
     if (article.authorId !== userId)
       throw new ForbiddenException('권한이 없습니다.');
 
+    const prismaInput = this.transformArticleDtoToPrismaInput(data);
     return this.prisma.article.update({
       where: { id },
-      data,
+      data: prismaInput,
     });
   }
 
@@ -236,5 +239,22 @@ export class ArticlesService {
         },
       },
     });
+  }
+
+  transformArticleDtoToPrismaInput(
+    dto: CreateArticleDto | UpdateArticleDto,
+  ): any {
+    const data: any = { ...dto };
+
+    if (dto.locations) {
+      data.locations = {
+        create: dto.locations.map((location) => ({
+          latitude: parseFloat(location.latitude),
+          longitude: parseFloat(location.longitude),
+        })),
+      };
+    }
+
+    return data;
   }
 }

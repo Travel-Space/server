@@ -15,7 +15,7 @@ import {
 import { PlanetService } from './planet.service';
 import { CreatePlanetDto, UpdateMemberRoleDto, UpdatePlanetDto } from './dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { MembershipStatus } from '@prisma/client';
+import { MembershipStatus, PlanetMemberRole } from '@prisma/client';
 import {
   ApiTags,
   ApiOperation,
@@ -169,9 +169,16 @@ export class PlanetController {
     @Param('planetId') planetId: number,
     @Param('userId') userId: number,
     @Body() updateMemberRoleDto: UpdateMemberRoleDto,
+    @Request() req: any,
   ) {
     const { isAdmin } = updateMemberRoleDto;
-    return await this.planetService.updateMemberRole(planetId, userId, isAdmin);
+    const currentUserId = req.user.userId;
+    return await this.planetService.updateMemberRole(
+      planetId,
+      userId,
+      isAdmin,
+      currentUserId,
+    );
   }
 
   @Post('approve/:planetId/:userId')
@@ -238,7 +245,8 @@ export class PlanetController {
 
     if (
       !membership ||
-      (!membership.administrator && membership.planet.ownerId !== currentUserId)
+      (membership.role !== PlanetMemberRole.ADMIN &&
+        membership.planet.ownerId !== currentUserId)
     ) {
       throw new ForbiddenException(
         '행성의 관리자 또는 주인만 회원을 추방할 수 있습니다.',
