@@ -6,17 +6,18 @@ import {
   IsInt,
   IsArray,
   ValidateNested,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class LocationDto {
   @ApiProperty({ description: '위도' })
-  @IsString()
-  latitude: string;
+  @IsNumber()
+  latitude: number;
 
   @ApiProperty({ description: '경도' })
-  @IsString()
-  longitude: string;
+  @IsNumber()
+  longitude: number;
 }
 
 export class CreateArticleDto {
