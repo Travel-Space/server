@@ -11,6 +11,7 @@ import {
   Delete,
   ForbiddenException,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { PlanetService } from './planet.service';
 import { CreatePlanetDto, UpdateMemberRoleDto, UpdatePlanetDto } from './dto';
@@ -33,14 +34,13 @@ export class PlanetController {
   @Get()
   @ApiOperation({
     summary: '모든 행성 조회 API',
-    description: '모든 행성을 불러옵니다.',
+    description: '모든 행성을 페이지네이션하여 반환합니다.',
   })
-  @ApiResponse({
-    status: 201,
-    description: '모든 행성을 불러왔습니다.',
-  })
-  async getAllPlanet() {
-    return await this.planetService.getAllPlanet();
+  async getAllPlanet(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return this.planetService.getAllPlanet(page, limit);
   }
 
   @Get('my-planets')

@@ -33,8 +33,12 @@ export class UserService {
     }
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await this.prisma.user.findMany();
+  async getAllUsers(page: number, limit: number): Promise<User[]> {
+    const skip = (page - 1) * limit;
+    return this.prisma.user.findMany({
+      skip,
+      take: limit,
+    });
   }
 
   async deleteUser(userId: string): Promise<void> {

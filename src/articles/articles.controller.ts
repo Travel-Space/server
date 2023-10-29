@@ -26,7 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
+import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ArticleGuard } from './guard';
 import { ViewCountService } from '../view-count/view-count.service';
 
@@ -38,19 +38,18 @@ export class ArticlesController {
     private viewCountService: ViewCountService,
   ) {}
 
+  @Get()
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiOperation({
     summary: '모든 게시글 조회 API',
-    description: '모든 게시글을 불러온다',
+    description: '모든 게시글을 페이지네이션하여 반환합니다.',
   })
-  @ApiResponse({
-    status: 201,
-    description: '게시글을 모두 불러왔습니다.',
-    type: String,
-  })
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  async getAllArticles(@Req() req: any) {
-    return this.articlesService.getAllArticles(req.user.userId);
+  async getAllArticles(
+    @Req() req: any,
+    @Query('page', ParseIntPipe) page: number = 1,
+  ) {
+    const userId = req.user.userId;
+    return this.articlesService.getAllArticles(userId, page);
   }
 
   @ApiOperation({

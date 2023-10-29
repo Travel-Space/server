@@ -7,13 +7,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AdminGuard } from 'src/auth/guard';
+import { AdminGuard, LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('유저 API')
 @Controller('user')
@@ -22,8 +23,15 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
-  async getAllUsers() {
-    return await this.userService.getAllUsers();
+  @ApiOperation({
+    summary: '모든 사용자 조회 API',
+    description: '모든 사용자를 페이지네이션하여 반환합니다.',
+  })
+  async getAllUsers(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return this.userService.getAllUsers(page, limit);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -40,13 +48,13 @@ export class UserController {
     return await this.userService.updateUser(userId, updateData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('profile')
   async getProfile(@Req() req: any) {
     return await this.userService.getUserById(req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Post('follow/:friendId')
   @ApiOperation({
     summary: '다른 사용자 팔로우',
@@ -60,7 +68,7 @@ export class UserController {
     return this.userService.followUser(userId, friendId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Delete('unfollow/:friendId')
   @ApiOperation({
     summary: '팔로우 취소',
@@ -74,7 +82,7 @@ export class UserController {
     return this.userService.unfollowUser(userId, friendId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('following')
   @ApiOperation({
     summary: '내가 팔로우하는 친구 목록 조회',
@@ -85,7 +93,7 @@ export class UserController {
     return this.userService.getFollowing(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('followers')
   @ApiOperation({
     summary: '나를 팔로우하는 친구 목록 조회',
@@ -94,5 +102,18 @@ export class UserController {
   async getFollowers(@Req() req: any) {
     const userId = req.user.userId;
     return this.userService.getFollowers(userId);
+  }
+
+  @Get('check-nickname')
+  @ApiOperation({
+    summary: '닉네임 중복 검사 API',
+    description: '입력된 닉네임의 사용 가능 여부를 확인합니다.',
+  })
+  async checkNicknameAvailability(
+    @Query('nickname') nickname: string,
+  ): Promise<{ available: boolean }> {
+    const isAvailable =
+      await this.userService.checkNicknameAvailability(nickname);
+    return { available: isAvailable };
   }
 }
