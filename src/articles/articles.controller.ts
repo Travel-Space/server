@@ -227,7 +227,7 @@ export class ArticlesController {
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Get('my-articles')
+  @Get('my/articles')
   @ApiOperation({
     summary: '내 게시글 조회 API',
     description: '로그인한 사용자의 게시글을 조회합니다.',
