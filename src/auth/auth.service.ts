@@ -163,26 +163,33 @@ export class AuthService {
   }
 
   async sendVerificationCode(email: string): Promise<void> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('이미 등록된 이메일입니다.');
+    }
+
     const existingCode = await this.prisma.verificationCode.findUnique({
-      where: { email: email },
+      where: { email },
     });
 
     if (existingCode) {
-      await this.prisma.verificationCode.delete({ where: { email: email } });
+      await this.prisma.verificationCode.delete({ where: { email } });
     }
 
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000,
     ).toString();
-
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
     await this.prisma.verificationCode.create({
       data: {
-        email: email,
+        email,
         code: verificationCode,
-        expiresAt: expiresAt,
+        expiresAt,
         isVerified: false,
       },
     });

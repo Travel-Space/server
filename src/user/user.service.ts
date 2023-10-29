@@ -135,4 +135,11 @@ export class UserService {
       }),
     );
   }
+
+  async checkNicknameAvailability(nickname: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { nickName: nickname },
+    });
+    return !user;
+  }
 }
