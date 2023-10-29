@@ -15,20 +15,31 @@ export class PlanetService {
 
   async getAllPlanet(page: number, limit: number) {
     const skip = (page - 1) * limit;
-    return this.prisma.planet.findMany({
-      skip,
-      take: limit,
-      include: {
-        articles: true,
-        owner: true,
-        planetBookMark: true,
-        members: true,
-        spaceships: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+
+    const [planets, totalCount] = await Promise.all([
+      this.prisma.planet.findMany({
+        skip,
+        take: limit,
+        include: {
+          articles: true,
+          owner: true,
+          planetBookMark: true,
+          members: true,
+          spaceships: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.planet.count(),
+    ]);
+
+    return {
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      planets,
+    };
   }
 
   async getMyPlanets(userId: number, page: number, limit: number) {
