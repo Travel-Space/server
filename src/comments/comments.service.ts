@@ -65,4 +65,43 @@ export class CommentsService {
       },
     });
   }
+
+  async getComments(articleId: number, page: number, pageSize: number) {
+    const comments = await this.prisma.comment.findMany({
+      where: {
+        articleId: articleId,
+        parentId: null,
+      },
+      include: {
+        _count: {
+          select: { children: true },
+        },
+      },
+      take: pageSize,
+      skip: (page - 1) * pageSize,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return comments.map((comment) => ({
+      ...comment,
+      childCommentCount: comment._count.children,
+    }));
+  }
+
+  async getMoreChildComments(
+    parentId: number,
+    lastChildCommentId: number,
+    pageSize: number,
+  ) {
+    const childComments = await this.prisma.comment.findMany({
+      where: {
+        parentId: parentId,
+        ...(lastChildCommentId && { id: { lt: lastChildCommentId } }),
+      },
+      take: pageSize,
+      orderBy: { id: 'desc' },
+    });
+
+    return childComments;
+  }
 }

@@ -30,6 +30,7 @@ import {
 import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ArticleGuard } from './guard';
 import { ViewCountService } from '../view-count/view-count.service';
+import { CommentsService } from 'src/comments/comments.service';
 
 @ApiTags('게시글 API')
 @Controller('articles')
@@ -37,6 +38,7 @@ export class ArticlesController {
   constructor(
     private articlesService: ArticlesService,
     private viewCountService: ViewCountService,
+    private commentsService: CommentsService,
   ) {}
 
   @Get()
@@ -95,18 +97,22 @@ export class ArticlesController {
 
   @ApiOperation({
     summary: '특정 게시글 조회 API',
-    description: '특정 게시글을 불러온다',
+    description: '특정 게시글과 관련된 주 댓글 및 초기 대댓글을 불러온다',
   })
   @ApiResponse({
-    status: 201,
-    description: '게시글을 불러왔습니다.',
-    type: String,
+    status: 200,
+    description: '게시글, 주 댓글, 및 초기 대댓글을 불러왔습니다.',
+    type: ArticleWithCommentsDto,
   })
   @Get(':id')
   @UseGuards(JwtAuthGuard, ArticleGuard)
-  async getArticleById(@Param('id') articleId: number, @Req() req: any) {
+  async getArticleWithComments(
+    @Param('id') articleId: number,
+    @Req() req: any,
+  ) {
     const userId = req.user.id;
     await this.viewCountService.incrementViewCount(articleId, null);
+
     const article = await this.articlesService.getArticleById(
       articleId,
       userId,
@@ -114,7 +120,33 @@ export class ArticlesController {
     if (!article) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
     }
-    return article;
+
+    // 주 댓글과 초기 대댓글 정보를 가져옴
+    const topLevelComments = await this.commentsService.getComments(
+      articleId,
+      1,
+      10,
+    ); // 예: 첫 페이지의 10개 주 댓글
+    const commentsWithInitialReplies = await Promise.all(
+      topLevelComments.map(async (comment) => {
+        const initialReplies = await this.commentsService.getMoreChildComments(
+          comment.id,
+          null,
+          5,
+        ); // 각 주 댓글에 대해 5개의 초기 대댓글을 가져옴
+        return {
+          ...comment,
+          replies: initialReplies,
+          repliesCount: comment._count.children, // 실제 대댓글의 총 개수
+        };
+      }),
+    );
+
+    // 게시글 정보와 주 댓글 및 초기 대댓글 정보를 함께 반환
+    return {
+      ...article,
+      comments: commentsWithInitialReplies,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
