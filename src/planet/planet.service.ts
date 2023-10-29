@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -404,6 +405,49 @@ export class PlanetService {
     });
 
     return pendingApplications;
+  }
+  async addBookmark(userId: number, planetId: number) {
+    const existingBookmark = await this.prisma.planetBookmark.findUnique({
+      where: {
+        userId_planetId: {
+          userId,
+          planetId,
+        },
+      },
+    });
+
+    if (existingBookmark) {
+      throw new ConflictException('이미 북마크된 행성입니다.');
+    }
+
+    return this.prisma.planetBookmark.create({
+      data: {
+        userId,
+        planetId,
+      },
+    });
+  }
+
+  async removeBookmark(userId: number, planetId: number) {
+    return this.prisma.planetBookmark.delete({
+      where: {
+        userId_planetId: {
+          userId,
+          planetId,
+        },
+      },
+    });
+  }
+
+  async getBookmarkedPlanets(userId: number) {
+    return this.prisma.planetBookmark.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        planet: true,
+      },
+    });
   }
 }
 

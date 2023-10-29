@@ -248,4 +248,17 @@ export class ArticlesService {
       },
     });
   }
+
+  async getLikedArticles(userId: number) {
+    return this.prisma.like
+      .findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          article: true,
+        },
+      })
+      .then((likes) => likes.map((like) => like.article));
+  }
 }

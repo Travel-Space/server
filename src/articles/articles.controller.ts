@@ -229,4 +229,15 @@ export class ArticlesController {
   ) {
     return await this.articlesService.removeLike(req.user.userId, articleId);
   }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('likes')
+  @ApiOperation({
+    summary: '내가 좋아요 누른 게시글 조회 API',
+    description: '사용자가 좋아요를 누른 게시글 목록을 조회합니다.',
+  })
+  async getMyLikedArticles(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.articlesService.getLikedArticles(userId);
+  }
 }

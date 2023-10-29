@@ -269,4 +269,40 @@ export class PlanetController {
       await this.planetService.getPendingApplications(userId);
     return applications;
   }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Post(':planetId/bookmark')
+  @ApiOperation({
+    summary: '행성 북마크 추가 API',
+    description: '행성을 북마크에 추가합니다.',
+  })
+  async addBookmark(
+    @Req() req: any,
+    @Param('planetId', ParseIntPipe) planetId: number,
+  ) {
+    return await this.planetService.addBookmark(req.user.userId, planetId);
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Delete(':planetId/bookmark')
+  @ApiOperation({
+    summary: '행성 북마크 취소 API',
+    description: '행성 북마크를 취소합니다.',
+  })
+  async removeBookmark(
+    @Req() req: any,
+    @Param('planetId', ParseIntPipe) planetId: number,
+  ) {
+    return await this.planetService.removeBookmark(req.user.userId, planetId);
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('bookmarks')
+  @ApiOperation({
+    summary: '북마크한 행성 목록 조회 API',
+    description: '사용자가 북마크한 모든 행성을 조회합니다.',
+  })
+  async getBookmarkedPlanets(@Req() req: any) {
+    return await this.planetService.getBookmarkedPlanets(req.user.userId);
+  }
 }
