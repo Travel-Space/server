@@ -175,6 +175,7 @@ export class ArticlesService {
 
     return this.prisma.comment.delete({ where: { id } });
   }
+
   async getArticlesByAuthor(authorId: number, userId: number) {
     const articles = await this.prisma.article.findMany({
       where: {

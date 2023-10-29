@@ -8,6 +8,7 @@ import { PlanetModule } from './planet/planet.module';
 import { UserModule } from './user/user.module';
 import { SpaceshipModule } from './spaceship/spaceship.module';
 import { ReportModule } from './report/report.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ReportModule } from './report/report.module';
     UserModule,
     SpaceshipModule,
     ReportModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

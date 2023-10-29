@@ -106,6 +106,8 @@ export class ArticlesController {
     return article;
   }
 
+  // src/articles/articles.controller.ts
+
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({
@@ -126,12 +128,14 @@ export class ArticlesController {
     const userId = req.user.userId;
     const planetId = createArticleDto.planetId;
 
-    if (!(await this.articlesService.isUserToPlanet(userId, planetId))) {
+    if (
+      planetId &&
+      !(await this.articlesService.isUserToPlanet(userId, planetId))
+    ) {
       return res
         .status(403)
         .json({ message: '사용자는 해당 행성의 멤버가 아닙니다.' });
     }
-
     const article = await this.articlesService.createArticle(
       createArticleDto,
       userId,
