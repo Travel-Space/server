@@ -187,50 +187,6 @@ export class ArticlesController {
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Post(':articleId/comments')
-  @ApiOperation({
-    summary: '댓글 작성 API',
-    description: '게시글에 댓글 혹은 대댓글을 작성합니다.',
-  })
-  @ApiBody({ type: CreateCommentDto })
-  async createComment(
-    @Param('articleId') articleId: number,
-    @Body() createCommentDto: CreateCommentDto,
-    @Req() req: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const userId = req.user.userId;
-    const comment = await this.articlesService.createComment(
-      createCommentDto,
-      userId,
-      articleId,
-    );
-    return res.status(201).json(comment);
-  }
-
-  @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Put('comments/:commentId')
-  @ApiOperation({
-    summary: '댓글 수정 API',
-    description: '게시글의 댓글 내용을 수정합니다.',
-  })
-  @ApiBody({ type: UpdateCommentDto })
-  async updateComment(
-    @Param('commentId') commentId: number,
-    @Body() updateCommentDto: UpdateCommentDto,
-    @Req() req: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const userId = req.user.userId;
-    const updatedComment = await this.articlesService.updateComment(
-      commentId,
-      updateCommentDto,
-      userId,
-    );
-    return res.json(updatedComment);
-  }
-
-  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('my/articles')
   @ApiOperation({
     summary: '내 게시글 조회 API',
