@@ -95,15 +95,4 @@ export class UserController {
     const userId = req.user.userId;
     return this.userService.getFollowers(userId);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('friends')
-  @ApiOperation({
-    summary: '팔로잉 및 팔로워 목록 조회',
-    description: '현재 사용자의 팔로잉과 팔로워 목록을 조회합니다.',
-  })
-  async getUserFriends(@Req() req: any) {
-    const userId = req.user.id;
-    return this.userService.getUserFriendsWithMutualStatus(userId);
-  }
 }
