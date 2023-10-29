@@ -18,7 +18,11 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
-import { CreateArticleDto, UpdateArticleDto } from './dto';
+import {
+  ArticleWithCommentsDto,
+  CreateArticleDto,
+  UpdateArticleDto,
+} from './dto';
 import {
   ApiBody,
   ApiOperation,
@@ -121,28 +125,26 @@ export class ArticlesController {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
     }
 
-    // 주 댓글과 초기 대댓글 정보를 가져옴
     const topLevelComments = await this.commentsService.getComments(
       articleId,
       1,
       10,
-    ); // 예: 첫 페이지의 10개 주 댓글
+    );
     const commentsWithInitialReplies = await Promise.all(
       topLevelComments.map(async (comment) => {
         const initialReplies = await this.commentsService.getMoreChildComments(
           comment.id,
           null,
           5,
-        ); // 각 주 댓글에 대해 5개의 초기 대댓글을 가져옴
+        );
         return {
           ...comment,
           replies: initialReplies,
-          repliesCount: comment._count.children, // 실제 대댓글의 총 개수
+          repliesCount: comment._count.children,
         };
       }),
     );
 
-    // 게시글 정보와 주 댓글 및 초기 대댓글 정보를 함께 반환
     return {
       ...article,
       comments: commentsWithInitialReplies,
