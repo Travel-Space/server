@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -58,6 +59,17 @@ export class CommentsController {
       userId,
       articleId,
     );
-    return comment; // res 사용 제거
+    return comment;
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('user')
+  @ApiOperation({
+    summary: '사용자 댓글 조회 API',
+    description: '사용자가 작성한 댓글을 조회합니다.',
+  })
+  async getUserComments(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.commentsService.getCommentsByUserId(userId);
   }
 }

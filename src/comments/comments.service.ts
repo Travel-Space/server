@@ -57,4 +57,12 @@ export class CommentsService {
 
     return this.prisma.comment.delete({ where: { id } });
   }
+
+  async getCommentsByUserId(userId: number) {
+    return this.prisma.comment.findMany({
+      where: {
+        authorId: userId,
+      },
+    });
+  }
 }

@@ -61,7 +61,7 @@ export class ArticleGuard implements CanActivate {
         select: {
           published: true,
           members: {
-            where: { userId: user?.id }, // 현재 로그인한 사용자만 선택
+            where: { userId: user?.id },
           },
         },
       });
