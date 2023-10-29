@@ -19,6 +19,8 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
+        locations: true,
+        images: true,
       },
     });
 
@@ -36,6 +38,8 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
+        locations: true,
+        images: true,
       },
     });
 
@@ -60,6 +64,8 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
+        locations: true,
+        images: true,
       },
     });
 
@@ -98,6 +104,10 @@ export class ArticlesService {
       include: {
         locations: true,
         images: true,
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
       },
     });
 
@@ -144,6 +154,14 @@ export class ArticlesService {
               }
             : undefined,
       },
+      include: {
+        locations: true,
+        images: true,
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+      },
     });
 
     return updatedArticle;
@@ -173,6 +191,8 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
+        locations: true,
+        images: true,
       },
     });
 
