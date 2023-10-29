@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AdminGuard, LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('유저 API')
@@ -26,6 +26,18 @@ export class UserController {
   @ApiOperation({
     summary: '모든 사용자 조회 API',
     description: '모든 사용자를 페이지네이션하여 반환합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: '한 페이지당 행성 수',
   })
   async getAllUsers(
     @Query('page', ParseIntPipe) page: number = 1,

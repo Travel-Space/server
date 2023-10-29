@@ -23,6 +23,7 @@ import {
   ApiBody,
   ApiResponse,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { LoggedInGuard } from 'src/auth/guard';
 
@@ -35,6 +36,18 @@ export class PlanetController {
   @ApiOperation({
     summary: '모든 행성 조회 API',
     description: '모든 행성을 페이지네이션하여 반환합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: '한 페이지당 행성 수',
   })
   async getAllPlanet(
     @Query('page', ParseIntPipe) page: number = 1,
