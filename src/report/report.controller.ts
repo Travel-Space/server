@@ -11,11 +11,17 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
-import { ApproveReportDto, RejectReportDto, SearchReportsDto } from './dto';
+import {
+  ApproveReportDto,
+  CreateReportDto,
+  RejectReportDto,
+  SearchReportsDto,
+} from './dto';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { AdminGuard, JwtAuthGuard } from 'src/auth/guard';
+import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ReportStatus } from '@prisma/client';
 
 @ApiTags('신고 관리')
@@ -93,5 +99,16 @@ export class ReportController {
   @ApiResponse({ status: 200, description: '필터링된 신고 목록' })
   async searchReports(@Query() searchDto: SearchReportsDto) {
     return await this.reportService.searchReports(searchDto);
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Post()
+  @ApiOperation({ summary: '신고 생성 API', description: '신고를 생성합니다.' })
+  async createReport(
+    @Req() req: any,
+    @Body() createReportDto: CreateReportDto,
+  ) {
+    const userId = req.user.userId;
+    return this.reportService.createReport(userId, createReportDto);
   }
 }

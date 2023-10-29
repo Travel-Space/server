@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Report, ReportStatus, User } from '@prisma/client';
-import { SearchReportsDto } from './dto';
+import { CreateReportDto, SearchReportsDto } from './dto';
 
 @Injectable()
 export class ReportService {
@@ -96,5 +96,18 @@ export class ReportService {
       totalCount,
       reports,
     };
+  }
+
+  async createReport(userId: number, createReportDto: CreateReportDto) {
+    return this.prisma.report.create({
+      data: {
+        reporterId: userId,
+        reason: createReportDto.reason,
+        targetId: createReportDto.targetId,
+        targetType: createReportDto.targetType,
+        imageUrl: createReportDto.imageUrl,
+        status: 'RECEIVED',
+      },
+    });
   }
 }

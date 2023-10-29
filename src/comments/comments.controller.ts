@@ -15,7 +15,7 @@ import { CreateCommentDto, UpdateCommentDto } from './dto';
 import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { CommentsService } from './comments.service';
 
-ApiTags('댓글 API');
+@ApiTags('댓글 API')
 @Controller('comments')
 export class CommentsController {
   constructor(private commentsService: CommentsService) {}
