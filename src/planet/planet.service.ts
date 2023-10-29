@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
 import { PlanetMemberRole } from '@prisma/client';
+import { UpdatePlanetDto } from './dto';
 
 @Injectable()
 export class PlanetService {
@@ -72,7 +73,7 @@ export class PlanetService {
   async updatePlanet(
     planetId: number,
     userId: number,
-    data: Partial<CreatePlanetDto>,
+    data: Partial<UpdatePlanetDto>,
   ) {
     const planet = await this.prisma.planet.findUnique({
       where: { id: planetId },
