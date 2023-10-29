@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
+  Post,
   Put,
   Req,
   UseGuards,
@@ -42,5 +44,66 @@ export class UserController {
   @Get('profile')
   async getProfile(@Req() req: any) {
     return await this.userService.getUserById(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('follow/:friendId')
+  @ApiOperation({
+    summary: '다른 사용자 팔로우',
+    description: '다른 사용자를 팔로우합니다.',
+  })
+  async follow(
+    @Req() req: any,
+    @Param('friendId', ParseIntPipe) friendId: number,
+  ) {
+    const userId = req.user.userId;
+    return this.userService.followUser(userId, friendId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('unfollow/:friendId')
+  @ApiOperation({
+    summary: '팔로우 취소',
+    description: '팔로우한 사용자를 언팔로우합니다.',
+  })
+  async unfollow(
+    @Req() req: any,
+    @Param('friendId', ParseIntPipe) friendId: number,
+  ) {
+    const userId = req.user.userId;
+    return this.userService.unfollowUser(userId, friendId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('following')
+  @ApiOperation({
+    summary: '내가 팔로우하는 친구 목록 조회',
+    description: '현재 사용자가 팔로우하는 친구 목록을 조회합니다.',
+  })
+  async getFollowing(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.userService.getFollowing(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('followers')
+  @ApiOperation({
+    summary: '나를 팔로우하는 친구 목록 조회',
+    description: '현재 사용자를 팔로우하는 친구 목록과 맞팔 여부를 조회합니다.',
+  })
+  async getFollowers(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.userService.getFollowers(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('friends')
+  @ApiOperation({
+    summary: '팔로잉 및 팔로워 목록 조회',
+    description: '현재 사용자의 팔로잉과 팔로워 목록을 조회합니다.',
+  })
+  async getUserFriends(@Req() req: any) {
+    const userId = req.user.id;
+    return this.userService.getUserFriendsWithMutualStatus(userId);
   }
 }

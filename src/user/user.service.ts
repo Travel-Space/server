@@ -59,4 +59,80 @@ export class UserService {
       throw new BadRequestException('유저 정보 수정 중 에러가 발생했습니다.');
     }
   }
+
+  async followUser(userId: number, friendId: number) {
+    if (userId === friendId) {
+      throw new BadRequestException('자기 자신을 팔로우할 수 없습니다.');
+    }
+
+    const existingFriendship = await this.prisma.userFriend.findUnique({
+      where: {
+        userId_friendId: {
+          userId,
+          friendId,
+        },
+      },
+    });
+
+    if (existingFriendship) {
+      throw new BadRequestException('이미 팔로우하고 있습니다.');
+    }
+
+    return this.prisma.userFriend.create({
+      data: {
+        userId,
+        friendId,
+      },
+    });
+  }
+
+  async unfollowUser(userId: number, friendId: number) {
+    return this.prisma.userFriend.delete({
+      where: {
+        userId_friendId: {
+          userId,
+          friendId,
+        },
+      },
+    });
+  }
+
+  async getFollowing(userId: number) {
+    return this.prisma.userFriend.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        friend: true,
+      },
+    });
+  }
+
+  async getFollowers(userId: number) {
+    const followers = await this.prisma.userFriend.findMany({
+      where: {
+        friendId: userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return Promise.all(
+      followers.map(async (follower) => {
+        const isMutual = await this.prisma.userFriend.findUnique({
+          where: {
+            userId_friendId: {
+              userId: follower.userId,
+              friendId: userId,
+            },
+          },
+        });
+        return {
+          ...follower,
+          isMutual: !!isMutual,
+        };
+      }),
+    );
+  }
 }
