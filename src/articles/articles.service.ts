@@ -6,12 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CreateArticleDto,
-  CreateCommentDto,
-  UpdateArticleDto,
-  UpdateCommentDto,
-} from './dto';
+import { CreateArticleDto, UpdateArticleDto } from './dto';
 
 @Injectable()
 export class ArticlesService {
@@ -75,19 +70,34 @@ export class ArticlesService {
     }));
   }
 
-  async createArticle(data: CreateArticleDto, userId: number) {
-    try {
-      const prismaInput = this.transformArticleDtoToPrismaInput(data);
-      return await this.prisma.article.create({
-        data: {
-          ...prismaInput,
-          authorId: userId,
+  async createArticle(dto: CreateArticleDto, userId: number) {
+    const newArticle = await this.prisma.article.create({
+      data: {
+        title: dto.title,
+        content: dto.content,
+        published: dto.published ?? true, // 옵셔널한 필드에 대해 기본값 설정
+        address: dto.address,
+        hashtags: dto.hashtags,
+        author: {
+          connect: { id: userId },
         },
-      });
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException('게시글 생성 중 오류가 발생했습니다.');
-    }
+        planet: dto.planetId ? { connect: { id: dto.planetId } } : undefined,
+        locations: {
+          create: dto.locations.map((location) => ({
+            latitude: location.latitude,
+            longitude: location.longitude,
+          })),
+        },
+        images:
+          dto.imageUrls && dto.imageUrls.length > 0
+            ? {
+                create: dto.imageUrls.map((url) => ({ url })),
+              }
+            : undefined,
+      },
+    });
+
+    return newArticle;
   }
 
   async isUserToPlanet(userId: number, planetId: number): Promise<boolean> {
@@ -102,17 +112,37 @@ export class ArticlesService {
     return !!membership;
   }
 
-  async updateArticle(id: number, data: UpdateArticleDto, userId: number) {
+  async updateArticle(id: number, dto: UpdateArticleDto, userId: number) {
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('게시글을 찾을 수 없습니다.');
     if (article.authorId !== userId)
       throw new ForbiddenException('권한이 없습니다.');
 
-    const prismaInput = this.transformArticleDtoToPrismaInput(data);
-    return this.prisma.article.update({
+    const updatedArticle = await this.prisma.article.update({
       where: { id },
-      data: prismaInput,
+      data: {
+        title: dto.title,
+        content: dto.content,
+        published: dto.published ?? true,
+        address: dto.address,
+        hashtags: dto.hashtags,
+        planet: dto.planetId ? { connect: { id: dto.planetId } } : undefined,
+        locations: {
+          create: dto.locations?.map((location) => ({
+            latitude: parseFloat(location.latitude),
+            longitude: parseFloat(location.longitude),
+          })),
+        },
+        images:
+          dto.imageUrls && dto.imageUrls.length > 0
+            ? {
+                create: dto.imageUrls.map((url) => ({ url })),
+              }
+            : undefined,
+      },
     });
+
+    return updatedArticle;
   }
 
   async deleteArticle(id: number, userId: number) {
@@ -193,22 +223,5 @@ export class ArticlesService {
         },
       },
     });
-  }
-
-  transformArticleDtoToPrismaInput(
-    dto: CreateArticleDto | UpdateArticleDto,
-  ): any {
-    const data: any = { ...dto };
-
-    if (dto.locations) {
-      data.locations = {
-        create: dto.locations.map((location) => ({
-          latitude: parseFloat(location.latitude),
-          longitude: parseFloat(location.longitude),
-        })),
-      };
-    }
-
-    return data;
   }
 }

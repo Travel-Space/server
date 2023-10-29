@@ -17,13 +17,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
-import {
-  CreateArticleDto,
-  CreateCommentDto,
-  UpdateArticleDto,
-  UpdateCommentDto,
-  FindArticlesByPlanetDto,
-} from './dto';
+import { CreateArticleDto, UpdateArticleDto } from './dto';
 import {
   ApiBody,
   ApiOperation,
@@ -106,8 +100,6 @@ export class ArticlesController {
     return article;
   }
 
-  // src/articles/articles.controller.ts
-
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiOperation({
@@ -128,6 +120,7 @@ export class ArticlesController {
     const userId = req.user.userId;
     const planetId = createArticleDto.planetId;
 
+    console.log('userid' + userId, 'planetId' + planetId);
     if (
       planetId &&
       !(await this.articlesService.isUserToPlanet(userId, planetId))

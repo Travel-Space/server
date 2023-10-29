@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
-import { CreateCommentDto, UpdateCommentDto } from 'src/articles/dto';
+import { CreateCommentDto, UpdateCommentDto } from './dto';
 import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { CommentsService } from './comments.service';
 
@@ -27,7 +27,7 @@ export class CommentsController {
   })
   @ApiBody({ type: UpdateCommentDto })
   async updateComment(
-    @Param('commentId', ParseIntPipe) commentId: number, // ParseIntPipe 추가
+    @Param('commentId', ParseIntPipe) commentId: number,
     @Body() updateCommentDto: UpdateCommentDto,
     @Req() req: any,
   ) {
@@ -37,7 +37,7 @@ export class CommentsController {
       updateCommentDto,
       userId,
     );
-    return updatedComment; // res 사용 제거
+    return updatedComment;
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
@@ -48,7 +48,7 @@ export class CommentsController {
   })
   @ApiBody({ type: CreateCommentDto })
   async createComment(
-    @Param('articleId', ParseIntPipe) articleId: number, // ParseIntPipe 추가
+    @Param('articleId', ParseIntPipe) articleId: number,
     @Body() createCommentDto: CreateCommentDto,
     @Req() req: any,
   ) {
