@@ -75,7 +75,7 @@ export class ArticlesService {
       data: {
         title: dto.title,
         content: dto.content,
-        published: dto.published ?? true, // 옵셔널한 필드에 대해 기본값 설정
+        published: dto.published ?? true,
         address: dto.address,
         hashtags: dto.hashtags,
         author: {
@@ -94,6 +94,10 @@ export class ArticlesService {
                 create: dto.imageUrls.map((url) => ({ url })),
               }
             : undefined,
+      },
+      include: {
+        locations: true,
+        images: true,
       },
     });
 
