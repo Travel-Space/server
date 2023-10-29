@@ -28,11 +28,15 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ArticleGuard } from './guard';
+import { ViewCountService } from '../view-count/view-count.service';
 
 @ApiTags('게시글 API')
 @Controller('articles')
 export class ArticlesController {
-  constructor(private articlesService: ArticlesService) {}
+  constructor(
+    private articlesService: ArticlesService,
+    private viewCountService: ViewCountService,
+  ) {}
 
   @ApiOperation({
     summary: '모든 게시글 조회 API',
@@ -90,6 +94,7 @@ export class ArticlesController {
   @UseGuards(JwtAuthGuard, ArticleGuard)
   async getArticleById(@Param('id') articleId: number, @Req() req: any) {
     const userId = req.user.id;
+    await this.viewCountService.incrementViewCount(articleId, null);
     const article = await this.articlesService.getArticleById(
       articleId,
       userId,

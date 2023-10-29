@@ -56,6 +56,7 @@ model Article {
   planet    Planet?   @relation(fields: [planetId], references: [id])
   comments  Comment[]
   likes     Like[]    @relation("LikeToArticle")
+  viewCount      ViewCount[]
 }
 
 model Planet {
@@ -75,6 +76,7 @@ model Planet {
   planetBookMark PlanetBookmark[]
   members        PlanetMembership[]
   spaceships     Spaceship[]
+  viewCount      ViewCount[]
 }
 
 model PlanetMembership {
@@ -233,6 +235,18 @@ model Image {
   url       String    // S3 URL
   articleId Int
   article   Article   @relation(fields: [articleId], references: [id])
+}
+
+model ViewCount {
+  id         Int      @id @default(autoincrement())
+  date       DateTime
+  count      Int      @default(0)
+  articleId  Int?
+  planetId   Int?
+  article    Article? @relation(fields: [articleId], references: [id])
+  planet     Planet?  @relation(fields: [planetId], references: [id])
+
+  @@unique([date, articleId, planetId])
 }
 
 enum SocialProvider {

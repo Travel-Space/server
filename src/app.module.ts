@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { SpaceshipModule } from './spaceship/spaceship.module';
 import { ReportModule } from './report/report.module';
 import { CommentsModule } from './comments/comments.module';
+import { ViewCountModule } from './view-count/view-count.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CommentsModule } from './comments/comments.module';
     SpaceshipModule,
     ReportModule,
     CommentsModule,
+    ViewCountModule,
   ],
   controllers: [AppController],
   providers: [AppService],
