@@ -158,6 +158,7 @@ model Report {
   reporterId Int
   targetId   Int
   targetType ReportTargetType
+  imageUrl   String? 
   createdAt  DateTime         @default(now())
   deletedAt  DateTime?        @map("deleted_at")
   reporter   User             @relation(fields: [reporterId], references: [id])

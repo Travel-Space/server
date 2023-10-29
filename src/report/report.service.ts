@@ -1,25 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Report, ReportStatus, User } from '@prisma/client';
+import { SearchReportsDto } from './dto';
 
 @Injectable()
 export class ReportService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllReports() {
+  async getAllReports(paginationDto: { page: number; pageSize: number }) {
+    const { page, pageSize } = paginationDto;
+    const skip = (page - 1) * pageSize;
     const reports = await this.prisma.report.findMany({
-      include: {
-        reporter: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
+      take: pageSize,
+      skip: skip,
     });
+    const totalCount = await this.prisma.report.count();
 
     return {
-      totalCount: reports.length,
+      totalCount,
       reports,
     };
   }
@@ -66,5 +64,37 @@ export class ReportService {
       },
     });
     return report;
+  }
+
+  async searchReports(searchDto: SearchReportsDto) {
+    const { name, email, status, page, pageSize } = searchDto;
+    const reportsQuery = this.prisma.report.findMany({
+      where: {
+        reporter: {
+          name: { contains: name },
+          email: { equals: email },
+        },
+        status: status,
+      },
+      take: pageSize,
+      skip: (page - 1) * pageSize,
+    });
+
+    const totalCount = await this.prisma.report.count({
+      where: {
+        reporter: {
+          name: { contains: name },
+          email: { equals: email },
+        },
+        status: status,
+      },
+    });
+
+    const reports = await reportsQuery;
+
+    return {
+      totalCount,
+      reports,
+    };
   }
 }
