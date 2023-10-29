@@ -70,6 +70,7 @@ model Planet {
   isActive       Boolean            @default(true)
   shape          PlanetShape?
   hashtags       String[]
+   createdAt DateTime @default(now())
   deletedAt      DateTime?          @map("deleted_at")
   articles       Article[]
   owner          User               @relation(fields: [ownerId], references: [id])

@@ -13,14 +13,20 @@ import { UpdatePlanetDto } from './dto';
 export class PlanetService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllPlanet() {
-    return await this.prisma.planet.findMany({
+  async getAllPlanet(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return this.prisma.planet.findMany({
+      skip,
+      take: limit,
       include: {
         articles: true,
         owner: true,
         planetBookMark: true,
         members: true,
         spaceships: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
