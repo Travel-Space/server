@@ -233,9 +233,9 @@ model Location {
 
 model Image {
   id        Int       @id @default(autoincrement())
-  url       String    // S3 URL
-  articleId Int
-  article   Article   @relation(fields: [articleId], references: [id])
+  url       String?   // S3 URL
+  articleId Int?
+  article   Article?  @relation(fields: [articleId], references: [id])
 }
 
 model ViewCount {
