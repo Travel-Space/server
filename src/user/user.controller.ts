@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -37,7 +38,7 @@ export class UserController {
     name: 'limit',
     required: false,
     type: 'number',
-    description: '한 페이지당 행성 수',
+    description: '한 페이지당 유저 수',
   })
   async getAllUsers(
     @Query('page', ParseIntPipe) page: number = 1,
@@ -98,24 +99,55 @@ export class UserController {
   @Get('following')
   @ApiOperation({
     summary: '내가 팔로우하는 친구 목록 조회',
-    description: '현재 사용자가 팔로우하는 친구 목록을 조회합니다.',
+    description:
+      '현재 사용자가 팔로우하는 친구 목록을 페이지네이션하여 조회합니다.',
   })
-  async getFollowing(@Req() req: any) {
-    const userId = req.user.userId;
-    return this.userService.getFollowing(userId);
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '한 페이지당 친구 수',
+  })
+  async getFollowing(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.userService.getFollowing(req.user.userId, page, limit);
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('followers')
   @ApiOperation({
     summary: '나를 팔로우하는 친구 목록 조회',
-    description: '현재 사용자를 팔로우하는 친구 목록과 맞팔 여부를 조회합니다.',
+    description:
+      '현재 사용자를 팔로우하는 친구 목록과 맞팔 여부를 페이지네이션하여 조회합니다.',
   })
-  async getFollowers(@Req() req: any) {
-    const userId = req.user.userId;
-    return this.userService.getFollowers(userId);
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '한 페이지당 친구 수',
+  })
+  async getFollowers(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.userService.getFollowers(req.user.userId, page, limit);
   }
-
   @Get('check-nickname')
   @ApiOperation({
     summary: '닉네임 중복 검사 API',

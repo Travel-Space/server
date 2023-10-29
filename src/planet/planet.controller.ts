@@ -12,6 +12,7 @@ import {
   ForbiddenException,
   ParseIntPipe,
   Query,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { PlanetService } from './planet.service';
 import { CreatePlanetDto, UpdateMemberRoleDto, UpdatePlanetDto } from './dto';
@@ -60,14 +61,26 @@ export class PlanetController {
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '내가 가입된 행성 조회 API',
-    description: '사용자가 가입된 모든 행성을 불러옵니다.',
+    description: '사용자가 가입된 모든 행성을 페이지네이션하여 불러옵니다.',
   })
-  @ApiResponse({
-    status: 200,
-    description: '내가 가입된 행성을 불러왔습니다.',
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
   })
-  async getMyPlanets(@Req() req: any) {
-    return await this.planetService.getMyPlanets(req.user.userId);
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '페이지당 행성 수',
+  })
+  async getMyPlanets(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.planetService.getMyPlanets(req.user.userId, page, limit);
   }
 
   @Get(':planetId')

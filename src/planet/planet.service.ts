@@ -31,28 +31,29 @@ export class PlanetService {
     });
   }
 
-  async getMyPlanets(userId: number) {
-    return this.prisma.planetMembership
-      .findMany({
-        where: {
-          userId: userId,
-          status: 'APPROVED',
-        },
-        include: {
-          planet: {
-            include: {
-              articles: true,
-              owner: true,
-              planetBookMark: true,
-              members: true,
-              spaceships: true,
-            },
+  async getMyPlanets(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const memberships = await this.prisma.planetMembership.findMany({
+      where: {
+        userId: userId,
+        status: 'APPROVED',
+      },
+      skip,
+      take: limit,
+      include: {
+        planet: {
+          include: {
+            articles: true,
+            owner: true,
+            planetBookMark: true,
+            members: true,
+            spaceships: true,
           },
         },
-      })
-      .then((memberships) =>
-        memberships.map((membership) => membership.planet),
-      );
+      },
+    });
+
+    return memberships.map((membership) => membership.planet);
   }
 
   async createPlanet(dto: CreatePlanetDto, userId: number) {

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto, UpdateArticleDto } from './dto';
+import { Article } from '@prisma/client';
 
 @Injectable()
 export class ArticlesService {
@@ -188,28 +189,36 @@ export class ArticlesService {
     });
   }
 
-  async getArticlesByAuthor(authorId: number, userId: number) {
-    const articles = await this.prisma.article.findMany({
-      where: {
-        authorId: authorId,
-      },
-      include: {
-        author: true,
-        planet: true,
-        likes: true,
-        comments: true,
-        locations: true,
-        images: true,
-      },
-    });
-
-    return articles.map((article) => ({
-      ...article,
-      likeCount: article.likes.length,
-      isLiked: article.likes.some((like) => like.userId === userId),
-    }));
+  async getArticlesByAuthor(
+    authorId: number,
+    page: number,
+    limit: number,
+  ): Promise<Article[]> {
+    const skip = (page - 1) * limit;
+    return this.prisma.article
+      .findMany({
+        where: {
+          authorId: authorId,
+        },
+        skip,
+        take: limit,
+        include: {
+          author: true,
+          planet: true,
+          likes: true,
+          comments: true,
+          locations: true,
+          images: true,
+        },
+      })
+      .then((articles) =>
+        articles.map((article) => ({
+          ...article,
+          likeCount: article.likes.length,
+          isLiked: article.likes.some((like) => like.userId === authorId),
+        })),
+      );
   }
-
   async addLike(userId: number, articleId: number) {
     const existingLike = await this.prisma.like.findUnique({
       where: {

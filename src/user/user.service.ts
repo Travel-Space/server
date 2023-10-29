@@ -101,43 +101,44 @@ export class UserService {
     });
   }
 
-  async getFollowing(userId: number) {
+  async getFollowing(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
     return this.prisma.userFriend.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        friend: true,
-      },
+      where: { userId },
+      skip,
+      take: limit,
+      include: { friend: true },
     });
   }
 
-  async getFollowers(userId: number) {
+  async getFollowers(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
     const followers = await this.prisma.userFriend.findMany({
       where: {
         friendId: userId,
       },
+      skip,
+      take: limit,
       include: {
         user: true,
       },
     });
 
-    return Promise.all(
-      followers.map(async (follower) => {
-        const isMutual = await this.prisma.userFriend.findUnique({
-          where: {
-            userId_friendId: {
-              userId: follower.userId,
-              friendId: userId,
-            },
-          },
-        });
-        return {
-          ...follower,
-          isMutual: !!isMutual,
-        };
-      }),
-    );
+    const followerIds = followers.map((f) => f.userId);
+
+    const mutualFollowsIds = await this.prisma.userFriend
+      .findMany({
+        where: {
+          userId: { in: followerIds },
+          friendId: userId,
+        },
+      })
+      .then((results) => results.map((r) => r.userId));
+
+    return followers.map((follower) => ({
+      ...follower,
+      isMutual: mutualFollowsIds.includes(follower.userId),
+    }));
   }
 
   async checkNicknameAvailability(nickname: string): Promise<boolean> {

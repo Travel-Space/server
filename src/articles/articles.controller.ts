@@ -14,6 +14,7 @@ import {
   ValidationPipe,
   ParseIntPipe,
   NotFoundException,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ArticlesService } from './articles.service';
@@ -43,6 +44,18 @@ export class ArticlesController {
   @ApiOperation({
     summary: '모든 게시글 조회 API',
     description: '모든 게시글을 페이지네이션하여 반환합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: '한 페이지당 게시글 수',
   })
   async getAllArticles(
     @Req() req: any,
@@ -187,17 +200,29 @@ export class ArticlesController {
   @Get('my/articles')
   @ApiOperation({
     summary: '내 게시글 조회 API',
-    description: '로그인한 사용자의 게시글을 조회합니다.',
+    description: '로그인한 사용자의 게시글을 페이지네이션하여 조회합니다.',
   })
-  @ApiResponse({
-    status: 200,
-    description: '내 게시글을 모두 불러왔습니다.',
-    type: String,
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    description: '페이지 번호',
+    required: false,
   })
-  async getUserArticles(@Req() req: any) {
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: '페이지당 게시글 수',
+    required: false,
+  })
+  async getUserArticles(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
     return this.articlesService.getArticlesByAuthor(
       req.user.userId,
-      req.user.userId,
+      page,
+      limit,
     );
   }
 
