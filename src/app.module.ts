@@ -7,6 +7,7 @@ import { ArticlesModule } from './articles/articles.module';
 import { PlanetModule } from './planet/planet.module';
 import { UserModule } from './user/user.module';
 import { SpaceshipModule } from './spaceship/spaceship.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SpaceshipModule } from './spaceship/spaceship.module';
     PlanetModule,
     UserModule,
     SpaceshipModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

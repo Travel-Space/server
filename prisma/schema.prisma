@@ -17,8 +17,9 @@ model User {
   createdAt            DateTime           @default(now())
   oauthId              String?
   password             String
-  profileImage   String?
-   applications SpaceshipApplication[]
+  profileImage         String?
+  reportCount          Int?               @default(0)
+  applications         SpaceshipApplication[]
   provider             SocialProvider
   status               UserStatus         @default(ACTIVE)
   role                 UserRole           @default(MEMBER)
@@ -160,6 +161,7 @@ model Report {
   createdAt  DateTime         @default(now())
   deletedAt  DateTime?        @map("deleted_at")
   reporter   User             @relation(fields: [reporterId], references: [id])
+  status      ReportStatus  @default(RECEIVED)
 }
 
 model PlanetBookmark {
@@ -287,4 +289,10 @@ enum PlanetMemberRole {
   MEMBER
 }
 
+enum ReportStatus {
+  RECEIVED 
+  UNDER_REVIEW 
+  APPROVED 
+  REJECTED 
+}
 
