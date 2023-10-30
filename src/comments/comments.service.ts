@@ -63,6 +63,19 @@ export class CommentsService {
       where: {
         authorId: userId,
       },
+      include: {
+        article: {
+          select: {
+            title: true,
+            createdAt: true,
+            planet: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
