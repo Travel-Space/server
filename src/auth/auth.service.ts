@@ -8,11 +8,20 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto, CreateUserResponse, UpdateUserDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SocialProvider, User } from '@prisma/client';
+import {
+  PlanetMembership,
+  SocialProvider,
+  SpaceshipMember,
+  User,
+} from '@prisma/client';
 import * as argon from 'argon2';
 import * as nodemailer from 'nodemailer';
 import { UserService } from 'src/user/user.service';
 
+type UserWithMemberships = User & {
+  planetsMembership?: PlanetMembership[]; // Optional because it might not be included
+  spaceshipMemberships?: SpaceshipMember[]; // Optional because it might not be included
+};
 @Injectable()
 export class AuthService {
   private transporter;
@@ -104,13 +113,17 @@ export class AuthService {
     });
   }
 
-  async login(req): Promise<{ access_token: string }> {
+  async login(req): Promise<{ access_token: string; memberships: any }> {
     const { email, password } = req.body;
 
-    let user: User;
+    let user: UserWithMemberships | null;
     try {
       user = await this.prisma.user.findUnique({
         where: { email: email },
+        include: {
+          planetsMembership: true,
+          spaceshipMemberships: true,
+        },
       });
     } catch (error) {
       throw new BadRequestException('유효하지 않은 크레덴셜입니다.');
@@ -128,7 +141,21 @@ export class AuthService {
     const payload = { userId: user.id, userEmail: user.email };
     const accessToken = this.jwtService.sign(payload);
 
-    return { access_token: accessToken };
+    const memberships = {
+      planets: user.planetsMembership.map((pm) => ({
+        planetId: pm.planetId,
+        role: pm.role,
+      })),
+      spaceships: user.spaceshipMemberships.map((sm) => ({
+        spaceshipId: sm.spaceshipId,
+        role: sm.role,
+      })),
+    };
+
+    return {
+      access_token: accessToken,
+      memberships: memberships,
+    };
   }
 
   async findOrCreateUser(userInfo): Promise<User> {

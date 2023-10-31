@@ -81,13 +81,13 @@ export class AuthController {
     type: String,
   })
   async login(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const { access_token } = await this.authService.login(req);
+    const { access_token, memberships } = await this.authService.login(req);
     res.cookie('ACCESS_TOKEN', access_token, {
       httpOnly: true,
       // secure: true, // HTTPS
       maxAge: 3600000,
     });
-    return { success: true };
+    return { success: true, memberships };
   }
 
   @Post('google-login')

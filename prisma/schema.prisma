@@ -32,7 +32,7 @@ model User {
   notifications        Notification[]
   ownedPlanet          Planet[]
   planetBookMark       PlanetBookmark[]
-  planetsIn            PlanetMembership[]
+  planetsMembership    PlanetMembership[]
   reportsMade          Report[]
   spaceshipMemberships SpaceshipMember[]
   friendedBy           UserFriend[]       @relation("FriendToUser")
@@ -201,6 +201,7 @@ model SpaceshipMember {
   spaceshipId Int
   userId      Int
   joinedAt    DateTime  @default(now())
+  role        SpaceshipRole @default(MEMBER)
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
 }
@@ -311,5 +312,10 @@ enum ReportStatus {
   UNDER_REVIEW 
   APPROVED 
   REJECTED 
+}
+
+enum SpaceshipRole {
+  MEMBER
+  OWNER
 }
 
