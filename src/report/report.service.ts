@@ -42,6 +42,7 @@ export class ReportService {
       where: { id: reportId },
       data: {
         status: ReportStatus.APPROVED,
+        approvalReason: approvalReason,
       },
     });
     await this.prisma.user.update({
