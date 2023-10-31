@@ -289,7 +289,7 @@ export class ArticlesController {
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Get('likes')
+  @Get('my/likes')
   @ApiOperation({
     summary: '내가 좋아요 누른 게시글 조회 API',
     description: '사용자가 좋아요를 누른 게시글 목록을 조회합니다.',

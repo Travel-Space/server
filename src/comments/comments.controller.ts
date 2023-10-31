@@ -95,7 +95,7 @@ export class CommentsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @Delete(':commentId')
+  @Delete(':commentId/admin')
   @ApiOperation({
     summary: '관리자 댓글 삭제 API',
     description: '관리자가 선택한 댓글을 삭제합니다.',
