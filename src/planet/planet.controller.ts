@@ -323,7 +323,7 @@ export class PlanetController {
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Get('bookmarks')
+  @Get('/my/bookmarks')
   @ApiOperation({
     summary: '북마크한 행성 목록 조회 API',
     description: '사용자가 북마크한 모든 행성을 조회합니다.',
