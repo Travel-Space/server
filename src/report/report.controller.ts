@@ -14,12 +14,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { ReportService } from './report.service';
-import {
-  ApproveReportDto,
-  CreateReportDto,
-  RejectReportDto,
-  SearchReportsDto,
-} from './dto';
+import { ApproveReportDto, CreateReportDto, SearchReportsDto } from './dto';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ReportStatus } from '@prisma/client';
@@ -72,10 +67,7 @@ export class ReportController {
   @HttpCode(200)
   @ApiOperation({ summary: '신고 거절' })
   @ApiResponse({ status: 200, description: '신고 거절 성공' })
-  async rejectReport(
-    @Param('reportId') reportId: number,
-    @Body() rejectReportDto: RejectReportDto,
-  ) {
+  async rejectReport(@Param('reportId') reportId: number) {
     return await this.reportService.rejectReport(reportId);
   }
 

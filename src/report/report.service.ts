@@ -1,8 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Report, ReportStatus, User } from '@prisma/client';
+import { Article, Planet, Report, ReportStatus, User } from '@prisma/client';
 import { CreateReportDto, SearchReportsDto } from './dto';
 
+type ReportDetails = Report & {
+  reporter: User;
+  article?: Article & { planet: Planet | null };
+  comment?: Comment & { article: Article & { planet: Planet | null } };
+};
 @Injectable()
 export class ReportService {
   constructor(private readonly prisma: PrismaService) {}
@@ -22,7 +27,7 @@ export class ReportService {
     };
   }
 
-  async getReportDetails(reportId: number) {
+  async getReportDetails(reportId: number): Promise<ReportDetails> {
     const report = await this.prisma.report.findUnique({
       where: { id: reportId },
       include: {
@@ -34,7 +39,33 @@ export class ReportService {
       throw new NotFoundException('신고를 찾을 수 없습니다.');
     }
 
-    return report;
+    let article;
+    let comment;
+
+    // targetType에 따라 추가 정보를 쿼리합니다.
+    if (report.targetType === 'ARTICLE') {
+      article = await this.prisma.article.findUnique({
+        where: { id: report.targetId },
+        include: { planet: true },
+      });
+    } else if (report.targetType === 'COMMENT') {
+      comment = await this.prisma.comment.findUnique({
+        where: { id: report.targetId },
+        include: {
+          article: {
+            include: {
+              planet: true,
+            },
+          },
+        },
+      });
+    }
+
+    return {
+      ...report,
+      article: article || undefined,
+      comment: comment || undefined,
+    };
   }
 
   async approveReport(reportId: number, approvalReason: string) {
@@ -100,7 +131,7 @@ export class ReportService {
   }
 
   async createReport(userId: number, createReportDto: CreateReportDto) {
-    return this.prisma.report.create({
+    const createdReport = await this.prisma.report.create({
       data: {
         reporterId: userId,
         reason: createReportDto.reason,
@@ -109,6 +140,16 @@ export class ReportService {
         imageUrl: createReportDto.imageUrl,
         status: 'RECEIVED',
       },
+      include: {
+        reporter: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
+
+    return createdReport;
   }
 }

@@ -309,7 +309,6 @@ enum PlanetMemberRole {
 
 enum ReportStatus {
   RECEIVED 
-  UNDER_REVIEW 
   APPROVED 
   REJECTED 
 }
