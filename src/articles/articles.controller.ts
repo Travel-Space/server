@@ -114,7 +114,7 @@ export class ArticlesController {
     @Param('id') articleId: number,
     @Req() req: any,
   ) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     await this.viewCountService.incrementViewCount(articleId, null);
 
     const article = await this.articlesService.getArticleById(

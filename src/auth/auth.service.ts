@@ -112,8 +112,12 @@ export class AuthService {
       data: updateData,
     });
   }
-
-  async login(req): Promise<{ access_token: string; memberships: any }> {
+  async login(req): Promise<{
+    id: number;
+    access_token: string;
+    memberships: any;
+    role: string;
+  }> {
     const { email, password } = req.body;
 
     let user: UserWithMemberships | null;
@@ -138,7 +142,7 @@ export class AuthService {
       throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
     }
 
-    const payload = { userId: user.id, userEmail: user.email };
+    const payload = { userId: user.id, userEmail: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
 
     const memberships = {
@@ -153,8 +157,10 @@ export class AuthService {
     };
 
     return {
+      id: user.id,
       access_token: accessToken,
       memberships: memberships,
+      role: user.role,
     };
   }
 
