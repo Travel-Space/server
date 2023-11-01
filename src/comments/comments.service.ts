@@ -58,25 +58,45 @@ export class CommentsService {
     return this.prisma.comment.delete({ where: { id } });
   }
 
-  async getCommentsByUserId(userId: number) {
-    return this.prisma.comment.findMany({
-      where: {
-        authorId: userId,
-      },
-      include: {
-        article: {
-          select: {
-            title: true,
-            createdAt: true,
-            planet: {
-              select: {
-                name: true,
+  async getCommentsByUserId(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [comments, totalCount] = await Promise.all([
+      this.prisma.comment.findMany({
+        where: {
+          authorId: userId,
+        },
+        skip,
+        take: limit,
+        include: {
+          article: {
+            select: {
+              title: true,
+              createdAt: true,
+              planet: {
+                select: {
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.comment.count({
+        where: {
+          authorId: userId,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      comments,
+      totalPages,
+    };
   }
 
   async getComments(articleId: number, page: number, pageSize: number) {

@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -69,11 +70,22 @@ export class CommentsController {
   @Get('user')
   @ApiOperation({
     summary: '사용자 댓글 조회 API',
-    description: '사용자가 작성한 댓글을 조회합니다.',
+    description: '사용자가 작성한 댓글을 페이지별로 조회합니다.',
   })
-  async getUserComments(@Req() req: any) {
+  async getUserComments(
+    @Req() req: any,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     const userId = req.user.userId;
-    return this.commentsService.getCommentsByUserId(userId);
+    const { comments, totalPages } =
+      await this.commentsService.getCommentsByUserId(userId, page, limit);
+    return {
+      data: comments,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)

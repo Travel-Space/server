@@ -199,10 +199,10 @@ export class ArticlesService {
     authorId: number,
     page: number,
     limit: number,
-  ): Promise<Article[]> {
+  ): Promise<{ articles: Article[]; totalPages: number }> {
     const skip = (page - 1) * limit;
-    return this.prisma.article
-      .findMany({
+    const [articles, totalCount] = await Promise.all([
+      this.prisma.article.findMany({
         where: {
           authorId: authorId,
         },
@@ -216,15 +216,26 @@ export class ArticlesService {
           locations: true,
           images: true,
         },
-      })
-      .then((articles) =>
-        articles.map((article) => ({
-          ...article,
-          likeCount: article.likes.length,
-          isLiked: article.likes.some((like) => like.userId === authorId),
-        })),
-      );
+      }),
+      this.prisma.article.count({
+        where: {
+          authorId: authorId,
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      articles: articles.map((article) => ({
+        ...article,
+        likeCount: article.likes.length,
+        isLiked: article.likes.some((like) => like.userId === authorId),
+      })),
+      totalPages,
+    };
   }
+
   async addLike(userId: number, articleId: number) {
     const existingLike = await this.prisma.like.findUnique({
       where: {

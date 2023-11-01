@@ -85,7 +85,17 @@ export class PlanetController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.planetService.getMyPlanets(req.user.userId, page, limit);
+    const { planets, totalPages } = await this.planetService.getMyPlanets(
+      req.user.userId,
+      page,
+      limit,
+    );
+    return {
+      data: planets,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   @Get(':planetId')

@@ -44,27 +44,41 @@ export class PlanetService {
 
   async getMyPlanets(userId: number, page: number, limit: number) {
     const skip = (page - 1) * limit;
-    const memberships = await this.prisma.planetMembership.findMany({
-      where: {
-        userId: userId,
-        status: 'APPROVED',
-      },
-      skip,
-      take: limit,
-      include: {
-        planet: {
-          include: {
-            articles: true,
-            owner: true,
-            planetBookMark: true,
-            members: true,
-            spaceships: true,
+
+    const [memberships, totalMemberships] = await Promise.all([
+      this.prisma.planetMembership.findMany({
+        where: {
+          userId: userId,
+          status: 'APPROVED',
+        },
+        skip,
+        take: limit,
+        include: {
+          planet: {
+            include: {
+              articles: true,
+              owner: true,
+              planetBookMark: true,
+              members: true,
+              spaceships: true,
+            },
           },
         },
-      },
-    });
+      }),
+      this.prisma.planetMembership.count({
+        where: {
+          userId: userId,
+          status: 'APPROVED',
+        },
+      }),
+    ]);
 
-    return memberships.map((membership) => membership.planet);
+    const totalPages = Math.ceil(totalMemberships / limit);
+
+    return {
+      planets: memberships.map((membership) => membership.planet),
+      totalPages,
+    };
   }
 
   async createPlanet(dto: CreatePlanetDto, userId: number) {

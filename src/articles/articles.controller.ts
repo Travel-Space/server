@@ -234,7 +234,8 @@ export class ArticlesController {
   @Get('my/articles')
   @ApiOperation({
     summary: '내 게시글 조회 API',
-    description: '로그인한 사용자의 게시글을 페이지네이션하여 조회합니다.',
+    description:
+      '로그인한 사용자의 게시글을 페이지네이션하여 조회하고, 전체 페이지 수를 반환합니다.',
   })
   @ApiQuery({
     name: 'page',
@@ -253,11 +254,18 @@ export class ArticlesController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.articlesService.getArticlesByAuthor(
-      req.user.userId,
+    const { articles, totalPages } =
+      await this.articlesService.getArticlesByAuthor(
+        req.user.userId,
+        page,
+        limit,
+      );
+    return {
+      data: articles,
       page,
       limit,
-    );
+      totalPages,
+    };
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
