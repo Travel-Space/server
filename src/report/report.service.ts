@@ -15,10 +15,20 @@ export class ReportService {
   async getAllReports(paginationDto: { page: number; pageSize: number }) {
     const { page, pageSize } = paginationDto;
     const skip = (page - 1) * pageSize;
+
     const reports = await this.prisma.report.findMany({
       take: pageSize,
       skip: skip,
+      include: {
+        reporter: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
+
     const totalCount = await this.prisma.report.count();
 
     return {
@@ -42,7 +52,6 @@ export class ReportService {
     let article;
     let comment;
 
-    // targetType에 따라 추가 정보를 쿼리합니다.
     if (report.targetType === 'ARTICLE') {
       article = await this.prisma.article.findUnique({
         where: { id: report.targetId },
