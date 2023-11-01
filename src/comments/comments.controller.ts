@@ -78,13 +78,13 @@ export class CommentsController {
     @Query('limit') limit: number = 10,
   ) {
     const userId = req.user.userId;
-    const { comments, totalPages } =
+    const { comments, totalCount } =
       await this.commentsService.getCommentsByUserId(userId, page, limit);
     return {
       data: comments,
       page,
       limit,
-      totalPages,
+      totalCount,
     };
   }
 

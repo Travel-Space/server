@@ -85,7 +85,7 @@ export class PlanetController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    const { planets, totalPages } = await this.planetService.getMyPlanets(
+    const { planets, totalMemberships } = await this.planetService.getMyPlanets(
       req.user.userId,
       page,
       limit,
@@ -94,7 +94,7 @@ export class PlanetController {
       data: planets,
       page,
       limit,
-      totalPages,
+      totalMemberships,
     };
   }
 
@@ -341,10 +341,37 @@ export class PlanetController {
   @Get('/my/bookmarks')
   @ApiOperation({
     summary: '북마크한 행성 목록 조회 API',
-    description: '사용자가 북마크한 모든 행성을 조회합니다.',
+    description: '사용자가 북마크한 모든 행성을 페이지네이션하여 조회합니다.',
   })
-  async getBookmarkedPlanets(@Req() req: any) {
-    return await this.planetService.getBookmarkedPlanets(req.user.userId);
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: '페이지당 행성 수',
+  })
+  async getBookmarkedPlanets(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const { bookmarkedPlanets, totalCount } =
+      await this.planetService.getBookmarkedPlanets(
+        req.user.userId,
+        page,
+        limit,
+      );
+    return {
+      data: bookmarkedPlanets,
+      page,
+      limit,
+      totalCount,
+    };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

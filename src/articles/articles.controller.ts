@@ -254,7 +254,7 @@ export class ArticlesController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    const { articles, totalPages } =
+    const { articles, totalCount } =
       await this.articlesService.getArticlesByAuthor(
         req.user.userId,
         page,
@@ -264,7 +264,7 @@ export class ArticlesController {
       data: articles,
       page,
       limit,
-      totalPages,
+      totalCount,
     };
   }
 
@@ -300,10 +300,33 @@ export class ArticlesController {
   @Get('my/likes')
   @ApiOperation({
     summary: '내가 좋아요 누른 게시글 조회 API',
-    description: '사용자가 좋아요를 누른 게시글 목록을 조회합니다.',
+    description:
+      '사용자가 좋아요를 누른 게시글 목록을 페이지네이션하여 조회합니다.',
   })
-  async getMyLikedArticles(@Req() req: any) {
-    const userId = req.user.userId;
-    return this.articlesService.getLikedArticles(userId);
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: '페이지당 게시글 수',
+  })
+  async getMyLikedArticles(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const { likedArticles, totalCount } =
+      await this.articlesService.getLikedArticles(req.user.userId, page, limit);
+    return {
+      data: likedArticles,
+      page,
+      limit,
+      totalCount,
+    };
   }
 }

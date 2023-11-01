@@ -199,7 +199,7 @@ export class ArticlesService {
     authorId: number,
     page: number,
     limit: number,
-  ): Promise<{ articles: Article[]; totalPages: number }> {
+  ): Promise<{ articles: Article[]; totalCount: number }> {
     const skip = (page - 1) * limit;
     const [articles, totalCount] = await Promise.all([
       this.prisma.article.findMany({
@@ -224,18 +224,15 @@ export class ArticlesService {
       }),
     ]);
 
-    const totalPages = Math.ceil(totalCount / limit);
-
     return {
       articles: articles.map((article) => ({
         ...article,
         likeCount: article.likes.length,
         isLiked: article.likes.some((like) => like.userId === authorId),
       })),
-      totalPages,
+      totalCount,
     };
   }
-
   async addLike(userId: number, articleId: number) {
     const existingLike = await this.prisma.like.findUnique({
       where: {
@@ -281,17 +278,47 @@ export class ArticlesService {
       },
     });
   }
-
-  async getLikedArticles(userId: number) {
-    return this.prisma.like
-      .findMany({
+  async getLikedArticles(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [likes, totalCount] = await Promise.all([
+      this.prisma.like.findMany({
         where: {
           userId: userId,
         },
+        skip,
+        take: limit,
         include: {
-          article: true,
+          article: {
+            include: {
+              planet: true,
+              likes: true, // This will include all likes related to the article
+            },
+          },
         },
-      })
-      .then((likes) => likes.map((like) => like.article));
+        orderBy: {
+          article: {
+            createdAt: 'desc',
+          },
+        },
+      }),
+      this.prisma.like.count({
+        where: {
+          userId: userId,
+        },
+      }),
+    ]);
+
+    const likedArticles = likes.map((like) => {
+      return {
+        ...like.article,
+        planetName: like.article.planet?.name,
+        likeCount: like.article.likes.length,
+      };
+    });
+
+    return {
+      likedArticles,
+      totalCount,
+    };
   }
 }

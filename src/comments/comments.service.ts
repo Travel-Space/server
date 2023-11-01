@@ -91,11 +91,9 @@ export class CommentsService {
       }),
     ]);
 
-    const totalPages = Math.ceil(totalCount / limit);
-
     return {
       comments,
-      totalPages,
+      totalCount,
     };
   }
 

@@ -73,11 +73,9 @@ export class PlanetService {
       }),
     ]);
 
-    const totalPages = Math.ceil(totalMemberships / limit);
-
     return {
       planets: memberships.map((membership) => membership.planet),
-      totalPages,
+      totalMemberships,
     };
   }
 
@@ -472,15 +470,41 @@ export class PlanetService {
     });
   }
 
-  async getBookmarkedPlanets(userId: number) {
-    return this.prisma.planetBookmark.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        planet: true,
-      },
-    });
+  async getBookmarkedPlanets(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [bookmarkedPlanets, totalCount] = await Promise.all([
+      this.prisma.planetBookmark.findMany({
+        where: {
+          userId: userId,
+        },
+        skip,
+        take: limit,
+        include: {
+          planet: {
+            include: {
+              members: true,
+            },
+          },
+        },
+      }),
+      this.prisma.planetBookmark.count({
+        where: {
+          userId: userId,
+        },
+      }),
+    ]);
+
+    const bookmarkedPlanetsWithMemberCount = bookmarkedPlanets.map(
+      (bookmark) => ({
+        ...bookmark.planet,
+        memberCount: bookmark.planet.members.length,
+      }),
+    );
+
+    return {
+      bookmarkedPlanets: bookmarkedPlanetsWithMemberCount,
+      totalCount,
+    };
   }
 
   async transferOwnership(
