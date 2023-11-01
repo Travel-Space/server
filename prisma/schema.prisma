@@ -19,7 +19,6 @@ model User {
   password             String
   profileImage         String?
   reportCount          Int?               @default(0)
-  applications         SpaceshipApplication[]
   provider             SocialProvider
   status               UserStatus         @default(ACTIVE)
   role                 UserRole           @default(MEMBER)
@@ -184,7 +183,7 @@ model Spaceship {
   image String
   description String?
   maxMembers  Int
-  ownerId        Int
+  ownerId     Int
   status      SpaceshipStatus   @default(UPCOMING)
   startDate   DateTime
   endDate     DateTime
@@ -193,7 +192,6 @@ model Spaceship {
   updatedAt   DateTime          @updatedAt
   planet      Planet            @relation(fields: [planetId], references: [id])
   members     SpaceshipMember[]
-  applications SpaceshipApplication[]
 }
 
 model SpaceshipMember {
@@ -204,16 +202,6 @@ model SpaceshipMember {
   role        SpaceshipRole @default(MEMBER)
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
-}
-
-model SpaceshipApplication {
-  id            Int        @id @default(autoincrement())
-  userId        Int
-  spaceshipId   Int
-  status        ApplicationStatus @default(PENDING)
-  appliedAt     DateTime   @default(now())
-  user          User       @relation(fields: [userId], references: [id])
-  spaceship     Spaceship  @relation(fields: [spaceshipId], references: [id])
 }
 
 model VerificationCode {

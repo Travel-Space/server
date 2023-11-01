@@ -126,7 +126,11 @@ export class PlanetService {
     });
   }
 
-  async deletePlanet(planetId: number, ownerId: number) {
+  async deletePlanet(
+    planetId: number,
+    userId: number,
+    isAdmin: boolean = false,
+  ) {
     const planet = await this.prisma.planet.findUnique({
       where: { id: planetId },
     });
@@ -134,12 +138,18 @@ export class PlanetService {
     if (!planet) {
       throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
-    if (planet.ownerId !== ownerId) {
-      throw new ForbiddenException('행성 주인만 업데이트 할 수 있습니다.');
+    if (!isAdmin && planet.ownerId !== userId) {
+      throw new ForbiddenException('행성 주인만 삭제할 수 있습니다.');
     }
 
-    return this.prisma.planet.delete({
-      where: { id: planetId },
+    return this.prisma.$transaction(async (prisma) => {
+      await prisma.article.deleteMany({
+        where: { planetId: planetId },
+      });
+
+      return prisma.planet.delete({
+        where: { id: planetId },
+      });
     });
   }
 
@@ -275,7 +285,21 @@ export class PlanetService {
     }
   }
 
-  async leavePlanet(userId: number, planetId: number): Promise<boolean> {
+  async leavePlanet(userId: number, planetId: number): Promise<void> {
+    const planet = await this.prisma.planet.findUnique({
+      where: {
+        id: planetId,
+      },
+      select: {
+        ownerId: true,
+      },
+    });
+
+    if (!planet) {
+      throw new NotFoundException('해당 행성을 찾을 수 없습니다.');
+    } else if (planet.ownerId === userId) {
+      throw new ForbiddenException('행성의 주인은 행성을 탈출할 수 없습니다.');
+    }
     const existingMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
@@ -284,11 +308,9 @@ export class PlanetService {
         },
       },
     });
-
     if (!existingMembership) {
       throw new NotFoundException('해당 행성에 가입되어 있지 않습니다.');
     }
-
     await this.prisma.planetMembership.delete({
       where: {
         planetId_userId: {
@@ -297,8 +319,6 @@ export class PlanetService {
         },
       },
     });
-
-    return true;
   }
 
   async listPlanetMembers(planetId: number) {
@@ -311,46 +331,25 @@ export class PlanetService {
   async updateMemberRole(
     planetId: number,
     userId: number,
-    isAdmin: boolean,
+    role: PlanetMemberRole,
     currentUserId: number,
   ) {
-    const currentUserMembership = await this.prisma.planetMembership.findUnique(
-      {
-        where: {
-          planetId_userId: {
-            planetId: planetId,
-            userId: currentUserId,
-          },
-        },
-        select: {
-          role: true,
-        },
-      },
-    );
-    if (
-      !currentUserMembership ||
-      currentUserMembership.role !== PlanetMemberRole.OWNER
-    ) {
-      throw new ForbiddenException('멤버의 역할을 수정할 권한이 없습니다.');
-    }
-
-    const targetMembership = await this.prisma.planetMembership.findUnique({
-      where: {
-        planetId_userId: {
-          planetId: planetId,
-          userId: userId,
-        },
-      },
-      select: {
-        role: true,
-      },
+    const planet = await this.prisma.planet.findUnique({
+      where: { id: planetId },
+      select: { ownerId: true },
     });
 
-    if (targetMembership && targetMembership.role === PlanetMemberRole.OWNER) {
+    if (!planet || planet.ownerId !== currentUserId) {
+      throw new ForbiddenException(
+        '행성의 소유자만 멤버 권한을 수정할 수 있습니다.',
+      );
+    }
+
+    if (userId === planet.ownerId) {
       throw new ForbiddenException('행성의 주인의 역할은 수정할 수 없습니다.');
     }
 
-    return await this.prisma.planetMembership.update({
+    await this.prisma.planetMembership.update({
       where: {
         planetId_userId: {
           planetId: planetId,
@@ -358,9 +357,11 @@ export class PlanetService {
         },
       },
       data: {
-        role: isAdmin ? PlanetMemberRole.ADMIN : PlanetMemberRole.MEMBER,
+        role: role,
       },
     });
+
+    return { message: '멤버의 권한이 수정되었습니다.' };
   }
 
   async getPlanetById(planetId: number) {
@@ -465,6 +466,41 @@ export class PlanetService {
       include: {
         planet: true,
       },
+    });
+  }
+
+  async transferOwnership(
+    planetId: number,
+    newOwnerId: number,
+    currentOwnerId: number,
+  ): Promise<void> {
+    const planet = await this.prisma.planet.findUnique({
+      where: { id: planetId },
+    });
+
+    if (!planet) {
+      throw new NotFoundException('해당 행성을 찾을 수 없습니다.');
+    }
+
+    if (planet.ownerId !== currentOwnerId) {
+      throw new ForbiddenException('행성의 소유권을 이전할 권한이 없습니다.');
+    }
+
+    const newOwnerMembership = await this.prisma.planetMembership.findUnique({
+      where: {
+        planetId_userId: {
+          planetId: planetId,
+          userId: newOwnerId,
+        },
+      },
+    });
+
+    if (!newOwnerMembership) {
+      throw new NotFoundException('새 소유자는 행성의 멤버가 아닙니다.');
+    }
+    await this.prisma.planet.update({
+      where: { id: planetId },
+      data: { ownerId: newOwnerId },
     });
   }
 }

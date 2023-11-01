@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSpaceshipDto } from './dto/create-spaceship.dto';
 import { UpdateSpaceshipDto } from './dto/update-spaceship.dto';
+import { SpaceshipStatus } from '@prisma/client';
 
 @Injectable()
 export class SpaceshipService {
@@ -70,6 +71,73 @@ export class SpaceshipService {
 
     return this.prisma.spaceship.delete({
       where: { id: spaceshipId },
+    });
+  }
+
+  async updateSpaceshipStatus(
+    userId: number,
+    spaceshipId: number,
+    status: SpaceshipStatus,
+  ) {
+    const spaceship = await this.getSpaceshipById(spaceshipId);
+
+    if (spaceship.ownerId !== userId) {
+      throw new ForbiddenException('우주선 상태를 변경할 권한이 없습니다.');
+    }
+
+    return this.prisma.spaceship.update({
+      where: { id: spaceshipId },
+      data: { status },
+    });
+  }
+
+  async boardSpaceship(userId: number, spaceshipId: number) {
+    const spaceship = await this.getSpaceshipById(spaceshipId);
+    if (!spaceship) {
+      throw new NotFoundException('우주선을 찾을 수 없습니다.');
+    }
+    const existingMember = await this.prisma.spaceshipMember.findFirst({
+      where: {
+        userId: userId,
+        spaceshipId: spaceshipId,
+      },
+    });
+
+    if (existingMember) {
+      throw new ForbiddenException('이미 이 우주선에 탑승했습니다.');
+    }
+    return this.prisma.spaceshipMember.create({
+      data: {
+        spaceshipId: spaceshipId,
+        userId: userId,
+      },
+    });
+  }
+
+  async leaveSpaceship(userId: number, spaceshipId: number) {
+    const spaceship = await this.getSpaceshipById(spaceshipId);
+    if (
+      spaceship.status === SpaceshipStatus.COMPLETED ||
+      spaceship.status === SpaceshipStatus.CANCELED
+    ) {
+      throw new ForbiddenException('이 우주선은 이미 종료되었습니다.');
+    }
+
+    const member = await this.prisma.spaceshipMember.findFirst({
+      where: {
+        userId: userId,
+        spaceshipId: spaceshipId,
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('이 우주선에 탑승한 기록이 없습니다.');
+    }
+
+    return this.prisma.spaceshipMember.delete({
+      where: {
+        id: member.id,
+      },
     });
   }
 }

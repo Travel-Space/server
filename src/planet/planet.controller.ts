@@ -15,7 +15,12 @@ import {
   DefaultValuePipe,
 } from '@nestjs/common';
 import { PlanetService } from './planet.service';
-import { CreatePlanetDto, UpdateMemberRoleDto, UpdatePlanetDto } from './dto';
+import {
+  CreatePlanetDto,
+  TransferOwnershipDto,
+  UpdateMemberRoleDto,
+  UpdatePlanetDto,
+} from './dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { MembershipStatus, PlanetMemberRole } from '@prisma/client';
 import {
@@ -26,7 +31,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { LoggedInGuard } from 'src/auth/guard';
+import { AdminGuard, LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('행성 API')
 @Controller('planet')
@@ -197,12 +202,12 @@ export class PlanetController {
     @Body() updateMemberRoleDto: UpdateMemberRoleDto,
     @Request() req: any,
   ) {
-    const { isAdmin } = updateMemberRoleDto;
+    const { role } = updateMemberRoleDto;
     const currentUserId = req.user.userId;
     return await this.planetService.updateMemberRole(
       planetId,
       userId,
-      isAdmin,
+      role,
       currentUserId,
     );
   }
@@ -330,5 +335,59 @@ export class PlanetController {
   })
   async getBookmarkedPlanets(@Req() req: any) {
     return await this.planetService.getBookmarkedPlanets(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Delete('admin/delete/:planetId')
+  @ApiOperation({
+    summary: '행성 삭제 API (관리자 전용)',
+    description:
+      '관리자가 해당 행성과 연관된 모든 게시글을 포함하여 행성을 삭제합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '삭제할 행성의 고유 ID' })
+  async deletePlanetForAdmin(
+    @Param('planetId', ParseIntPipe) planetId: number,
+    @Req() req: any,
+  ): Promise<any> {
+    await this.planetService.deletePlanet(planetId, req.user.userId, true);
+    return { message: '행성이 성공적으로 삭제되었습니다.' };
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Delete('delete/:planetId')
+  @ApiOperation({
+    summary: '행성 삭제 API',
+    description: '행성 주인이 해당 행성을 삭제합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '삭제할 행성의 고유 ID' })
+  async deletePlanet(
+    @Param('planetId', ParseIntPipe) planetId: number,
+    @Req() req: any,
+  ): Promise<any> {
+    await this.planetService.deletePlanet(planetId, req.user.userId);
+    return { message: '행성이 성공적으로 삭제되었습니다.' };
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Put('transfer-ownership/:planetId')
+  @ApiOperation({
+    summary: '행성 소유권 이전 API',
+    description: '행성의 소유권을 다른 멤버에게 이전합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '행성의 고유 ID' })
+  @ApiBody({ description: 'TransferOwnershipDto', type: TransferOwnershipDto })
+  async transferOwnership(
+    @Param('planetId', ParseIntPipe) planetId: number,
+    @Body() transferOwnershipDto: TransferOwnershipDto,
+    @Req() req: any,
+  ) {
+    const currentOwnerId = req.user.userId;
+    const newOwnerId = transferOwnershipDto.newOwnerId;
+    await this.planetService.transferOwnership(
+      planetId,
+      newOwnerId,
+      currentOwnerId,
+    );
+    return { message: '행성의 소유권이 성공적으로 이전되었습니다.' };
   }
 }
