@@ -36,15 +36,52 @@ export class ReportController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Get('search')
+  @ApiOperation({ summary: '신고 검색 및 필터링' })
+  @ApiQuery({ name: 'name', required: false, description: '신고자의 이름' })
+  @ApiQuery({ name: 'email', required: false, description: '신고자의 이메일' })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: '신고의 상태',
+    enum: ReportStatus,
+  })
+  @ApiQuery({ name: 'page', required: false, description: '페이지 번호' })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    description: '페이지당 항목 수',
+  })
+  @ApiResponse({ status: 200, description: '필터링된 신고 목록' })
+  async searchReports(@Query() searchDto: SearchReportsDto) {
+    return await this.reportService.searchReports(searchDto);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get(':reportId')
   @ApiOperation({ summary: '특정 신고 상세 정보 가져오기' })
   @ApiResponse({ status: 200, description: '신고 상세 정보' })
   async getReportDetails(@Param('reportId') reportId: number) {
-    const report = await this.reportService.getReportDetails(reportId);
-    if (!report) {
+    const basicReportDetails =
+      await this.reportService.findBasicReportDetails(reportId);
+    if (!basicReportDetails) {
       throw new NotFoundException('신고를 찾을 수 없습니다.');
     }
-    return report;
+
+    let detailedReport;
+    if (basicReportDetails.targetType === 'ARTICLE') {
+      detailedReport = await this.reportService.getArticleReportDetails(
+        basicReportDetails.targetId,
+      );
+    } else if (basicReportDetails.targetType === 'COMMENT') {
+      detailedReport = await this.reportService.getCommentReportDetails(
+        basicReportDetails.targetId,
+      );
+    } else {
+      throw new NotFoundException('알 수 없는 신고 타입입니다.');
+    }
+
+    return detailedReport;
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -69,28 +106,6 @@ export class ReportController {
   @ApiResponse({ status: 200, description: '신고 거절 성공' })
   async rejectReport(@Param('reportId') reportId: number) {
     return await this.reportService.rejectReport(reportId);
-  }
-
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @Get('search')
-  @ApiOperation({ summary: '신고 검색 및 필터링' })
-  @ApiQuery({ name: 'name', required: false, description: '신고자의 이름' })
-  @ApiQuery({ name: 'email', required: false, description: '신고자의 이메일' })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    description: '신고의 상태',
-    enum: ReportStatus,
-  })
-  @ApiQuery({ name: 'page', required: false, description: '페이지 번호' })
-  @ApiQuery({
-    name: 'pageSize',
-    required: false,
-    description: '페이지당 항목 수',
-  })
-  @ApiResponse({ status: 200, description: '필터링된 신고 목록' })
-  async searchReports(@Query() searchDto: SearchReportsDto) {
-    return await this.reportService.searchReports(searchDto);
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)

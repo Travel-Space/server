@@ -77,6 +77,80 @@ export class ReportService {
     };
   }
 
+  async getArticleReportDetails(articleId: number) {
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+      include: {
+        planet: true,
+        author: {
+          select: {
+            nickName: true,
+            email: true,
+            reportCount: true,
+          },
+        },
+      },
+    });
+
+    if (!article) {
+      throw new NotFoundException('해당 기사를 찾을 수 없습니다.');
+    }
+
+    return {
+      planetId: article.planetId,
+      articleId: article.id,
+      authorId: article.authorId,
+      authorDetails: article.author,
+    };
+  }
+
+  async getCommentReportDetails(commentId: number) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        author: {
+          select: {
+            nickName: true,
+            email: true,
+            reportCount: true,
+          },
+        },
+        article: true,
+      },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('해당 댓글을 찾을 수 없습니다.');
+    }
+
+    return {
+      articleId: comment.articleId,
+      authorId: comment.authorId,
+      authorDetails: comment.author,
+    };
+  }
+
+  async findBasicReportDetails(
+    reportId: number,
+  ): Promise<{ targetType: string; targetId: number }> {
+    const report = await this.prisma.report.findUnique({
+      where: { id: reportId },
+      select: {
+        targetType: true,
+        targetId: true,
+      },
+    });
+
+    if (!report) {
+      throw new NotFoundException('신고를 찾을 수 없습니다.');
+    }
+
+    return {
+      targetType: report.targetType,
+      targetId: report.targetId,
+    };
+  }
+
   async approveReport(reportId: number, approvalReason: string) {
     const report = await this.prisma.report.update({
       where: { id: reportId },
