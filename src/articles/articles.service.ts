@@ -14,11 +14,11 @@ export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
   async getAllArticles(userId: number, page: number, limit: number = 10) {
-    const skip = (page - 1) * limit; // 페이지 시작 인덱스 계산
+    const skip = (page - 1) * limit;
 
     const articles = await this.prisma.article.findMany({
-      skip, // 몇 개의 결과를 건너뛸 것인지 지정
-      take: limit, // 한 번에 반환할 결과 수 지정
+      skip,
+      take: limit,
       include: {
         author: true,
         planet: true,
@@ -28,16 +28,22 @@ export class ArticlesService {
         images: true,
       },
       orderBy: {
-        createdAt: 'desc', // 가장 최신 게시글부터 가져오도록 정렬
+        createdAt: 'desc',
       },
     });
+    const totalArticlesCount = await this.prisma.article.count();
 
-    return articles.map((article) => ({
+    const mappedArticles = articles.map((article) => ({
       ...article,
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
     }));
+    return {
+      total: totalArticlesCount,
+      articles: mappedArticles,
+    };
   }
+
   async getArticleById(articleId: number, userId: number) {
     const article = await this.prisma.article.findUnique({
       where: { id: articleId },
