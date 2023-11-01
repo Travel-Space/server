@@ -157,4 +157,17 @@ export class SpaceshipController {
   async leaveSpaceship(@Param('id') id: number, @Req() req: any) {
     return this.spaceshipService.leaveSpaceship(req.user.userId, id);
   }
+
+  @Get('by-planet/:planetId')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '특정 행성의 모든 우주선 조회 API',
+    description: '행성에 속한 모든 우주선을 조회합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '행성의 고유 ID' })
+  async getSpaceshipsByPlanet(
+    @Param('planetId', ParseIntPipe) planetId: number,
+  ) {
+    return this.spaceshipService.getSpaceshipsByPlanet(planetId);
+  }
 }
