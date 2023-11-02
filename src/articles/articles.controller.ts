@@ -333,4 +333,29 @@ export class ArticlesController {
       totalCount,
     };
   }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get(':planetId/top-articles')
+  @ApiOperation({
+    summary: '행성별 월간 조회수 높은 순 게시글 조회 API',
+    description: '월간 조회수가 높은 순으로 행성별 게시글을 조회합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '행성의 고유 ID' })
+  @ApiQuery({ name: 'year', description: '조회할 연도', type: Number })
+  @ApiQuery({ name: 'month', description: '조회할 월', type: Number })
+  @ApiResponse({
+    status: 200,
+    description: '월간 조회수가 높은 게시글 조회 결과',
+  })
+  async getTopArticlesByViews(
+    @Param('planetId', ParseIntPipe) planetId: number,
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.viewCountService.getTopArticlesByMonthlyViews(
+      planetId,
+      year,
+      month,
+    );
+  }
 }
