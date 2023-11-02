@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -267,6 +268,47 @@ export class AuthService {
       }
     });
   }
+
+  async sendVerificationCodeForPasswordReset(email: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('등록되지 않은 이메일입니다.');
+    }
+    await this.prisma.verificationCode.deleteMany({ where: { email } });
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+    await this.prisma.verificationCode.create({
+      data: {
+        email,
+        code: verificationCode,
+        expiresAt,
+        isVerified: false,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.NAVER_EMAIL,
+      to: email,
+      subject: '[TravelSpace] 비밀번호 변경 인증코드입니다',
+      text: `비밀번호 변경 인증코드: ${verificationCode}`,
+    };
+
+    this.transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        throw new InternalServerErrorException('인증코드 전송에 실패했습니다.');
+      }
+      this.transporter.close();
+    });
+  }
+
   async verifyCode(email: string, code: string): Promise<boolean> {
     const storedCode = await this.prisma.verificationCode.findUnique({
       where: { email },

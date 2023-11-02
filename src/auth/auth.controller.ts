@@ -260,7 +260,7 @@ export class AuthController {
   })
   @Post('password-change/request')
   async requestPasswordChange(@Body('email') email: string) {
-    await this.authService.sendVerificationCode(email);
+    await this.authService.sendVerificationCodeForPasswordReset(email);
     return { success: true, message: '인증코드가 전송되었습니다.' };
   }
 
