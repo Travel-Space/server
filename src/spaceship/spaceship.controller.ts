@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiParam,
 } from '@nestjs/swagger';
-import { UpdateSpaceshipStatusDto } from './dto';
+import { TransferSpaceshipOwnershipDto, UpdateSpaceshipStatusDto } from './dto';
 import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('우주선 API')
@@ -116,12 +116,22 @@ export class SpaceshipController {
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '우주선 상태 변경 API',
-    description: '우주선의 상태를 변경합니다.',
+    description:
+      '우주선의 상태를 변경합니다. 사용자는 자신이 소유한 우주선의 상태만 변경할 수 있습니다.',
   })
-  @ApiParam({ name: 'id', description: '우주선의 고유 ID' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: '상태를 변경할 우주선의 고유 ID',
+    type: Number,
+  })
   @ApiBody({
-    description: 'UpdateSpaceshipStatusDto',
+    description: '우주선의 새 상태를 정의하는 객체',
     type: UpdateSpaceshipStatusDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '우주선 상태 변경 성공',
   })
   async updateSpaceshipStatus(
     @Param('id', ParseIntPipe) id: number,
@@ -169,5 +179,38 @@ export class SpaceshipController {
     @Param('planetId', ParseIntPipe) planetId: number,
   ) {
     return this.spaceshipService.getSpaceshipsByPlanet(planetId);
+  }
+
+  @Put('transfer-ownership/:spaceshipId')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '우주선 소유권 이전 API',
+    description: '우주선의 소유권을 다른 사용자에게 이전합니다.',
+  })
+  @ApiParam({
+    name: 'spaceshipId',
+    description: '소유권을 이전할 우주선의 고유 ID',
+  })
+  @ApiBody({
+    description: 'TransferSpaceshipOwnershipDto',
+    type: TransferSpaceshipOwnershipDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '소유권 이전 성공',
+  })
+  async transferSpaceshipOwnership(
+    @Param('spaceshipId', ParseIntPipe) spaceshipId: number,
+    @Body() transferSpaceshipOwnershipDto: TransferSpaceshipOwnershipDto,
+    @Req() req: any,
+  ) {
+    const currentOwnerId = req.user.userId;
+    const { newOwnerId } = transferSpaceshipOwnershipDto;
+
+    return this.spaceshipService.transferOwnership(
+      spaceshipId,
+      currentOwnerId,
+      newOwnerId,
+    );
   }
 }

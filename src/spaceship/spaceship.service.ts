@@ -6,7 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSpaceshipDto } from './dto/create-spaceship.dto';
 import { UpdateSpaceshipDto } from './dto/update-spaceship.dto';
-import { SpaceshipStatus } from '@prisma/client';
+import { SpaceshipRole, SpaceshipStatus } from '@prisma/client';
 
 @Injectable()
 export class SpaceshipService {
@@ -138,6 +138,44 @@ export class SpaceshipService {
       where: {
         id: member.id,
       },
+    });
+  }
+
+  async transferOwnership(
+    spaceshipId: number,
+    currentOwnerId: number,
+    newOwnerId: number,
+  ) {
+    return this.prisma.$transaction(async (prisma) => {
+      await prisma.spaceshipMember.updateMany({
+        where: {
+          spaceshipId: spaceshipId,
+          userId: currentOwnerId,
+          role: SpaceshipRole.OWNER,
+        },
+        data: {
+          role: SpaceshipRole.MEMBER,
+        },
+      });
+
+      await prisma.spaceshipMember.update({
+        where: {
+          spaceshipId_userId: {
+            spaceshipId: spaceshipId,
+            userId: newOwnerId,
+          },
+        },
+        data: {
+          role: SpaceshipRole.OWNER,
+        },
+      });
+
+      const updatedSpaceship = await prisma.spaceship.update({
+        where: { id: spaceshipId },
+        data: { ownerId: newOwnerId },
+      });
+
+      return updatedSpaceship;
     });
   }
 }

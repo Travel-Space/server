@@ -203,6 +203,8 @@ model SpaceshipMember {
   role        SpaceshipRole @default(MEMBER)
   spaceship   Spaceship @relation(fields: [spaceshipId], references: [id])
   user        User      @relation(fields: [userId], references: [id])
+
+   @@unique([spaceshipId, userId])
 }
 
 model VerificationCode {
