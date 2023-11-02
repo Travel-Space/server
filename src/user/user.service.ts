@@ -113,6 +113,7 @@ export class UserService {
 
   async getFollowers(userId: number, page: number, limit: number) {
     const skip = (page - 1) * limit;
+
     const followers = await this.prisma.userFriend.findMany({
       where: {
         friendId: userId,
@@ -124,20 +125,16 @@ export class UserService {
       },
     });
 
-    const followerIds = followers.map((f) => f.userId);
-
-    const mutualFollowsIds = await this.prisma.userFriend
-      .findMany({
-        where: {
-          userId: { in: followerIds },
-          friendId: userId,
-        },
-      })
-      .then((results) => results.map((r) => r.userId));
+    const following = await this.prisma.userFriend.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    const followingIds = following.map((f) => f.friendId);
 
     return followers.map((follower) => ({
       ...follower,
-      isMutual: mutualFollowsIds.includes(follower.userId),
+      isMutual: followingIds.includes(follower.userId),
     }));
   }
 
