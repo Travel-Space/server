@@ -18,6 +18,7 @@ model User {
   oauthId              String?
   password             String
   profileImage         String?
+  refreshToken         String? 
   reportCount          Int?               @default(0)
   provider             SocialProvider
   status               UserStatus         @default(ACTIVE)
@@ -69,7 +70,7 @@ model Planet {
   isActive       Boolean            @default(true)
   shape          PlanetShape?
   hashtags       String[]
-   createdAt DateTime @default(now())
+  createdAt      DateTime @default(now())
   deletedAt      DateTime?          @map("deleted_at")
   articles       Article[]
   owner          User               @relation(fields: [ownerId], references: [id])

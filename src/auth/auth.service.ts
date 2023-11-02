@@ -112,9 +112,11 @@ export class AuthService {
       data: updateData,
     });
   }
+
   async login(req): Promise<{
     id: number;
     access_token: string;
+    refresh_token: string;
     memberships: any;
     role: string;
   }> {
@@ -144,6 +146,10 @@ export class AuthService {
 
     const payload = { userId: user.id, userEmail: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: 'refreshTokenSecret',
+      expiresIn: '7d',
+    });
 
     const memberships = {
       planets: user.planetsMembership.map((pm) => ({
@@ -159,6 +165,7 @@ export class AuthService {
     return {
       id: user.id,
       access_token: accessToken,
+      refresh_token: refreshToken,
       memberships: memberships,
       role: user.role,
     };
@@ -182,6 +189,24 @@ export class AuthService {
         password: '',
       },
     });
+  }
+
+  async refreshToken(userId: number, oldRefreshToken: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.refreshToken !== oldRefreshToken) {
+      throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
+    }
+
+    const newAccessToken = this.jwtService.sign({
+      userId: user.id,
+      userEmail: user.email,
+      role: user.role,
+    });
+
+    return newAccessToken;
   }
 
   async googleLogin(req): Promise<{ access_token: string }> {

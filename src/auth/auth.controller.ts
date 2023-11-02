@@ -78,17 +78,42 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: '로그인 성공',
-    type: String,
   })
   async login(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const { id, access_token, memberships, role } =
+    const { id, access_token, refresh_token, memberships, role } =
       await this.authService.login(req);
+
     res.cookie('ACCESS_TOKEN', access_token, {
       httpOnly: true,
-      // secure: true, // HTTPS
       maxAge: 3600000,
     });
+
+    res.cookie('REFRESH_TOKEN', refresh_token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return { success: true, id, memberships, role };
+  }
+
+  @Post('refresh')
+  async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    const oldRefreshToken = req.cookies['REFRESH_TOKEN'];
+
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+    }
+    const newAccessToken = await this.authService.refreshToken(
+      req.user.userId,
+      oldRefreshToken,
+    );
+
+    res.cookie('ACCESS_TOKEN', newAccessToken, {
+      httpOnly: true,
+      maxAge: 3600000,
+    });
+
+    return { success: true, access_token: newAccessToken };
   }
 
   @Post('google-login')
