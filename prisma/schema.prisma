@@ -100,8 +100,8 @@ model Chat {
 model ChatMembership {
   chatId Int
   userId Int
-  chat   Chat @relation(fields: [chatId], references: [id])
-  user   User @relation(fields: [userId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([chatId, userId])
 }
@@ -112,9 +112,10 @@ model Message {
   senderId  Int
   chatId    Int
   createdAt DateTime @default(now())
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  sender    User     @relation(fields: [senderId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
+
 
 model Comment {
   id        Int       @id @default(autoincrement())
@@ -132,8 +133,8 @@ model Comment {
 model Like {
   userId    Int
   articleId Int
-  article   Article @relation("LikeToArticle", fields: [articleId], references: [id])
-  user      User    @relation("LikeToUser", fields: [userId], references: [id])
+  article   Article @relation("LikeToArticle", fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation("LikeToUser", fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, articleId])
 }
@@ -143,14 +144,14 @@ model Notification {
   content   String
   userId    Int
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserFriend {
   userId   Int
   friendId Int
-  friend   User @relation("FriendToUser", fields: [friendId], references: [id])
-  user     User @relation("UserToFriend", fields: [userId], references: [id])
+  friend   User @relation("FriendToUser", fields: [friendId], references: [id], onDelete: Cascade)
+  user     User @relation("UserToFriend", fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, friendId])
 }
@@ -172,8 +173,8 @@ model Report {
 model PlanetBookmark {
   userId   Int
   planetId Int
-  planet   Planet @relation(fields: [planetId], references: [id])
-  user     User   @relation(fields: [userId], references: [id])
+  planet   Planet @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, planetId])
 }

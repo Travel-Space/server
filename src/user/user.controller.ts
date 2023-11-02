@@ -10,11 +10,12 @@ import {
   Put,
   Query,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { AdminGuard, LoggedInGuard } from 'src/auth/guard';
 
 @ApiTags('유저 API')
@@ -50,8 +51,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':userId')
   @ApiOperation({ summary: '유저 정보 삭제하기' })
-  async deleteUser(@Param('userId') userId: string) {
-    return await this.userService.deleteUser(userId);
+  async deleteUserByAdmin(@Param('userId') userId: string) {
+    return await this.userService.deleteUserByAdmin(userId);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -148,6 +149,7 @@ export class UserController {
   ) {
     return this.userService.getFollowers(req.user.userId, page, limit);
   }
+
   @Get('check-nickname')
   @ApiOperation({
     summary: '닉네임 중복 검사 API',
@@ -159,5 +161,65 @@ export class UserController {
     const isAvailable =
       await this.userService.checkNicknameAvailability(nickname);
     return { available: isAvailable };
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Post(':userId/leave-spaceships')
+  @ApiOperation({
+    summary: '모든 우주선 탈퇴 API',
+    description: '사용자를 모든 우주선 멤버십에서 탈퇴시킵니다.',
+  })
+  @ApiParam({ name: 'userId', description: '사용자의 고유 ID' })
+  async leaveAllSpaceships(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: any,
+  ): Promise<{ message: string }> {
+    if (req.user.userId !== userId) {
+      throw new UnauthorizedException('권한이 없습니다.');
+    }
+
+    await this.userService.leaveAllSpaceships(userId);
+
+    return { message: '모든 우주선 멤버십에서 탈퇴되었습니다.' };
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Post(':userId/leave-planets')
+  @ApiOperation({
+    summary: '모든 행성 멤버십 탈퇴 API',
+    description: '사용자를 모든 행성 멤버십에서 탈퇴시킵니다.',
+  })
+  @ApiParam({ name: 'userId', description: '사용자의 고유 ID' })
+  async leaveAllPlanets(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: any,
+  ): Promise<{ message: string }> {
+    if (req.user.userId !== userId) {
+      throw new UnauthorizedException('권한이 없습니다.');
+    }
+
+    await this.userService.leaveAllPlanets(userId);
+
+    return { message: '모든 행성 멤버십에서 탈퇴되었습니다.' };
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Delete(':userId')
+  @ApiOperation({
+    summary: '회원 탈퇴 API',
+    description: '사용자 계정을 삭제합니다.',
+  })
+  @ApiParam({ name: 'userId', description: '삭제할 사용자의 고유 ID' })
+  async deleteUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: any,
+  ): Promise<{ message: string }> {
+    if (req.user.userId !== userId) {
+      throw new UnauthorizedException('권한이 없습니다.');
+    }
+
+    await this.userService.deleteUser(userId);
+
+    return { message: '계정이 삭제되었습니다.' };
   }
 }

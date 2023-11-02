@@ -41,7 +41,7 @@ export class UserService {
     });
   }
 
-  async deleteUser(userId: string): Promise<void> {
+  async deleteUserByAdmin(userId: string): Promise<void> {
     const id = parseInt(userId, 10);
     try {
       await this.prisma.user.delete({
@@ -143,5 +143,81 @@ export class UserService {
       where: { nickName: nickname },
     });
     return !user;
+  }
+
+  async leaveAllSpaceships(userId: number): Promise<void> {
+    const ownedSpaceships = await this.prisma.spaceship.findMany({
+      where: { ownerId: userId },
+    });
+
+    if (ownedSpaceships.length > 0) {
+      throw new BadRequestException(
+        '소유하고 있는 우주선이 있습니다. 소유권을 이전하거나 우주선을 삭제하세요.',
+      );
+    }
+
+    await this.prisma.spaceshipMember.deleteMany({
+      where: { userId },
+    });
+  }
+
+  async leaveAllPlanets(userId: number): Promise<void> {
+    const ownedPlanets = await this.prisma.planet.findMany({
+      where: { ownerId: userId },
+    });
+
+    if (ownedPlanets.length > 0) {
+      throw new BadRequestException(
+        '소유하고 있는 행성이 있습니다. 소유권을 이전하거나 행성을 삭제하세요.',
+      );
+    }
+
+    await this.prisma.planetMembership.deleteMany({
+      where: { userId },
+    });
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    const ownedSpaceships = await this.prisma.spaceship.count({
+      where: { ownerId: userId },
+    });
+
+    const ownedPlanets = await this.prisma.planet.count({
+      where: { ownerId: userId },
+    });
+
+    if (ownedSpaceships > 0 || ownedPlanets > 0) {
+      throw new BadRequestException(
+        '소유하고 있는 우주선이나 행성이 있습니다. 소유권을 이전하거나 탈퇴하세요.',
+      );
+    }
+
+    const spaceshipMemberships = await this.prisma.spaceshipMember.count({
+      where: { userId },
+    });
+
+    const planetMemberships = await this.prisma.planetMembership.count({
+      where: { userId },
+    });
+
+    if (spaceshipMemberships > 0 || planetMemberships > 0) {
+      throw new BadRequestException(
+        '가입되어 있는 우주선이나 행성이 있습니다. 먼저 탈퇴하세요.',
+      );
+    }
+
+    await this.prisma.article.updateMany({
+      where: { authorId: userId },
+      data: { authorId: null },
+    });
+
+    await this.prisma.comment.updateMany({
+      where: { authorId: userId },
+      data: { authorId: null },
+    });
+
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
   }
 }
