@@ -113,6 +113,9 @@ export class ArticlesController {
   async getArticleWithComments(
     @Param('id') articleId: number,
     @Req() req: any,
+    @Query('commentPage') commentPage = 1,
+    @Query('commentPageSize') commentPageSize = 10,
+    @Query('replyPageSize') replyPageSize = 5,
   ) {
     const userId = req.user.userId;
     await this.viewCountService.incrementViewCount(articleId, null);
@@ -127,15 +130,16 @@ export class ArticlesController {
 
     const topLevelComments = await this.commentsService.getComments(
       articleId,
-      1,
-      10,
+      commentPage,
+      commentPageSize,
     );
+
     const commentsWithInitialReplies = await Promise.all(
       topLevelComments.map(async (comment) => {
         const initialReplies = await this.commentsService.getMoreChildComments(
           comment.id,
           null,
-          5,
+          replyPageSize,
         );
         return {
           ...comment,
