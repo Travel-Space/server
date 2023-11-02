@@ -131,11 +131,13 @@ export class PlanetService {
         '관리자 또는 행성 주인만 업데이트 할 수 있습니다.',
       );
     }
+    const updateData = {
+      ...data,
+    };
+
     return this.prisma.planet.update({
       where: { id: planetId },
-      data: {
-        ...data,
-      },
+      data: updateData,
     });
   }
 
