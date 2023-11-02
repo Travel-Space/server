@@ -149,7 +149,7 @@ export class CommentsService {
         },
       },
       take: pageSize,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     });
 
     return childComments;
