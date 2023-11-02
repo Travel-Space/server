@@ -108,6 +108,27 @@ export class ArticlesController {
     description: '게시글, 주 댓글, 및 초기 대댓글을 불러왔습니다.',
     type: ArticleWithCommentsDto,
   })
+  @ApiQuery({
+    name: 'commentPage',
+    required: false,
+    type: Number,
+    description: '댓글 페이지 번호',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'commentPageSize',
+    required: false,
+    type: Number,
+    description: '댓글 페이지 크기',
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'replyPageSize',
+    required: false,
+    type: Number,
+    description: '대댓글 페이지 크기',
+    example: 5,
+  })
   @Get(':id')
   @UseGuards(JwtAuthGuard, ArticleGuard)
   async getArticleWithComments(
