@@ -107,6 +107,13 @@ export class CommentsService {
         _count: {
           select: { children: true },
         },
+        author: {
+          select: {
+            profileImage: true,
+            nationality: true,
+            nickName: true,
+          },
+        },
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
@@ -116,6 +123,9 @@ export class CommentsService {
     return comments.map((comment) => ({
       ...comment,
       childCommentCount: comment._count.children,
+      authorProfileImage: comment.author.profileImage,
+      authorNationality: comment.author.nationality,
+      authorNickName: comment.author.nickName,
     }));
   }
 
@@ -128,6 +138,15 @@ export class CommentsService {
       where: {
         parentId: parentId,
         ...(lastChildCommentId && { id: { lt: lastChildCommentId } }),
+      },
+      include: {
+        author: {
+          select: {
+            profileImage: true,
+            nationality: true,
+            nickName: true,
+          },
+        },
       },
       take: pageSize,
       orderBy: { id: 'desc' },

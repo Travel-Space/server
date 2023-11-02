@@ -143,7 +143,15 @@ export class ArticlesController {
         );
         return {
           ...comment,
-          replies: initialReplies,
+          authorProfileImage: comment.author.profileImage,
+          authorNationality: comment.author.nationality,
+          authorNickName: comment.author.nickName,
+          replies: initialReplies.map((reply) => ({
+            ...reply,
+            authorProfileImage: reply.author.profileImage,
+            authorNationality: reply.author.nationality,
+            authorNickName: reply.author.nickName,
+          })),
           repliesCount: comment._count.children,
         };
       }),
