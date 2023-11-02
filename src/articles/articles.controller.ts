@@ -132,11 +132,11 @@ export class ArticlesController {
   @Get(':id')
   @UseGuards(JwtAuthGuard, ArticleGuard)
   async getArticleWithComments(
-    @Param('id') articleId: number,
+    @Param('id', ParseIntPipe) articleId: number,
+    @Query('commentPage', ParseIntPipe) commentPage: number,
+    @Query('commentPageSize', ParseIntPipe) commentPageSize: number,
+    @Query('replyPageSize', ParseIntPipe) replyPageSize: number,
     @Req() req: any,
-    @Query('commentPage') commentPage = 1,
-    @Query('commentPageSize') commentPageSize = 10,
-    @Query('replyPageSize') replyPageSize = 5,
   ) {
     const userId = req.user.userId;
     await this.viewCountService.incrementViewCount(articleId, null);
