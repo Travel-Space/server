@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,11 +11,13 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(cookieParser());
 
-  app.enableCors({
+  const corsOptions = {
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-  });
+  };
+
+  app.enableCors(corsOptions);
 
   const config = new DocumentBuilder()
     .setTitle('TravleSpace')
@@ -24,6 +27,12 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  const ioAdapter = new IoAdapter(app);
+  ioAdapter.createIOServer(8080, {
+    ...corsOptions,
+  });
+  app.useWebSocketAdapter(ioAdapter);
 
   await app.listen(8080);
 }
