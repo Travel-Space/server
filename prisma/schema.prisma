@@ -46,7 +46,7 @@ model Article {
   published  Boolean?   @default(true)
   authorId   Int?
   planetId   Int?
-  spaceshipId Int?      // This is the new field
+  spaceshipId Int?      
   deletedAt  DateTime?  @map("deleted_at")
   createdAt  DateTime   @default(now()) @map("created_at")
   address    String?

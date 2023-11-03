@@ -10,6 +10,10 @@ import { SpaceshipModule } from './spaceship/spaceship.module';
 import { ReportModule } from './report/report.module';
 import { CommentsModule } from './comments/comments.module';
 import { ViewCountModule } from './view-count/view-count.module';
+import { ChatGateway } from './websockets/websockets.gateway';
+import { WebsocketsModule } from './websockets/websockets.module';
+import { ChatController } from './chat/chat.controller';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -22,8 +26,10 @@ import { ViewCountModule } from './view-count/view-count.module';
     ReportModule,
     CommentsModule,
     ViewCountModule,
+    WebsocketsModule,
+    ChatModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, ChatController],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}
