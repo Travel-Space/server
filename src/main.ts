@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,7 +11,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const corsOptions = {
-    origin: true,
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   };
@@ -23,17 +22,14 @@ async function bootstrap() {
     .setTitle('TravleSpace')
     .setDescription('The TravleSpace API description')
     .setVersion('0.1')
+    .addTag('TravleSpace')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const ioAdapter = new IoAdapter(app);
-  ioAdapter.createIOServer(8080, {
-    ...corsOptions,
-  });
-  app.useWebSocketAdapter(ioAdapter);
-
   await app.listen(8080);
+  console.log(`Application is running on port 8080`);
 }
+
 bootstrap();
