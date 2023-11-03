@@ -60,4 +60,9 @@ export class CreateArticleDto {
   @IsArray()
   @IsString({ each: true })
   hashtags?: string[];
+
+  @ApiProperty({ description: '연관될 우주선 ID' })
+  @IsOptional()
+  @IsNumber()
+  spaceshipId?: number;
 }

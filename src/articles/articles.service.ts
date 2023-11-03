@@ -68,11 +68,19 @@ export class ArticlesService {
     };
   }
 
-  async getArticlesByPlanetId(planetId: number, userId: number) {
+  async getArticlesByPlanetId(
+    planetId: number,
+    userId: number,
+    page: number,
+    limit: number,
+  ) {
+    const skip = (page - 1) * limit;
     const articles = await this.prisma.article.findMany({
       where: {
         planetId: planetId,
       },
+      skip,
+      take: limit,
       include: {
         author: true,
         planet: true,
@@ -81,13 +89,22 @@ export class ArticlesService {
         locations: true,
         images: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+    const totalArticlesCount = await this.prisma.article.count({
+      where: { planetId },
     });
 
-    return articles.map((article) => ({
-      ...article,
-      likeCount: article.likes.length,
-      isLiked: article.likes.some((like) => like.userId === userId),
-    }));
+    return {
+      total: totalArticlesCount,
+      articles: articles.map((article) => ({
+        ...article,
+        likeCount: article.likes.length,
+        isLiked: article.likes.some((like) => like.userId === userId),
+      })),
+    };
   }
 
   async createArticle(dto: CreateArticleDto, userId: number) {

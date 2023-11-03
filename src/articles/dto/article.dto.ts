@@ -6,6 +6,7 @@ import {
   IsDate,
   IsArray,
   ValidateNested,
+  IsOptional,
 } from 'class-validator';
 import { LocationDto } from '.';
 import { Type } from 'class-transformer';
@@ -57,4 +58,9 @@ export class ArticleDto {
   @ValidateNested({ each: true })
   @Type(() => LocationDto)
   locations: LocationDto[];
+
+  @ApiProperty({ description: '연관된 우주선 ID' })
+  @IsOptional()
+  @IsNumber()
+  spaceshipId?: number;
 }

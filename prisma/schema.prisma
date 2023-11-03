@@ -40,23 +40,25 @@ model User {
 }
 
 model Article {
-  id        Int       @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean?  @default(true)
-  authorId  Int?
-  planetId  Int?
-  deletedAt DateTime? @map("deleted_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  address   String?
-  hashtags  String[]
-  images   Image[]
-  locations Location[]
-  author    User?     @relation(fields: [authorId], references: [id])
-  planet    Planet?   @relation(fields: [planetId], references: [id])
-  comments  Comment[]
-  likes     Like[]    @relation("LikeToArticle")
-  viewCount      ViewCount[]
+  id         Int        @id @default(autoincrement())
+  title      String
+  content    String?
+  published  Boolean?   @default(true)
+  authorId   Int?
+  planetId   Int?
+  spaceshipId Int?      // This is the new field
+  deletedAt  DateTime?  @map("deleted_at")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  address    String?
+  hashtags   String[]
+  images     Image[]
+  locations  Location[]
+  author     User?      @relation(fields: [authorId], references: [id])
+  planet   Planet? @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  spaceship  Spaceship? @relation(fields: [spaceshipId], references: [id]) 
+  comments   Comment[]
+  likes      Like[]     @relation("LikeToArticle")
+  viewCount  ViewCount[]
 }
 
 model Planet {
@@ -85,7 +87,7 @@ model PlanetMembership {
   userId        Int
   role          PlanetMemberRole @default(MEMBER)
   status        MembershipStatus @default(PENDING)
-  planet        Planet           @relation(fields: [planetId], references: [id])
+  planet        Planet           @relation(fields: [planetId], references: [id], onDelete: Cascade)
   user          User             @relation(fields: [userId], references: [id])
 
   @@id([planetId, userId])
@@ -180,20 +182,21 @@ model PlanetBookmark {
 }
 
 model Spaceship {
-  id          Int               @id @default(autoincrement())
-  name       String
-  image String
+  id          Int       @id @default(autoincrement())
+  name        String
+  image       String
   description String?
   maxMembers  Int
   ownerId     Int
-  status      SpaceshipStatus   @default(UPCOMING)
+  status      SpaceshipStatus @default(UPCOMING)
   startDate   DateTime
   endDate     DateTime
   planetId    Int
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  planet      Planet            @relation(fields: [planetId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  planet      Planet         @relation(fields: [planetId], references: [id], onDelete: Cascade)
   members     SpaceshipMember[]
+  articles    Article[]     
 }
 
 model SpaceshipMember {
@@ -239,7 +242,7 @@ model ViewCount {
   articleId  Int?
   planetId   Int?
   article    Article? @relation(fields: [articleId], references: [id])
-  planet     Planet?  @relation(fields: [planetId], references: [id])
+  planet     Planet?  @relation(fields: [planetId], references: [id], onDelete: Cascade)
 
   @@unique([date, articleId, planetId])
 }

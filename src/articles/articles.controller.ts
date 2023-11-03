@@ -71,14 +71,12 @@ export class ArticlesController {
     return this.articlesService.getAllArticles(userId, page);
   }
 
+  @Get('byPlanet')
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard, ArticleGuard)
   @ApiOperation({
     summary: '행성의 게시글 조회 API',
-    description: '행성의 모든 게시글을 불러온다.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: '행성의 게시글을 모두 불러왔습니다.',
-    type: String,
+    description: '행성의 모든 게시글을 페이지네이션하여 불러온다.',
   })
   @ApiQuery({
     name: 'planetId',
@@ -86,16 +84,29 @@ export class ArticlesController {
     type: Number,
     description: '조회하려는 행성의 ID',
   })
-  @Get('byPlanet')
-  @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard, ArticleGuard)
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: '한 페이지당 게시글 수',
+  })
   async getArticlesByPlanet(
     @Req() req: any,
     @Query('planetId') planetId: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
   ) {
     return this.articlesService.getArticlesByPlanetId(
       planetId,
       req.user.userId,
+      page,
+      limit,
     );
   }
 
