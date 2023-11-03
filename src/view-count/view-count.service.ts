@@ -15,7 +15,7 @@ export class ViewCountService {
       ...(planetId ? { planetId } : {}),
     };
 
-    let view = await this.prisma.viewCount.findFirst({
+    const view = await this.prisma.viewCount.findFirst({
       where: whereClause,
     });
 

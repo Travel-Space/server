@@ -112,6 +112,8 @@ export class PlanetController {
     description: '특정 행성을 불러왔습니다.',
   })
   async getPlanetById(@Param('planetId') planetId: number) {
+    await this.viewCountService.incrementViewCount(null, planetId);
+
     return await this.planetService.getPlanetById(planetId);
   }
 
