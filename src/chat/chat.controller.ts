@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
-import { CreateMessageDto } from './dto';
+import { CreateChatRoomDto, CreateMessageDto } from './dto';
 import { JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ChatService } from './chat.service';
 
@@ -25,9 +25,15 @@ export class ChatController {
     summary: '채팅방 생성 API',
     description: '새로운 채팅방을 생성합니다.',
   })
-  async createChatRoom(@Body() body: { userIds: number[] }, @Req() req: any) {
+  async createChatRoom(
+    @Body() createChatRoomDto: CreateChatRoomDto,
+    @Req() req: any,
+  ) {
     const userId = req.user.userId;
-    return this.chatService.createChatRoom([...body.userIds, userId]);
+    return this.chatService.createChatRoom([
+      ...createChatRoomDto.userIds,
+      userId,
+    ]);
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)

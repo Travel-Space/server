@@ -24,17 +24,17 @@ model User {
   status               UserStatus         @default(ACTIVE)
   role                 UserRole           @default(MEMBER)
   deletedAt            DateTime?          @map("deleted_at")
+  messages      Message[]      @relation("UserMessages")
   posts                Article[]
-  chatMemberships      ChatMembership[]
   comments             Comment[]
   likedArticles        Like[]             @relation("LikeToUser")
-  sentMessages         Message[]
   notifications        Notification[]
   ownedPlanet          Planet[]
   planetBookMark       PlanetBookmark[]
   planetsMembership    PlanetMembership[]
   reportsMade          Report[]
   spaceshipMemberships SpaceshipMember[]
+  chatMemberships      ChatMembership[]
   friendedBy           UserFriend[]       @relation("FriendToUser")
   friends              UserFriend[]       @relation("UserToFriend")
 }
@@ -72,6 +72,8 @@ model Planet {
   isActive       Boolean            @default(true)
   shape          PlanetShape?
   hashtags       String[]
+ chatRoomId    Int? @unique
+  chatRoom ChatRoom? @relation("PlanetChatRoom")
   createdAt      DateTime @default(now())
   deletedAt      DateTime?          @map("deleted_at")
   articles       Article[]
@@ -93,30 +95,7 @@ model PlanetMembership {
   @@id([planetId, userId])
 }
 
-model Chat {
-  id              Int              @id @default(autoincrement())
-  chatMemberships ChatMembership[]
-  messages        Message[]
-}
 
-model ChatMembership {
-  chatId Int
-  userId Int
-  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([chatId, userId])
-}
-
-model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  senderId  Int
-  chatId    Int
-  createdAt DateTime @default(now())
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
-}
 
 
 model Comment {
@@ -192,6 +171,8 @@ model Spaceship {
   startDate   DateTime
   endDate     DateTime
   planetId    Int
+  chatRoomId    Int? @unique
+  chatRoom ChatRoom? @relation("SpaceshipChatRoom")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   planet      Planet         @relation(fields: [planetId], references: [id], onDelete: Cascade)
@@ -246,6 +227,38 @@ model ViewCount {
 
   @@unique([date, articleId, planetId])
 }
+
+model ChatRoom {
+  id          Int       @id @default(autoincrement())
+  messages    Message[]
+  chatMemberships   ChatMembership[]
+  planetId    Int?      @unique
+  spaceshipId Int?      @unique
+  planet      Planet?   @relation("PlanetChatRoom", fields: [planetId], references: [id])
+  spaceship   Spaceship?@relation("SpaceshipChatRoom", fields: [spaceshipId], references: [id])
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  content     String
+  senderId    Int
+  chatRoomId  Int        
+  chatRoom    ChatRoom   @relation(fields: [chatRoomId], references: [id])     
+  createdAt   DateTime  @default(now())
+  sender      User      @relation(fields: [senderId], references: [id], name: "UserMessages")
+  
+  @@index([chatRoomId], name: "idx_chatRoomId")
+}
+
+model ChatMembership {
+  chatRoomId  Int
+  userId      Int
+  chatRoom    ChatRoom   @relation(fields: [chatRoomId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+
+  @@id([chatRoomId, userId])
+}
+
 
 enum SocialProvider {
   GOOGLE

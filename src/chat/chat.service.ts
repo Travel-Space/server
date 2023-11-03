@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { Chat, Message } from '@prisma/client';
+import { ChatRoom, Message } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  async createChatRoom(userIds: number[]): Promise<Chat> {
-    const chat = await this.prisma.chat.create({
+  async createChatRoom(userIds: number[]): Promise<ChatRoom> {
+    const chatRoom = await this.prisma.chatRoom.create({
       data: {
         chatMemberships: {
           createMany: {
-            data: userIds.map((userId) => ({
-              userId,
-            })),
+            data: userIds.map((userId) => ({ userId })),
+            skipDuplicates: true,
           },
         },
       },
@@ -21,11 +20,11 @@ export class ChatService {
         chatMemberships: true,
       },
     });
-    return chat;
+    return chatRoom;
   }
 
-  async listChatsForUser(userId: number): Promise<Chat[]> {
-    return await this.prisma.chat.findMany({
+  async listChatsForUser(userId: number): Promise<ChatRoom[]> {
+    return await this.prisma.chatRoom.findMany({
       where: {
         chatMemberships: {
           some: {
@@ -40,7 +39,7 @@ export class ChatService {
   }
 
   async createMessage(
-    chatId: number,
+    chatRoomId: number,
     senderId: number,
     content: string,
   ): Promise<Message> {
@@ -48,15 +47,15 @@ export class ChatService {
       data: {
         content,
         senderId,
-        chatId,
+        chatRoomId,
       },
     });
   }
 
-  async getMessagesFromChat(chatId: number): Promise<Message[]> {
+  async getMessagesFromChat(chatRoomId: number): Promise<Message[]> {
     return await this.prisma.message.findMany({
       where: {
-        chatId,
+        chatRoomId,
       },
       orderBy: {
         createdAt: 'desc',
