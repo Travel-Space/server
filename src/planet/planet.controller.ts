@@ -486,9 +486,12 @@ export class PlanetController {
   ) {
     const currentDate = new Date();
     const startWeek = new Date(
-      currentDate.getTime() - (page - 1) * 7 * 24 * 60 * 60 * 1000,
+      currentDate.getTime() - page * 7 * 24 * 60 * 60 * 1000 * 12,
     );
-    const endWeek = new Date(startWeek.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const endWeek = new Date(
+      currentDate.getTime() -
+        ((page - 1) * 7 * 24 * 60 * 60 * 1000 * 12 + 6 * 24 * 60 * 60 * 1000),
+    );
 
     return this.viewCountService.getWeeklyViewCounts(
       planetId,
