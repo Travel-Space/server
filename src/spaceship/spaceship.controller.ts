@@ -43,7 +43,7 @@ export class SpaceshipController {
     @Req() req: any,
   ) {
     return this.spaceshipService.createSpaceship(
-      req.user.id,
+      req.user.userId,
       createSpaceshipDto,
     );
   }
