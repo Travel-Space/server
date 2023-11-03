@@ -57,34 +57,11 @@ export class ReportController {
     return await this.reportService.searchReports(searchDto);
   }
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get(':reportId')
   @ApiOperation({ summary: '특정 신고 상세 정보 가져오기' })
   @ApiResponse({ status: 200, description: '신고 상세 정보' })
   async getReportDetails(@Param('reportId') reportId: number) {
-    const basicReportDetails =
-      await this.reportService.findBasicReportDetails(reportId);
-    if (!basicReportDetails) {
-      throw new NotFoundException('신고를 찾을 수 없습니다.');
-    }
-
-    let targetDetails;
-    if (basicReportDetails.targetType === 'ARTICLE') {
-      targetDetails = await this.reportService.getArticleReportDetails(
-        basicReportDetails.targetId,
-      );
-    } else if (basicReportDetails.targetType === 'COMMENT') {
-      targetDetails = await this.reportService.getCommentReportDetails(
-        basicReportDetails.targetId,
-      );
-    } else {
-      throw new NotFoundException('알 수 없는 신고 타입입니다.');
-    }
-
-    return {
-      reportDetails: basicReportDetails,
-      targetDetails,
-    };
+    return this.reportService.getReportDetails(reportId);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

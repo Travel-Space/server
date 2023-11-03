@@ -37,101 +37,84 @@ export class ReportService {
     };
   }
 
-  async getReportDetails(reportId: number): Promise<ReportDetails> {
-    const report = await this.prisma.report.findUnique({
-      where: { id: reportId },
-      include: {
-        reporter: true,
-      },
-    });
+  // async getReportDetails(reportId: number): Promise<ReportDetails> {
+  //   const report = await this.prisma.report.findUnique({
+  //     where: { id: reportId },
+  //     include: {
+  //       reporter: true,
+  //     },
+  //   });
 
-    if (!report) {
+  //   if (!report) {
+  //     throw new NotFoundException('신고를 찾을 수 없습니다.');
+  //   }
+
+  //   let article;
+  //   let comment;
+
+  //   if (report.targetType === 'ARTICLE') {
+  //     article = await this.prisma.article.findUnique({
+  //       where: { id: report.targetId },
+  //       include: { planet: true },
+  //     });
+  //   } else if (report.targetType === 'COMMENT') {
+  //     comment = await this.prisma.comment.findUnique({
+  //       where: { id: report.targetId },
+  //       include: {
+  //         article: {
+  //           include: {
+  //             planet: true,
+  //           },
+  //         },
+  //       },
+  //     });
+  //   }
+
+  //   return {
+  //     ...report,
+  //     article: article || undefined,
+  //     comment: comment || undefined,
+  //   };
+  // }
+
+  async getReportDetails(reportId: number) {
+    const basicReportDetails = await this.findBasicReportDetails(reportId);
+    if (!basicReportDetails) {
       throw new NotFoundException('신고를 찾을 수 없습니다.');
     }
 
-    let article;
-    let comment;
+    const reporter = await this.getReporterDetails(
+      basicReportDetails.reporterId,
+    );
+    if (!reporter) {
+      throw new NotFoundException('신고자 정보를 찾을 수 없습니다.');
+    }
 
-    if (report.targetType === 'ARTICLE') {
-      article = await this.prisma.article.findUnique({
-        where: { id: report.targetId },
-        include: { planet: true },
-      });
-    } else if (report.targetType === 'COMMENT') {
-      comment = await this.prisma.comment.findUnique({
-        where: { id: report.targetId },
-        include: {
-          article: {
-            include: {
-              planet: true,
-            },
-          },
-        },
-      });
+    let targetDetails;
+    if (basicReportDetails.targetType === 'ARTICLE') {
+      targetDetails = await this.getArticleReportDetails(
+        basicReportDetails.targetId,
+      );
+    } else if (basicReportDetails.targetType === 'COMMENT') {
+      targetDetails = await this.getCommentReportDetails(
+        basicReportDetails.targetId,
+      );
+    } else {
+      throw new NotFoundException('알 수 없는 신고 타입입니다.');
     }
 
     return {
-      ...report,
-      article: article || undefined,
-      comment: comment || undefined,
-    };
-  }
-
-  async getArticleReportDetails(articleId: number) {
-    const article = await this.prisma.article.findUnique({
-      where: { id: articleId },
-      include: {
-        planet: true,
-        author: {
-          select: {
-            nickName: true,
-            email: true,
-            reportCount: true,
-          },
-        },
+      reportDetails: {
+        ...basicReportDetails,
+        reporterName: reporter.name,
+        reporterEmail: reporter.email,
       },
-    });
-
-    if (!article) {
-      throw new NotFoundException('해당 게시글을 찾을 수 없습니다.');
-    }
-
-    return {
-      planetId: article.planetId,
-      articleId: article.id,
-      authorId: article.authorId,
-      authorDetails: article.author,
-    };
-  }
-
-  async getCommentReportDetails(commentId: number) {
-    const comment = await this.prisma.comment.findUnique({
-      where: { id: commentId },
-      include: {
-        author: {
-          select: {
-            nickName: true,
-            email: true,
-            reportCount: true,
-          },
-        },
-        article: true,
-      },
-    });
-
-    if (!comment) {
-      throw new NotFoundException('해당 댓글을 찾을 수 없습니다.');
-    }
-
-    return {
-      articleId: comment.articleId,
-      authorId: comment.authorId,
-      authorDetails: comment.author,
+      targetDetails,
     };
   }
 
   async findBasicReportDetails(reportId: number): Promise<Report> {
-    const report = await this.prisma.report.findUnique({
+    return this.prisma.report.findUnique({
       where: { id: reportId },
       select: {
         id: true,
@@ -146,12 +129,48 @@ export class ReportService {
         status: true,
       },
     });
+  }
 
-    if (!report) {
-      throw new NotFoundException('신고를 찾을 수 없습니다.');
-    }
+  async getReporterDetails(reporterId: number) {
+    return this.prisma.user.findUnique({
+      where: { id: reporterId },
+      select: {
+        name: true,
+        email: true,
+      },
+    });
+  }
 
-    return report;
+  async getArticleReportDetails(articleId: number) {
+    return this.prisma.article.findUnique({
+      where: { id: articleId },
+      include: {
+        planet: true,
+        author: {
+          select: {
+            nickName: true,
+            email: true,
+            reportCount: true,
+          },
+        },
+      },
+    });
+  }
+
+  async getCommentReportDetails(commentId: number) {
+    return this.prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        author: {
+          select: {
+            nickName: true,
+            email: true,
+            reportCount: true,
+          },
+        },
+        article: true,
+      },
+    });
   }
 
   async approveReport(reportId: number, approvalReason: string) {
@@ -196,6 +215,14 @@ export class ReportService {
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
+      include: {
+        reporter: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
     const totalCount = await this.prisma.report.count({
@@ -212,7 +239,11 @@ export class ReportService {
 
     return {
       totalCount,
-      reports,
+      reports: reports.map((report) => ({
+        ...report,
+        reporterName: report.reporter.name,
+        reporterEmail: report.reporter.email,
+      })),
     };
   }
 
