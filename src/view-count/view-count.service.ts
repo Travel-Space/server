@@ -78,16 +78,13 @@ export class ViewCountService {
   ) {
     const skip = (page - 1) * 12;
 
-    const startOfStartWeek = this.getStartOfWeek(startWeek);
-    const endOfEndWeek = this.getEndOfWeek(endWeek);
-
     const weeklyViewCounts = await this.prisma.viewCount.groupBy({
       by: ['date'],
       where: {
         planetId: planetId,
         date: {
-          gte: startOfStartWeek,
-          lte: endOfEndWeek,
+          gte: startWeek,
+          lte: endWeek,
         },
       },
       _sum: {
@@ -105,13 +102,23 @@ export class ViewCountService {
       count: viewCount._sum.count,
     }));
 
-    const startDate = this.getStartOfWeek(startWeek);
-    const endDate = this.getEndOfWeek(endWeek);
+    const weeks = [];
+    const currentWeek = new Date(endWeek.getTime());
+    for (let i = 0; i < 12; i++) {
+      const startOfWeek = this.getStartOfWeek(
+        new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000),
+      );
+      const endOfWeek = this.getEndOfWeek(new Date(currentWeek.getTime()));
+      weeks.unshift({
+        start: startOfWeek,
+        end: endOfWeek,
+      });
+      currentWeek.setTime(startOfWeek.getTime() - 1);
+    }
 
     return {
       weeklyViews,
-      startDate,
-      endDate,
+      weeks,
     };
   }
 
