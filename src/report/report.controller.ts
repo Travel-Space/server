@@ -68,20 +68,23 @@ export class ReportController {
       throw new NotFoundException('신고를 찾을 수 없습니다.');
     }
 
-    let detailedReport;
+    let targetDetails;
     if (basicReportDetails.targetType === 'ARTICLE') {
-      detailedReport = await this.reportService.getArticleReportDetails(
+      targetDetails = await this.reportService.getArticleReportDetails(
         basicReportDetails.targetId,
       );
     } else if (basicReportDetails.targetType === 'COMMENT') {
-      detailedReport = await this.reportService.getCommentReportDetails(
+      targetDetails = await this.reportService.getCommentReportDetails(
         basicReportDetails.targetId,
       );
     } else {
       throw new NotFoundException('알 수 없는 신고 타입입니다.');
     }
 
-    return detailedReport;
+    return {
+      reportDetails: basicReportDetails,
+      targetDetails,
+    };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

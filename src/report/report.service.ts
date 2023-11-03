@@ -93,7 +93,7 @@ export class ReportService {
     });
 
     if (!article) {
-      throw new NotFoundException('해당 기사를 찾을 수 없습니다.');
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다.');
     }
 
     return {
@@ -130,14 +130,20 @@ export class ReportService {
     };
   }
 
-  async findBasicReportDetails(
-    reportId: number,
-  ): Promise<{ targetType: string; targetId: number }> {
+  async findBasicReportDetails(reportId: number): Promise<Report> {
     const report = await this.prisma.report.findUnique({
       where: { id: reportId },
       select: {
-        targetType: true,
+        id: true,
+        reason: true,
+        approvalReason: true,
+        reporterId: true,
         targetId: true,
+        targetType: true,
+        imageUrl: true,
+        createdAt: true,
+        deletedAt: true,
+        status: true,
       },
     });
 
@@ -145,10 +151,7 @@ export class ReportService {
       throw new NotFoundException('신고를 찾을 수 없습니다.');
     }
 
-    return {
-      targetType: report.targetType,
-      targetId: report.targetId,
-    };
+    return report;
   }
 
   async approveReport(reportId: number, approvalReason: string) {
