@@ -62,4 +62,38 @@ export class ChatService {
       },
     });
   }
+
+  async updateMessage(
+    messageId: number,
+    content: string,
+  ): Promise<Message | null> {
+    try {
+      const updatedMessage = await this.prisma.message.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          content,
+        },
+      });
+      return updatedMessage;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async deleteMessage(messageId: number): Promise<Message | null> {
+    try {
+      const deletedMessage = await this.prisma.message.delete({
+        where: {
+          id: messageId,
+        },
+      });
+      return deletedMessage;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 }

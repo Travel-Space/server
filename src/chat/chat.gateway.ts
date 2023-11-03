@@ -8,7 +8,16 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['authorization', 'Authorization'],
+    credentials: true,
+  },
+  namespace: /\/ws-.+/,
+  transports: ['websocket', 'polling'],
+})
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
@@ -54,5 +63,44 @@ export class ChatGateway {
     );
     this.server.to(data.chatRoomId.toString()).emit('newMessage', message);
     console.log(`Message sent to room ${data.chatRoomId}: ${data.content}`);
+  }
+
+  @SubscribeMessage('updateMessage')
+  async handleUpdateMessage(
+    @MessageBody() data: { messageId: number; content: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const updatedMessage = await this.chatService.updateMessage(
+      data.messageId,
+      data.content,
+    );
+
+    if (updatedMessage) {
+      this.server.emit('messageUpdated', updatedMessage);
+      console.log(`Message updated: ${data.messageId}`);
+    } else {
+      client.emit(
+        'updateMessageFailed',
+        `Failed to update message: ${data.messageId}`,
+      );
+    }
+  }
+
+  @SubscribeMessage('deleteMessage')
+  async handleDeleteMessage(
+    @MessageBody() messageId: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const deletedMessage = await this.chatService.deleteMessage(messageId);
+
+    if (deletedMessage) {
+      this.server.emit('messageDeleted', messageId);
+      console.log(`Message deleted: ${messageId}`);
+    } else {
+      client.emit(
+        'deleteMessageFailed',
+        `Failed to delete message: ${messageId}`,
+      );
+    }
   }
 }
