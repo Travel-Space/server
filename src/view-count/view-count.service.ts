@@ -106,20 +106,20 @@ export class ViewCountService {
     const currentWeek = new Date(endWeek.getTime());
     for (let i = 0; i < 12; i++) {
       const startOfWeek = this.getStartOfWeek(
-        new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000),
+        new Date(currentWeek.getTime() - i * 7 * 24 * 60 * 60 * 1000),
       );
-      const endOfWeek = this.getEndOfWeek(new Date(currentWeek.getTime()));
-      weeks.unshift({
+      const endOfWeek = this.getEndOfWeek(
+        new Date(currentWeek.getTime() - i * 7 * 24 * 60 * 60 * 1000),
+      );
+      const weekData = {
         start: startOfWeek,
         end: endOfWeek,
-      });
-      currentWeek.setTime(startOfWeek.getTime() - 1);
+        count: weeklyViews[i]?.count || 0,
+      };
+      weeks.unshift(weekData);
     }
 
-    return {
-      weeklyViews,
-      weeks,
-    };
+    return weeks;
   }
 
   getStartOfWeek(date: Date) {
