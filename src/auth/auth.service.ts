@@ -152,6 +152,11 @@ export class AuthService {
       expiresIn: '7d',
     });
 
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: refreshToken },
+    });
+
     const memberships = {
       planets: user.planetsMembership.map((pm) => ({
         planetId: pm.planetId,
@@ -200,6 +205,17 @@ export class AuthService {
     if (!user || user.refreshToken !== oldRefreshToken) {
       throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
     }
+
+    const newRefreshToken = this.jwtService.sign({
+      userId: user.id,
+      userEmail: user.email,
+      role: user.role,
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken },
+    });
 
     const newAccessToken = this.jwtService.sign({
       userId: user.id,

@@ -95,6 +95,7 @@ export class AuthController {
 
     return { success: true, id, memberships, role };
   }
+
   @Post('refresh')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
