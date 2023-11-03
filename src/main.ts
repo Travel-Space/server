@@ -10,13 +10,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(cookieParser());
 
-  const corsOptions = {
-    origin: '*',
+  app.enableCors({
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-  };
-
-  app.enableCors(corsOptions);
+  });
 
   const config = new DocumentBuilder()
     .setTitle('TravleSpace')
