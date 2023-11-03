@@ -41,13 +41,12 @@ export class ViewCountService {
       });
     }
   }
-
   async getDailyViewCounts(
     planetId: number,
     from: Date,
     to: Date,
     page: number,
-    pageSize: number = 20,
+    pageSize: number,
   ) {
     const skip = (page - 1) * pageSize;
 
@@ -76,14 +75,13 @@ export class ViewCountService {
     startWeek: Date,
     endWeek: Date,
     page: number,
-    pageSize: number = 12,
   ) {
-    const skip = (page - 1) * pageSize;
+    const skip = (page - 1) * 12;
 
     const startOfStartWeek = this.getStartOfWeek(startWeek);
     const endOfEndWeek = this.getEndOfWeek(endWeek);
 
-    return this.prisma.viewCount.groupBy({
+    const weeklyViewCounts = await this.prisma.viewCount.groupBy({
       by: ['date'],
       where: {
         planetId: planetId,
@@ -98,23 +96,39 @@ export class ViewCountService {
       orderBy: {
         date: 'asc',
       },
-      take: pageSize,
+      take: 12,
       skip: skip,
     });
+
+    const weeklyViews = weeklyViewCounts.map((viewCount) => ({
+      date: viewCount.date,
+      count: viewCount._sum.count,
+    }));
+
+    const startDate = this.getStartOfWeek(startWeek);
+    const endDate = this.getEndOfWeek(endWeek);
+
+    return {
+      weeklyViews,
+      startDate,
+      endDate,
+    };
   }
 
-  private getStartOfWeek(date: Date) {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    date.setHours(0, 0, 0, 0);
-    return new Date(date.setDate(diff));
+  getStartOfWeek(date: Date) {
+    const startOfWeek = new Date(date);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+    startOfWeek.setDate(diff);
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
   }
 
-  private getEndOfWeek(date: Date) {
-    const startOfWeek = this.getStartOfWeek(new Date(date));
-    startOfWeek.setDate(startOfWeek.getDate() + 6);
-    startOfWeek.setHours(23, 59, 59, 999);
-    return new Date(startOfWeek);
+  getEndOfWeek(date: Date) {
+    const endOfWeek = new Date(date);
+    endOfWeek.setDate(date.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
   }
 
   async getTopArticlesByMonthlyViews(

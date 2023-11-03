@@ -438,11 +438,9 @@ export class PlanetController {
   @Get(':planetId/daily-views')
   @ApiOperation({
     summary: '행성별 일간 방문수 조회 API',
-    description: '지정된 기간 동안의 행성별 일간 방문수를 조회합니다.',
+    description: '페이지 번호에 따른 행성별 일간 방문수를 조회합니다.',
   })
   @ApiParam({ name: 'planetId', description: '행성의 고유 ID' })
-  @ApiQuery({ name: 'from', description: '조회 시작 날짜', type: String })
-  @ApiQuery({ name: 'to', description: '조회 종료 날짜', type: String })
   @ApiQuery({ name: 'page', description: '페이지 번호', type: Number })
   @ApiResponse({
     status: 200,
@@ -450,17 +448,21 @@ export class PlanetController {
   })
   async getDailyViews(
     @Param('planetId', ParseIntPipe) planetId: number,
-    @Query('from') from: string,
-    @Query('to') to: string,
     @Query('page') page: number,
   ) {
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
+    const pageSize = 20;
+    const toDate = new Date();
+    toDate.setHours(0, 0, 0, 0);
+    const fromDate = new Date();
+    fromDate.setDate(toDate.getDate() - (page - 1) * pageSize);
+    fromDate.setHours(0, 0, 0, 0);
+
     return this.viewCountService.getDailyViewCounts(
       planetId,
       fromDate,
       toDate,
       page,
+      pageSize,
     );
   }
 
@@ -468,46 +470,30 @@ export class PlanetController {
   @Get(':planetId/weekly-views')
   @ApiOperation({
     summary: '행성별 주간 방문수 조회 API',
-    description: '지정된 기간 동안의 행성별 주간 방문수를 조회합니다.',
+    description:
+      '현재 주를 기준으로 행성별 주간 방문수와 주의 시작일, 마지막일을 조회합니다.',
   })
   @ApiParam({ name: 'planetId', description: '행성의 고유 ID', type: Number })
-  @ApiQuery({
-    name: 'startWeek',
-    description: '조회할 주의 시작 날짜',
-    type: String,
-  })
-  @ApiQuery({
-    name: 'endWeek',
-    description: '조회할 주의 마지막 날짜',
-    type: String,
-  })
   @ApiQuery({ name: 'page', description: '페이지 번호', type: Number })
-  @ApiQuery({
-    name: 'pageSize',
-    description: '한 페이지당 항목 수',
-    type: Number,
-    required: false,
-  })
   @ApiResponse({
     status: 200,
     description: '주간 방문수 조회 결과',
   })
   async getWeeklyViews(
     @Param('planetId', ParseIntPipe) planetId: number,
-    @Query('startWeek') startWeek: string,
-    @Query('endWeek') endWeek: string,
     @Query('page') page: number,
-    @Query('pageSize') pageSize?: number,
   ) {
-    const startDate = new Date(startWeek);
-    const endDate = new Date(endWeek);
-    const size = pageSize || 12;
+    const currentDate = new Date();
+    const startWeek = new Date(
+      currentDate.getTime() - (page - 1) * 7 * 24 * 60 * 60 * 1000,
+    );
+    const endWeek = new Date(startWeek.getTime() - 6 * 24 * 60 * 60 * 1000);
+
     return this.viewCountService.getWeeklyViewCounts(
       planetId,
-      startDate,
-      endDate,
+      startWeek,
+      endWeek,
       page,
-      size,
     );
   }
 }
