@@ -454,8 +454,9 @@ export class PlanetController {
     const toDate = new Date();
     toDate.setHours(0, 0, 0, 0);
     const fromDate = new Date();
-    fromDate.setDate(toDate.getDate() - (page - 1) * pageSize);
+    fromDate.setDate(toDate.getDate() - page * pageSize);
     fromDate.setHours(0, 0, 0, 0);
+    toDate.setDate(fromDate.getDate() + pageSize - 1);
 
     return this.viewCountService.getDailyViewCounts(
       planetId,
