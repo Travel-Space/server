@@ -95,16 +95,19 @@ export class AuthController {
 
     return { success: true, id, memberships, role };
   }
-
   @Post('refresh')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const oldRefreshToken = req.cookies['REFRESH_TOKEN'];
-
-    if (!oldRefreshToken) {
-      throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+    const userId = req.user.userId;
+    if (!oldRefreshToken || !userId) {
+      throw new UnauthorizedException(
+        '리프레시 토큰 또는 유저 아이디가 유효하지 않습니다.',
+      );
     }
+
     const newAccessToken = await this.authService.refreshToken(
-      req.user.userId,
+      userId,
       oldRefreshToken,
     );
 
