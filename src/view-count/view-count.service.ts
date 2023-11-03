@@ -70,6 +70,20 @@ export class ViewCountService {
     });
   }
 
+  getStartOfWeek(date: Date) {
+    const startOfWeek = new Date(date);
+    startOfWeek.setUTCHours(0, 0, 0, 0);
+    startOfWeek.setUTCDate(startOfWeek.getUTCDate() - startOfWeek.getUTCDay());
+    return startOfWeek;
+  }
+
+  getEndOfWeek(date: Date) {
+    const endOfWeek = new Date(this.getStartOfWeek(date));
+    endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6);
+    endOfWeek.setUTCHours(23, 59, 59, 999);
+    return endOfWeek;
+  }
+
   async getWeeklyViewCounts(
     planetId: number,
     startWeek: Date,
@@ -77,65 +91,41 @@ export class ViewCountService {
     page: number,
   ) {
     const skip = (page - 1) * 12;
-
-    const weeklyViewCounts = await this.prisma.viewCount.groupBy({
-      by: ['date'],
-      where: {
-        planetId: planetId,
-        date: {
-          gte: startWeek,
-          lte: endWeek,
-        },
-      },
-      _sum: {
-        count: true,
-      },
-      orderBy: {
-        date: 'asc',
-      },
-      take: 12,
-      skip: skip,
-    });
-
-    const weeklyViews = weeklyViewCounts.map((viewCount) => ({
-      date: viewCount.date,
-      count: viewCount._sum.count,
-    }));
-
     const weeks = [];
-    const currentWeek = new Date(endWeek.getTime());
+
     for (let i = 0; i < 12; i++) {
-      const startOfWeek = this.getStartOfWeek(
-        new Date(currentWeek.getTime() - i * 7 * 24 * 60 * 60 * 1000),
+      const weekStart = new Date(
+        startWeek.getTime() - i * 7 * 24 * 60 * 60 * 1000,
       );
-      const endOfWeek = this.getEndOfWeek(
-        new Date(currentWeek.getTime() - i * 7 * 24 * 60 * 60 * 1000),
+      const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+
+      const viewCounts = await this.prisma.viewCount.groupBy({
+        by: ['date'],
+        where: {
+          planetId: planetId,
+          date: {
+            gte: weekStart,
+            lte: new Date(weekEnd.getTime() + 24 * 60 * 60 * 1000 - 1),
+          },
+        },
+        _sum: {
+          count: true,
+        },
+      });
+
+      const count = viewCounts.reduce(
+        (acc, curr) => acc + (curr._sum.count || 0),
+        0,
       );
-      const weekData = {
-        start: startOfWeek,
-        end: endOfWeek,
-        count: weeklyViews[i]?.count || 0,
-      };
-      weeks.unshift(weekData);
+
+      weeks.unshift({
+        start: weekStart.toISOString(),
+        end: weekEnd.toISOString(),
+        count: count,
+      });
     }
 
     return weeks;
-  }
-
-  getStartOfWeek(date: Date) {
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-    startOfWeek.setDate(diff);
-    startOfWeek.setHours(0, 0, 0, 0);
-    return startOfWeek;
-  }
-
-  getEndOfWeek(date: Date) {
-    const endOfWeek = new Date(date);
-    endOfWeek.setDate(date.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-    return endOfWeek;
   }
 
   async getTopArticlesByMonthlyViews(

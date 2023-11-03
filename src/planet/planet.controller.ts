@@ -482,21 +482,24 @@ export class PlanetController {
   })
   async getWeeklyViews(
     @Param('planetId', ParseIntPipe) planetId: number,
-    @Query('page') page: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
     const currentDate = new Date();
-    const startWeek = new Date(
-      currentDate.getTime() - page * 7 * 24 * 60 * 60 * 1000 * 12,
+    const startWeek = this.viewCountService.getStartOfWeek(currentDate);
+    const endWeek = this.viewCountService.getEndOfWeek(currentDate);
+
+    const skipWeeks = (page - 1) * 12;
+    const adjustedStartWeek = new Date(
+      startWeek.getTime() - skipWeeks * 7 * 24 * 60 * 60 * 1000,
     );
-    const endWeek = new Date(
-      currentDate.getTime() -
-        ((page - 1) * 7 * 24 * 60 * 60 * 1000 * 12 + 6 * 24 * 60 * 60 * 1000),
+    const adjustedEndWeek = new Date(
+      endWeek.getTime() - skipWeeks * 7 * 24 * 60 * 60 * 1000,
     );
 
     return this.viewCountService.getWeeklyViewCounts(
       planetId,
-      startWeek,
-      endWeek,
+      adjustedStartWeek,
+      adjustedEndWeek,
       page,
     );
   }
