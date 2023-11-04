@@ -40,6 +40,8 @@ export class SpaceshipService {
     return this.prisma.spaceship.create({
       data: {
         ...dto,
+        startDate: new Date(dto.startDate),
+        endDate: new Date(dto.endDate),
         ownerId: userId,
       },
     });

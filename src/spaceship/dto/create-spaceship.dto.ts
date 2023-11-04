@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsInt, IsString } from 'class-validator';
+import { IsDate, IsDateString, IsInt, IsString } from 'class-validator';
 
 export class CreateSpaceshipDto {
   @ApiProperty({ description: '우주선 이름' })
@@ -15,12 +15,12 @@ export class CreateSpaceshipDto {
   maxMembers: number;
 
   @ApiProperty({ description: '우주선 이륙일' })
-  @IsDate()
-  startDate: Date;
+  @IsDateString()
+  startDate: string;
 
   @ApiProperty({ description: '우주선 복귀일' })
-  @IsDate()
-  endDate: Date;
+  @IsDateString()
+  endDate: string;
 
   @ApiProperty({ description: '우주선이 속한 행성 ID' })
   @IsInt()
