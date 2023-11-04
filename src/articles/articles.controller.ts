@@ -303,6 +303,21 @@ export class ArticlesController {
     return res.status(204).send();
   }
 
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Delete('admin/:id')
+  @ApiOperation({
+    summary: '관리자에 의한 게시글 삭제 API',
+    description: '관리자가 게시글을 삭제합니다.',
+  })
+  async deleteArticleByAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.articlesService.deleteArticleByAdmin(id);
+    return res.status(204).send();
+  }
+
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('my/articles')
   @ApiOperation({
