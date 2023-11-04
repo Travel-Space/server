@@ -102,6 +102,11 @@ export class PlanetService {
         where: {
           userId: userId,
           status: 'APPROVED',
+          planet: {
+            ownerId: {
+              not: userId,
+            },
+          },
         },
         skip,
         take: limit,
@@ -121,6 +126,11 @@ export class PlanetService {
         where: {
           userId: userId,
           status: 'APPROVED',
+          planet: {
+            ownerId: {
+              not: userId,
+            },
+          },
         },
       }),
     ]);
@@ -128,6 +138,40 @@ export class PlanetService {
     return {
       planets: memberships.map((membership) => membership.planet),
       totalMemberships,
+    };
+  }
+
+  async getMyOwnedPlanets(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [planets, totalPlanets] = await Promise.all([
+      this.prisma.planet.findMany({
+        where: {
+          ownerId: userId,
+        },
+        skip,
+        take: limit,
+        include: {
+          articles: true,
+          owner: true,
+          planetBookMark: true,
+          members: true,
+          spaceships: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.planet.count({
+        where: {
+          ownerId: userId,
+        },
+      }),
+    ]);
+
+    return {
+      planets,
+      totalPlanets,
     };
   }
 
@@ -595,6 +639,53 @@ export class PlanetService {
       where: { id: planetId },
       data: { ownerId: newOwnerId },
     });
+  }
+
+  async getNonOwnedPlanets(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [memberships, totalMemberships] = await Promise.all([
+      this.prisma.planetMembership.findMany({
+        where: {
+          userId: userId,
+          status: 'APPROVED',
+          planet: {
+            ownerId: {
+              not: userId,
+            },
+          },
+        },
+        skip,
+        take: limit,
+        include: {
+          planet: {
+            include: {
+              articles: true,
+              owner: true,
+              planetBookMark: true,
+              members: true,
+              spaceships: true,
+            },
+          },
+        },
+      }),
+      this.prisma.planetMembership.count({
+        where: {
+          userId: userId,
+          status: 'APPROVED',
+          planet: {
+            ownerId: {
+              not: userId,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      planets: memberships.map((membership) => membership.planet),
+      totalMemberships,
+    };
   }
 }
 
