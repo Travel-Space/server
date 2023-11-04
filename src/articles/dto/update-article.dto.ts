@@ -6,17 +6,18 @@ import {
   IsInt,
   IsArray,
   ValidateNested,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class LocationDto {
   @ApiProperty({ description: '위도' })
   @IsOptional()
-  @IsString()
+  @IsNumber()
   latitude?: number;
 
   @ApiProperty({ description: '경도' })
-  @IsString()
+  @IsNumber()
   longitude?: number;
 }
 
@@ -62,4 +63,9 @@ export class UpdateArticleDto {
   @IsArray()
   @IsString({ each: true })
   hashtags?: string[];
+
+  @ApiProperty({ description: '연관될 우주선 ID' })
+  @IsOptional()
+  @IsNumber()
+  spaceshipId?: number;
 }
