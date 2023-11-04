@@ -125,17 +125,25 @@ export class ArticlesController {
     type: 'number',
     description: '한 페이지당 게시글 수',
   })
+  @ApiQuery({
+    name: 'spaceshipId',
+    required: false,
+    type: Number,
+    description: '조회하려는 우주선의 ID',
+  })
   async getArticlesByPlanet(
     @Req() req: any,
     @Query('planetId') planetId: number,
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
+    @Query('spaceshipId') spaceshipId: number,
   ) {
     return this.articlesService.getArticlesByPlanetId(
       planetId,
       req.user.userId,
       page,
       limit,
+      spaceshipId,
     );
   }
 

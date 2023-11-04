@@ -118,12 +118,15 @@ export class ArticlesService {
     userId: number,
     page: number,
     limit: number,
+    spaceshipId?: number,
   ) {
     const skip = (page - 1) * limit;
+    const whereCondition = {
+      planetId: planetId,
+      ...(spaceshipId && { spaceshipId: spaceshipId }),
+    };
     const articles = await this.prisma.article.findMany({
-      where: {
-        planetId: planetId,
-      },
+      where: whereCondition,
       skip,
       take: limit,
       include: {
@@ -139,7 +142,7 @@ export class ArticlesService {
       },
     });
     const totalArticlesCount = await this.prisma.article.count({
-      where: { planetId },
+      where: whereCondition,
     });
 
     return {
