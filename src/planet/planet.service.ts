@@ -19,6 +19,7 @@ export class PlanetService {
     name?: string,
     hashtag?: string,
     ownerNickname?: string,
+    published?: string,
   ) {
     const skip = (page - 1) * limit;
     const where = {};
@@ -51,6 +52,12 @@ export class PlanetService {
           currentPage: page,
           planets: [],
         };
+      }
+    }
+
+    if (published) {
+      if (published !== 'all') {
+        where['published'] = published === 'true';
       }
     }
 

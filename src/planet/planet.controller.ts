@@ -77,12 +77,20 @@ export class PlanetController {
     type: 'string',
     description: '검색할 행성 관리자 닉네임',
   })
+  @ApiQuery({
+    name: 'published',
+    required: false,
+    type: 'string',
+    description: '행성의 공개 상태 필터링 (all, true, false)',
+    enum: ['all', 'true', 'false'],
+  })
   async getAllPlanet(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
     @Query('name') name?: string,
     @Query('hashtag') hashtag?: string,
     @Query('ownerNickname') ownerNickname?: string,
+    @Query('published') published?: string,
   ) {
     return this.planetService.getAllPlanet(
       page,
@@ -90,8 +98,10 @@ export class PlanetController {
       name,
       hashtag,
       ownerNickname,
+      published,
     );
   }
+
   @Get('my-planets')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
