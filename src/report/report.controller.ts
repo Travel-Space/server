@@ -76,6 +76,7 @@ export class ReportController {
     return await this.reportService.approveReport(
       reportId,
       approveReportDto.approvalReason,
+      approveReportDto.suspensionEndDate,
     );
   }
 

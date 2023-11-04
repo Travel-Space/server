@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Article, Planet, Report, ReportStatus, User } from '@prisma/client';
 import { CreateReportDto, SearchReportsDto } from './dto';
+import moment from 'moment-timezone';
 
 type ReportDetails = Report & {
   reporter: User;
@@ -127,6 +128,7 @@ export class ReportService {
         createdAt: true,
         deletedAt: true,
         status: true,
+        processingDate: true,
       },
     });
   }
@@ -172,25 +174,37 @@ export class ReportService {
       },
     });
   }
+  async approveReport(
+    reportId: number,
+    approvalReason: string,
+    suspensionEndDate: string,
+  ) {
+    const suspensionDate = moment
+      .tz(suspensionEndDate, 'YYYY-MM-DD', 'Asia/Seoul')
+      .toDate();
+    const now = moment.tz('Asia/Seoul').toDate();
 
-  async approveReport(reportId: number, approvalReason: string) {
-    const report = await this.prisma.report.update({
-      where: { id: reportId },
-      data: {
-        status: ReportStatus.APPROVED,
-        approvalReason: approvalReason,
-      },
-    });
-    await this.prisma.user.update({
-      where: { id: report.targetId },
-      data: {
-        reportCount: {
-          increment: 1,
+    const transaction = await this.prisma.$transaction(async (prisma) => {
+      const report = await prisma.report.update({
+        where: { id: reportId },
+        data: {
+          status: 'APPROVED',
+          approvalReason: approvalReason,
+          processingDate: now,
         },
-      },
+      });
+
+      await prisma.user.update({
+        where: { id: report.targetId },
+        data: {
+          userSuspensionDate: suspensionDate,
+        },
+      });
+
+      return report;
     });
 
-    return report;
+    return transaction;
   }
 
   async rejectReport(reportId: number) {

@@ -20,6 +20,7 @@ model User {
   profileImage         String?
   refreshToken         String? 
   reportCount          Int?               @default(0)
+  userSuspensionDate   DateTime?
   provider             SocialProvider
   status               UserStatus         @default(ACTIVE)
   role                 UserRole           @default(MEMBER)
@@ -145,6 +146,7 @@ model Report {
   targetId   Int
   targetType ReportTargetType
   imageUrl   String? 
+  processingDate DateTime?
   createdAt  DateTime         @default(now())
   deletedAt  DateTime?        @map("deleted_at")
   reporter   User             @relation(fields: [reporterId], references: [id])
