@@ -39,8 +39,11 @@ export class ChatGateway {
   ) {
     client.join(roomId);
     console.log(`Client ${client.id} joined room ${roomId}`);
-  }
 
+    const messages = await this.chatService.getMessagesByRoomId(roomId);
+
+    client.emit('roomHistory', messages);
+  }
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(
     @MessageBody() roomId: string,

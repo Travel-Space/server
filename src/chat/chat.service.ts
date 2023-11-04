@@ -96,4 +96,11 @@ export class ChatService {
       return null;
     }
   }
+
+  async getMessagesByRoomId(roomId: string): Promise<Message[]> {
+    return this.prisma.message.findMany({
+      where: { chatRoomId: Number(roomId) },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
 }
