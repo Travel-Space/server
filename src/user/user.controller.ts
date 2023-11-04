@@ -97,6 +97,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get('profile')
+  @ApiOperation({ summary: '내 정보 조회하기' })
   async getProfile(@Req() req: any) {
     return await this.userService.getUserById(req.user.userId);
   }

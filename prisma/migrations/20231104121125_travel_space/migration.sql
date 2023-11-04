@@ -23,7 +23,7 @@ CREATE TYPE "MembershipStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "ApplicationStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 -- CreateEnum
-CREATE TYPE "PlanetMemberRole" AS ENUM ('OWNER', 'ADMIN', 'MEMBER');
+CREATE TYPE "PlanetMemberRole" AS ENUM ('OWNER', 'ADMIN', 'MEMBER', 'GUEST');
 
 -- CreateEnum
 CREATE TYPE "ReportStatus" AS ENUM ('RECEIVED', 'APPROVED', 'REJECTED');
@@ -48,6 +48,7 @@ CREATE TABLE "User" (
     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
     "role" "UserRole" NOT NULL DEFAULT 'MEMBER',
     "deleted_at" TIMESTAMP(3),
+    "userSuspensionDate" TIMESTAMP(3),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -148,6 +149,7 @@ CREATE TABLE "Report" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" TIMESTAMP(3),
     "status" "ReportStatus" NOT NULL DEFAULT 'RECEIVED',
+    "processingDate" TIMESTAMP(3),
 
     CONSTRAINT "Report_pkey" PRIMARY KEY ("id")
 );
@@ -250,6 +252,14 @@ CREATE TABLE "Message" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ChatMembership" (
+    "chatRoomId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+
+    CONSTRAINT "ChatMembership_pkey" PRIMARY KEY ("chatRoomId","userId")
 );
 
 -- CreateIndex
@@ -365,3 +375,9 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_chatRoomId_fkey" FOREIGN KEY ("cha
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ChatMembership" ADD CONSTRAINT "ChatMembership_chatRoomId_fkey" FOREIGN KEY ("chatRoomId") REFERENCES "ChatRoom"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ChatMembership" ADD CONSTRAINT "ChatMembership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
