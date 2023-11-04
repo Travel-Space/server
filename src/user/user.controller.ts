@@ -256,4 +256,65 @@ export class UserController {
 
     return { message: '계정이 삭제되었습니다.' };
   }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('/ohter/:userId')
+  @ApiOperation({ summary: '다른 사용자 정보 조회하기' })
+  async getOtherUser(@Param('userId', ParseIntPipe) userId: number) {
+    return await this.userService.getUserById(userId);
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('other/:userId/following')
+  @ApiOperation({
+    summary: '특정 사용자가 팔로우하는 친구 목록 조회',
+    description:
+      '특정 사용자가 팔로우하는 친구 목록을 페이지네이션하여 조회합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '한 페이지당 친구 수',
+  })
+  async getOhterUserFollowing(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.userService.getFollowing(userId, page, limit);
+  }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('other/:userId/followers')
+  @ApiOperation({
+    summary: '특정 사용자를 팔로우하는 친구 목록 조회',
+    description:
+      '특정 사용자를 팔로우하는 친구 목록과 맞팔 여부를 페이지네이션하여 조회합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '한 페이지당 친구 수',
+  })
+  async getOhterUserFollowers(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.userService.getFollowers(userId, page, limit);
+  }
 }

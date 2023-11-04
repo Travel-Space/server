@@ -539,4 +539,41 @@ export class PlanetController {
       page,
     );
   }
+
+  @Get('other/:userId')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '특정 사용자가 가입된 행성 조회 API',
+    description:
+      '특정 사용자가 가입된 모든 행성을 페이지네이션하여 불러옵니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '페이지당 행성 수',
+  })
+  async getOtherUserPlanets(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const { planets, totalMemberships } = await this.planetService.getMyPlanets(
+      userId,
+      page,
+      limit,
+    );
+    return {
+      data: planets,
+      page,
+      limit,
+      totalMemberships,
+    };
+  }
 }

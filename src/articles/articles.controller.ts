@@ -442,4 +442,38 @@ export class ArticlesController {
       month,
     );
   }
+
+  @Get('ohter/:userId/articles')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '특정 사용자의 게시글 조회 API',
+    description:
+      '특정 사용자의 게시글을 페이지네이션하여 조회하고, 전체 페이지 수를 반환합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    description: '페이지 번호',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    description: '페이지당 게시글 수',
+    required: false,
+  })
+  async getOtherUserArticles(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const { articles, totalCount } =
+      await this.articlesService.getArticlesByAuthor(userId, page, limit);
+    return {
+      data: articles,
+      page,
+      limit,
+      totalCount,
+    };
+  }
 }
