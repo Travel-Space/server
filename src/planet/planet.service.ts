@@ -13,32 +13,77 @@ import { UpdatePlanetDto } from './dto';
 export class PlanetService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllPlanet(page: number, limit: number) {
+  async getAllPlanet(
+    page: number,
+    limit: number,
+    name?: string,
+    hashtag?: string,
+    ownerNickname?: string,
+  ) {
     const skip = (page - 1) * limit;
+    const where = {};
 
-    const [planets, totalCount] = await Promise.all([
-      this.prisma.planet.findMany({
-        skip,
-        take: limit,
-        include: {
-          articles: true,
-          owner: true,
-          planetBookMark: true,
-          members: true,
-          spaceships: true,
+    if (name) {
+      where['name'] = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+
+    if (hashtag) {
+      where['hashtags'] = {
+        has: hashtag,
+      };
+    }
+
+    if (ownerNickname) {
+      const owner = await this.prisma.user.findUnique({
+        where: {
+          nickName: ownerNickname,
         },
-        orderBy: {
-          createdAt: 'desc',
+      });
+      if (owner) {
+        where['ownerId'] = owner.id;
+      } else {
+        return {
+          totalCount: 0,
+          totalPages: 0,
+          currentPage: page,
+          planets: [],
+        };
+      }
+    }
+
+    const planets = await this.prisma.planet.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        articles: true,
+        owner: {
+          select: { nickName: true },
         },
-      }),
-      this.prisma.planet.count(),
-    ]);
+        planetBookMark: true,
+        members: true,
+        spaceships: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const totalCount = await this.prisma.planet.count({ where });
+
+    const planetsWithMemberCount = planets.map((planet) => ({
+      ...planet,
+      memberCount: planet.members.length,
+    }));
 
     return {
       totalCount,
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
-      planets,
+      planets: planetsWithMemberCount,
     };
   }
 

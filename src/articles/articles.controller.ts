@@ -63,12 +63,41 @@ export class ArticlesController {
     type: 'number',
     description: '한 페이지당 게시글 수',
   })
+  @ApiQuery({
+    name: 'planetName',
+    required: false,
+    type: 'string',
+    description: '검색할 행성 이름',
+  })
+  @ApiQuery({
+    name: 'authorNickname',
+    required: false,
+    type: 'string',
+    description: '검색할 작성자 닉네임',
+  })
+  @ApiQuery({
+    name: 'title',
+    required: false,
+    type: 'string',
+    description: '검색할 게시글 제목',
+  })
   async getAllArticles(
     @Req() req: any,
     @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('planetName') planetName?: string,
+    @Query('authorNickname') authorNickname?: string,
+    @Query('title') title?: string,
   ) {
     const userId = req.user.userId;
-    return this.articlesService.getAllArticles(userId, page);
+    return this.articlesService.getAllArticles(
+      userId,
+      page,
+      limit,
+      planetName,
+      authorNickname,
+      title,
+    );
   }
 
   @Get('byPlanet')

@@ -33,9 +33,33 @@ export class UserService {
     }
   }
 
-  async getAllUsers(page: number, limit: number): Promise<User[]> {
+  async getAllUsers({ page, limit, name, nickname, email }): Promise<User[]> {
     const skip = (page - 1) * limit;
+    const where = {};
+
+    if (name) {
+      where['name'] = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+
+    if (nickname) {
+      where['nickName'] = {
+        contains: nickname,
+        mode: 'insensitive',
+      };
+    }
+
+    if (email) {
+      where['email'] = {
+        contains: email,
+        mode: 'insensitive',
+      };
+    }
+
     return this.prisma.user.findMany({
+      where,
       skip,
       take: limit,
     });

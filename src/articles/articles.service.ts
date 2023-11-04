@@ -13,15 +13,57 @@ import { Article } from '@prisma/client';
 export class ArticlesService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllArticles(userId: number, page: number, limit: number = 10) {
+  async getAllArticles(
+    userId: number,
+    page: number,
+    limit: number = 10,
+    planetName?: string,
+    authorNickname?: string,
+    title?: string,
+  ) {
     const skip = (page - 1) * limit;
+    const where = {};
+
+    if (planetName) {
+      where['planet'] = {
+        is: {
+          name: {
+            contains: planetName,
+            mode: 'insensitive',
+          },
+        },
+      };
+    }
+
+    if (authorNickname) {
+      where['author'] = {
+        is: {
+          nickName: {
+            contains: authorNickname,
+            mode: 'insensitive',
+          },
+        },
+      };
+    }
+
+    if (title) {
+      where['title'] = {
+        contains: title,
+        mode: 'insensitive',
+      };
+    }
 
     const articles = await this.prisma.article.findMany({
+      where,
       skip,
       take: limit,
       include: {
-        author: true,
-        planet: true,
+        author: {
+          select: { nickName: true },
+        },
+        planet: {
+          select: { name: true },
+        },
         likes: true,
         comments: true,
         locations: true,
@@ -31,13 +73,16 @@ export class ArticlesService {
         createdAt: 'desc',
       },
     });
-    const totalArticlesCount = await this.prisma.article.count();
+    const totalArticlesCount = await this.prisma.article.count({ where });
 
     const mappedArticles = articles.map((article) => ({
       ...article,
+      authorNickname: article.author?.nickName,
+      planetName: article.planet?.name,
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
     }));
+
     return {
       total: totalArticlesCount,
       articles: mappedArticles,

@@ -73,8 +73,8 @@ model Planet {
   isActive       Boolean            @default(true)
   shape          PlanetShape?
   hashtags       String[]
- chatRoomId    Int? @unique
-  chatRoom ChatRoom? @relation("PlanetChatRoom")
+  chatRoomId     Int? @unique
+  chatRoom       ChatRoom? @relation("PlanetChatRoom")
   createdAt      DateTime @default(now())
   deletedAt      DateTime?          @map("deleted_at")
   articles       Article[]

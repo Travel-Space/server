@@ -59,13 +59,39 @@ export class PlanetController {
     type: 'number',
     description: '한 페이지당 행성 수',
   })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: 'string',
+    description: '검색할 행성 이름',
+  })
+  @ApiQuery({
+    name: 'hashtag',
+    required: false,
+    type: 'string',
+    description: '검색할 해시태그',
+  })
+  @ApiQuery({
+    name: 'ownerNickname',
+    required: false,
+    type: 'string',
+    description: '검색할 행성 관리자 닉네임',
+  })
   async getAllPlanet(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('name') name?: string,
+    @Query('hashtag') hashtag?: string,
+    @Query('ownerNickname') ownerNickname?: string,
   ) {
-    return this.planetService.getAllPlanet(page, limit);
+    return this.planetService.getAllPlanet(
+      page,
+      limit,
+      name,
+      hashtag,
+      ownerNickname,
+    );
   }
-
   @Get('my-planets')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({

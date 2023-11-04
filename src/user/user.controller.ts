@@ -41,13 +41,33 @@ export class UserController {
     type: 'number',
     description: '한 페이지당 유저 수',
   })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: 'string',
+    description: '검색할 이름',
+  })
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+    type: 'string',
+    description: '검색할 닉네임',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: 'string',
+    description: '검색할 이메일',
+  })
   async getAllUsers(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('name') name?: string,
+    @Query('nickname') nickname?: string,
+    @Query('email') email?: string,
   ) {
-    return this.userService.getAllUsers(page, limit);
+    return this.userService.getAllUsers({ page, limit, name, nickname, email });
   }
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':userId')
   @ApiOperation({ summary: '유저 정보 삭제하기' })
