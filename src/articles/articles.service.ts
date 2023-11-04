@@ -174,8 +174,8 @@ export class ArticlesService {
         planet: dto.planetId ? { connect: { id: dto.planetId } } : undefined,
         locations: {
           create: dto.locations?.map((location) => ({
-            latitude: parseFloat(location.latitude),
-            longitude: parseFloat(location.longitude),
+            latitude: location.latitude,
+            longitude: location.longitude,
           })),
         },
         images:
