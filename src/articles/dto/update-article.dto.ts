@@ -13,11 +13,11 @@ class LocationDto {
   @ApiProperty({ description: '위도' })
   @IsOptional()
   @IsString()
-  latitude?: string;
+  latitude?: number;
 
   @ApiProperty({ description: '경도' })
   @IsString()
-  longitude?: string;
+  longitude?: number;
 }
 
 export class UpdateArticleDto {
