@@ -66,8 +66,21 @@ export class UserController {
     @Query('nickname') nickname?: string,
     @Query('email') email?: string,
   ) {
-    return this.userService.getAllUsers({ page, limit, name, nickname, email });
+    const { users, total } = await this.userService.getAllUsers({
+      page,
+      limit,
+      name,
+      nickname,
+      email,
+    });
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+    };
   }
+
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':userId')
   @ApiOperation({ summary: '유저 정보 삭제하기' })
