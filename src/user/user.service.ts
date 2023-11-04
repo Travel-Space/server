@@ -141,39 +141,61 @@ export class UserService {
 
   async getFollowing(userId: number, page: number, limit: number) {
     const skip = (page - 1) * limit;
-    return this.prisma.userFriend.findMany({
+    const friends = await this.prisma.userFriend.findMany({
       where: { userId },
       skip,
       take: limit,
       include: { friend: true },
     });
+
+    const total = await this.prisma.userFriend.count({
+      where: { userId },
+    });
+
+    return {
+      friends,
+      total,
+    };
   }
 
   async getFollowers(userId: number, page: number, limit: number) {
     const skip = (page - 1) * limit;
 
-    const followers = await this.prisma.userFriend.findMany({
+    const [followers, _following] = await Promise.all([
+      this.prisma.userFriend.findMany({
+        where: {
+          friendId: userId,
+        },
+        skip,
+        take: limit,
+        include: {
+          user: true,
+        },
+      }),
+      this.prisma.userFriend.findMany({
+        where: {
+          userId: userId,
+        },
+      }),
+    ]);
+
+    const total = await this.prisma.userFriend.count({
       where: {
         friendId: userId,
       },
-      skip,
-      take: limit,
-      include: {
-        user: true,
-      },
     });
 
-    const following = await this.prisma.userFriend.findMany({
-      where: {
-        userId: userId,
-      },
-    });
-    const followingIds = following.map((f) => f.friendId);
+    const followingIds = _following.map((f) => f.friendId);
 
-    return followers.map((follower) => ({
+    const followersWithMutual = followers.map((follower) => ({
       ...follower,
       isMutual: followingIds.includes(follower.userId),
     }));
+
+    return {
+      followersWithMutual,
+      total,
+    };
   }
 
   async checkNicknameAvailability(nickname: string): Promise<boolean> {

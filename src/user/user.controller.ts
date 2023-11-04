@@ -154,7 +154,17 @@ export class UserController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.userService.getFollowing(req.user.userId, page, limit);
+    const { friends, total } = await this.userService.getFollowing(
+      req.user.userId,
+      page,
+      limit,
+    );
+    return {
+      data: friends,
+      total,
+      page,
+      limit,
+    };
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
@@ -181,7 +191,17 @@ export class UserController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.userService.getFollowers(req.user.userId, page, limit);
+    const { followersWithMutual, total } = await this.userService.getFollowers(
+      req.user.userId,
+      page,
+      limit,
+    );
+    return {
+      data: followersWithMutual,
+      total,
+      page,
+      limit,
+    };
   }
 
   @Get('check-nickname')
@@ -283,12 +303,22 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
-  async getOhterUserFollowing(
+  async getOtherUserFollowing(
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.userService.getFollowing(userId, page, limit);
+    const { friends, total } = await this.userService.getFollowing(
+      userId,
+      page,
+      limit,
+    );
+    return {
+      data: friends,
+      total,
+      page,
+      limit,
+    };
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
@@ -310,11 +340,21 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
-  async getOhterUserFollowers(
+  async getOtherUserFollowers(
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    return this.userService.getFollowers(userId, page, limit);
+    const { followersWithMutual, total } = await this.userService.getFollowers(
+      userId,
+      page,
+      limit,
+    );
+    return {
+      data: followersWithMutual,
+      total,
+      page,
+      limit,
+    };
   }
 }
