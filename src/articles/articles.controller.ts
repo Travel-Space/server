@@ -116,13 +116,13 @@ export class ArticlesController {
   @ApiQuery({
     name: 'page',
     required: false,
-    type: 'number',
+    type: Number,
     description: '페이지 번호',
   })
   @ApiQuery({
     name: 'limit',
     required: false,
-    type: 'number',
+    type: Number,
     description: '한 페이지당 게시글 수',
   })
   @ApiQuery({
