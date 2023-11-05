@@ -113,6 +113,40 @@ export class ArticlesService {
     };
   }
 
+  async getAllArticlesByPlanetId(planetId: number, userId: number) {
+    const whereCondition = {
+      planetId: planetId,
+    };
+
+    const articles = await this.prisma.article.findMany({
+      where: whereCondition,
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+        locations: true,
+        images: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const totalArticlesCount = await this.prisma.article.count({
+      where: whereCondition,
+    });
+
+    return {
+      total: totalArticlesCount,
+      articles: articles.map((article) => ({
+        ...article,
+        likeCount: article.likes.length,
+        isLiked: article.likes.some((like) => like.userId === userId),
+      })),
+    };
+  }
+
   async getArticlesByPlanetId(
     planetId: number,
     userId: number,
