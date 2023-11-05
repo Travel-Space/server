@@ -517,15 +517,16 @@ export class PlanetController {
   })
   async getDailyViews(
     @Param('planetId', ParseIntPipe) planetId: number,
-    @Query('page') page: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
     const pageSize = 20;
     const toDate = new Date();
-    toDate.setHours(0, 0, 0, 0);
-    const fromDate = new Date();
-    fromDate.setDate(toDate.getDate() - page * pageSize);
+    toDate.setHours(23, 59, 59, 999);
+    toDate.setDate(toDate.getDate() - pageSize * (page - 1));
+
+    const fromDate = new Date(toDate);
+    fromDate.setDate(toDate.getDate() - pageSize * page);
     fromDate.setHours(0, 0, 0, 0);
-    toDate.setDate(fromDate.getDate() + pageSize - 1);
 
     return this.viewCountService.getDailyViewCounts(
       planetId,

@@ -48,10 +48,7 @@ export class ViewCountService {
     page: number,
     pageSize: number,
   ) {
-    const skip = (page - 1) * pageSize;
-
-    return this.prisma.viewCount.groupBy({
-      by: ['date'],
+    const viewCounts = await this.prisma.viewCount.findMany({
       where: {
         planetId: planetId,
         date: {
@@ -59,15 +56,14 @@ export class ViewCountService {
           lte: to,
         },
       },
-      _sum: {
-        count: true,
-      },
       orderBy: {
         date: 'asc',
       },
+
       take: pageSize,
-      skip: skip,
     });
+
+    return viewCounts;
   }
 
   getStartOfWeek(date: Date) {
