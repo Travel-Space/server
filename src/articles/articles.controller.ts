@@ -197,11 +197,12 @@ export class ArticlesController {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
     }
 
-    const topLevelComments = await this.commentsService.getComments(
-      articleId,
-      commentPage,
-      commentPageSize,
-    );
+    const { comments: topLevelComments, totalTopLevelCommentsCount } =
+      await this.commentsService.getComments(
+        articleId,
+        commentPage,
+        commentPageSize,
+      );
 
     const commentsWithInitialReplies = await Promise.all(
       topLevelComments.map(async (comment) => {
@@ -212,9 +213,6 @@ export class ArticlesController {
         );
         return {
           ...comment,
-          authorProfileImage: comment.author.profileImage,
-          authorNationality: comment.author.nationality,
-          authorNickName: comment.author.nickName,
           replies: initialReplies.map((reply) => ({
             ...reply,
             authorProfileImage: reply.author.profileImage,
@@ -229,6 +227,7 @@ export class ArticlesController {
     return {
       ...article,
       comments: commentsWithInitialReplies,
+      totalTopLevelCommentsCount,
     };
   }
 
