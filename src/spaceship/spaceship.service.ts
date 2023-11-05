@@ -57,9 +57,11 @@ export class SpaceshipService {
     if (spaceship.ownerId !== userId) {
       throw new ForbiddenException('우주선의 주인만 업데이트 할 수 있습니다.');
     }
+
     return this.prisma.spaceship.update({
       where: { id: spaceshipId },
       data: {
+        status: data.spaceshipStatus,
         name: data.name,
         description: data.description,
         maxMembers: data.maxMembers,

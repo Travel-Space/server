@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SpaceshipStatus } from '@prisma/client';
 import {
   IsDate,
   IsDateString,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -37,4 +39,13 @@ export class UpdateSpaceshipDto {
   @IsInt()
   @IsOptional()
   planetId?: number;
+
+  @ApiProperty({
+    description: '우주선 상태',
+    required: false,
+    enum: SpaceshipStatus,
+  })
+  @IsEnum(SpaceshipStatus)
+  @IsOptional()
+  spaceshipStatus?: SpaceshipStatus;
 }
