@@ -129,8 +129,19 @@ export class ViewCountService {
     year: number,
     month: number,
   ) {
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+
+    const articles = await this.prisma.article.findMany({
+      where: {
+        planetId: planetId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const articleIds = articles.map((article) => article.id);
 
     const monthlyViewCounts = await this.prisma.viewCount.groupBy({
       by: ['articleId'],
@@ -141,7 +152,7 @@ export class ViewCountService {
           lte: endDate,
         },
         articleId: {
-          not: null,
+          in: articleIds,
         },
       },
       _sum: {
