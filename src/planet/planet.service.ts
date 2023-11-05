@@ -157,6 +157,7 @@ export class PlanetService {
           planetBookMark: true,
           members: true,
           spaceships: true,
+          viewCount: true,
         },
         orderBy: {
           createdAt: 'desc',
