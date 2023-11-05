@@ -357,4 +357,46 @@ export class UserController {
       limit,
     };
   }
+
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @Get('followers/not-mutual')
+  @ApiOperation({
+    summary: '맞팔로우하지 않는 친구 목록 조회',
+    description:
+      '현재 사용자를 팔로우하고 있지만 맞팔로우하지 않는 친구 목록을 페이지네이션하여 조회합니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: 'number',
+    required: false,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'number',
+    required: false,
+    description: '한 페이지당 친구 수',
+  })
+  async getNotMutualFollowers(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const { followersWithMutual, total } = await this.userService.getFollowers(
+      req.user.userId,
+      page,
+      limit,
+    );
+
+    const notMutualFollowers = followersWithMutual.filter(
+      (follower) => !follower.isMutual,
+    );
+
+    return {
+      data: notMutualFollowers,
+      total: notMutualFollowers.length,
+      page,
+      limit,
+    };
+  }
 }
