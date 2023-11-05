@@ -116,8 +116,8 @@ export class ArticlesService {
   async getArticlesByPlanetId(
     planetId: number,
     userId: number,
-    page: number,
-    limit: number,
+    page?: number,
+    limit?: number,
     spaceshipId?: number,
   ) {
     const skip = (page - 1) * limit;
