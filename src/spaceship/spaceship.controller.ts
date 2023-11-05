@@ -91,11 +91,14 @@ export class SpaceshipController {
     @Body() updateSpaceshipDto: UpdateSpaceshipDto,
     @Req() req: any,
   ) {
-    return this.spaceshipService.updateSpaceship(
-      req.user.userId,
-      id,
-      updateSpaceshipDto,
-    );
+    const startDate = new Date(updateSpaceshipDto.startDate);
+    const endDate = new Date(updateSpaceshipDto.endDate);
+
+    return this.spaceshipService.updateSpaceship(req.user.userId, id, {
+      ...updateSpaceshipDto,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+    });
   }
 
   @ApiOperation({

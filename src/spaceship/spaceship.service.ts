@@ -46,7 +46,6 @@ export class SpaceshipService {
       },
     });
   }
-
   async updateSpaceship(
     userId: number,
     spaceshipId: number,
