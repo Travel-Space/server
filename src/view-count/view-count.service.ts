@@ -68,7 +68,7 @@ export class ViewCountService {
 
   getStartOfWeek(date: Date) {
     const startOfWeek = new Date(date);
-    startOfWeek.setUTCHours(0, 0, 0, 0);
+    startOfWeek.setUTCHours(15, 0, 0, 0);
     startOfWeek.setUTCDate(startOfWeek.getUTCDate() - startOfWeek.getUTCDay());
     return startOfWeek;
   }
@@ -76,7 +76,7 @@ export class ViewCountService {
   getEndOfWeek(date: Date) {
     const endOfWeek = new Date(this.getStartOfWeek(date));
     endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 6);
-    endOfWeek.setUTCHours(23, 59, 59, 999);
+    endOfWeek.setUTCHours(14, 59, 59, 999);
     return endOfWeek;
   }
 
