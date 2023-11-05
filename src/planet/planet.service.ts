@@ -185,7 +185,13 @@ export class PlanetService {
     const planetViewCounts = viewCounts.reduce((acc, curr) => {
       const planetId = curr.planetId;
       const count = curr._sum.count || 0;
-      acc[planetId] = count;
+      if (
+        !planets.some(
+          (planet) => planet.id === planetId && planet.articles.length > 0,
+        )
+      ) {
+        acc[planetId] = (acc[planetId] || 0) + count;
+      }
       return acc;
     }, {});
 
