@@ -134,8 +134,8 @@ export class ArticlesController {
   async getArticlesByPlanet(
     @Req() req: any,
     @Query('planetId') planetId: number,
-    @Query('page', ParseIntPipe) page?: number,
-    @Query('limit', ParseIntPipe) limit?: number,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('spaceshipId') spaceshipId?: number,
   ) {
     if (!page || !limit) {
@@ -145,11 +145,14 @@ export class ArticlesController {
       );
     }
 
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+
     return this.articlesService.getArticlesByPlanetId(
       planetId,
       req.user.userId,
-      page,
-      limit,
+      parsedPage,
+      parsedLimit,
       spaceshipId,
     );
   }
