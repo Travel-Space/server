@@ -98,19 +98,17 @@ export class CommentsService {
   }
 
   async getComments(articleId: number, page: number, pageSize: number) {
-    // 주 댓글의 총 개수를 구합니다.
     const totalTopLevelCommentsCount = await this.prisma.comment.count({
       where: {
         articleId: articleId,
-        parentId: null, // parentId가 null인 댓글만 카운트합니다.
+        parentId: null,
       },
     });
 
-    // 주 댓글을 페이지네이션하여 불러옵니다.
     const comments = await this.prisma.comment.findMany({
       where: {
         articleId: articleId,
-        parentId: null, // parentId가 null인 댓글만 조회합니다.
+        parentId: null,
       },
       include: {
         _count: {
@@ -126,7 +124,7 @@ export class CommentsService {
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     });
 
     return {
