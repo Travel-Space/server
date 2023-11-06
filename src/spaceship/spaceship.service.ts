@@ -27,6 +27,9 @@ export class SpaceshipService {
   async getSpaceshipById(spaceshipId: number) {
     const spaceship = await this.prisma.spaceship.findUnique({
       where: { id: spaceshipId },
+      include: {
+        members: true,
+      },
     });
 
     if (!spaceship) {

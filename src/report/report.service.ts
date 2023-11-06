@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Article, Planet, Report, ReportStatus, User } from '@prisma/client';
 import { CreateReportDto, SearchReportsDto } from './dto';
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 
 type ReportDetails = Report & {
   reporter: User;
@@ -37,46 +37,6 @@ export class ReportService {
       reports,
     };
   }
-
-  // async getReportDetails(reportId: number): Promise<ReportDetails> {
-  //   const report = await this.prisma.report.findUnique({
-  //     where: { id: reportId },
-  //     include: {
-  //       reporter: true,
-  //     },
-  //   });
-
-  //   if (!report) {
-  //     throw new NotFoundException('신고를 찾을 수 없습니다.');
-  //   }
-
-  //   let article;
-  //   let comment;
-
-  //   if (report.targetType === 'ARTICLE') {
-  //     article = await this.prisma.article.findUnique({
-  //       where: { id: report.targetId },
-  //       include: { planet: true },
-  //     });
-  //   } else if (report.targetType === 'COMMENT') {
-  //     comment = await this.prisma.comment.findUnique({
-  //       where: { id: report.targetId },
-  //       include: {
-  //         article: {
-  //           include: {
-  //             planet: true,
-  //           },
-  //         },
-  //       },
-  //     });
-  //   }
-
-  //   return {
-  //     ...report,
-  //     article: article || undefined,
-  //     comment: comment || undefined,
-  //   };
-  // }
 
   async getReportDetails(reportId: number) {
     const basicReportDetails = await this.findBasicReportDetails(reportId);
@@ -174,6 +134,7 @@ export class ReportService {
       },
     });
   }
+
   async approveReport(
     reportId: number,
     approvalReason: string,
