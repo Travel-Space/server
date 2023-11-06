@@ -280,4 +280,31 @@ export class UserService {
       where: { id: userId },
     });
   }
+
+  async getRandomUsers(limit: number): Promise<User[]> {
+    const minMaxIds = await this.prisma.user.aggregate({
+      _min: {
+        id: true,
+      },
+      _max: {
+        id: true,
+      },
+    });
+
+    const minId = minMaxIds._min.id || 0;
+    const maxId = minMaxIds._max.id || 0;
+    const randomIds = [];
+
+    for (let i = 0; i < limit; i++) {
+      const randomId = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
+      randomIds.push(randomId);
+    }
+    return this.prisma.user.findMany({
+      where: {
+        id: {
+          in: randomIds,
+        },
+      },
+    });
+  }
 }
