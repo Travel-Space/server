@@ -169,7 +169,6 @@ export class ReportService {
 
       let userIdToUpdate = null;
 
-      // Check the report's targetType and find the authorId accordingly
       if (report.targetType === 'ARTICLE') {
         const article = await prisma.article.findUnique({
           where: { id: report.targetId },

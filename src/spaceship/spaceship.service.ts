@@ -28,13 +28,31 @@ export class SpaceshipService {
     const spaceship = await this.prisma.spaceship.findUnique({
       where: { id: spaceshipId },
       include: {
-        members: true,
+        members: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                profileImage: true,
+              },
+            },
+          },
+        },
       },
     });
 
     if (!spaceship) {
       throw new NotFoundException('우주선을 찾을 수 없습니다.');
     }
+
+    spaceship.members = spaceship.members.map((member) => ({
+      ...member,
+      name: member.user.name,
+      email: member.user.email,
+      profileImage: member.user.profileImage,
+      user: undefined,
+    }));
 
     return spaceship;
   }
