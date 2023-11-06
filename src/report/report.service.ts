@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Article, Planet, Report, ReportStatus, User } from '@prisma/client';
 import { CreateReportDto, SearchReportsDto } from './dto';
-import * as moment from 'moment-timezone';
 
 type ReportDetails = Report & {
   reporter: User;
