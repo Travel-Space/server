@@ -150,7 +150,15 @@ export class ReportService {
     const now = new Date();
 
     const transaction = await this.prisma.$transaction(async (prisma) => {
-      const report = await prisma.report.update({
+      const report = await prisma.report.findUnique({
+        where: { id: reportId },
+      });
+
+      if (!report) {
+        throw new Error('Report not found');
+      }
+
+      await prisma.report.update({
         where: { id: reportId },
         data: {
           status: 'APPROVED',
@@ -159,11 +167,34 @@ export class ReportService {
         },
       });
 
-      if (report.targetId) {
-        await prisma.user.update({
+      let userIdToUpdate = null;
+
+      if (report.targetType === 'ARTICLE') {
+        const article = await prisma.article.findUnique({
           where: { id: report.targetId },
+        });
+        if (article && article.authorId) {
+          userIdToUpdate = article.authorId;
+        }
+      } else if (report.targetType === 'COMMENT') {
+        const comment = await prisma.comment.findUnique({
+          where: { id: report.targetId },
+        });
+        if (comment && comment.authorId) {
+          userIdToUpdate = comment.authorId;
+        }
+      } else if (report.targetType === 'USER') {
+        userIdToUpdate = report.targetId;
+      }
+
+      if (userIdToUpdate) {
+        await prisma.user.update({
+          where: { id: userIdToUpdate },
           data: {
             userSuspensionDate: suspensionDate,
+            reportCount: {
+              increment: 1,
+            },
           },
         });
       }
