@@ -152,17 +152,31 @@ export class ArticlesService {
     userId: number,
     page?: number,
     limit?: number,
-    spaceshipId?: number,
+    spaceshipName?: string,
   ) {
-    const skip = (page - 1) * limit;
-    const whereCondition = {
-      planetId: planetId,
-      ...(spaceshipId && { spaceshipId: spaceshipId }),
-    };
+    const skip = page && limit ? (page - 1) * limit : undefined;
+    const take = limit || undefined;
+
+    let spaceshipIdFilter = {};
+    if (spaceshipName) {
+      const spaceship = await this.prisma.spaceship.findFirst({
+        where: { name: spaceshipName },
+        select: { id: true },
+      });
+      if (!spaceship) {
+        throw new NotFoundException('해당 이름을 가진 우주선이 없습니다.');
+      }
+      spaceshipIdFilter = { spaceshipId: spaceship.id };
+    }
+
     const articles = await this.prisma.article.findMany({
-      where: whereCondition,
+      where: {
+        planetId,
+        ...spaceshipIdFilter,
+        published: true,
+      },
       skip,
-      take: limit,
+      take,
       include: {
         author: true,
         planet: true,
@@ -175,8 +189,13 @@ export class ArticlesService {
         createdAt: 'desc',
       },
     });
+
     const totalArticlesCount = await this.prisma.article.count({
-      where: whereCondition,
+      where: {
+        planetId,
+        ...spaceshipIdFilter,
+        published: true,
+      },
     });
 
     return {
