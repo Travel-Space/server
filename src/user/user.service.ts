@@ -39,6 +39,7 @@ export class UserService {
     name,
     nickname,
     email,
+    isSuspended,
   }): Promise<{ users: User[]; total: number }> {
     const skip = (page - 1) * limit;
     const where = {};
@@ -63,15 +64,35 @@ export class UserService {
         mode: 'insensitive',
       };
     }
+    const suspendedUsers = await this.prisma.user.findMany({
+      where: {
+        ...where,
+        userSuspensionDate: {
+          not: null,
+        },
+      },
+      orderBy: {
+        userSuspensionDate: 'desc',
+      },
+    });
 
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        skip,
-        take: limit,
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+    // 활동 제한되지 않은 사용자를 조회합니다.
+    const nonSuspendedUsers = await this.prisma.user.findMany({
+      where: {
+        ...where,
+        userSuspensionDate: null,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    // 두 결과를 병합합니다.
+    const users = [...suspendedUsers, ...nonSuspendedUsers].slice(
+      skip,
+      skip + limit,
+    );
+    const total = suspendedUsers.length + nonSuspendedUsers.length;
 
     return {
       users,

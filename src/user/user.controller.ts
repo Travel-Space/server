@@ -59,12 +59,19 @@ export class UserController {
     type: 'string',
     description: '검색할 이메일',
   })
+  @ApiQuery({
+    name: 'isSuspended',
+    required: false,
+    type: 'boolean',
+    description: '활동제한 여부',
+  })
   async getAllUsers(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
     @Query('name') name?: string,
     @Query('nickname') nickname?: string,
     @Query('email') email?: string,
+    @Query('isSuspended') isSuspended?: boolean,
   ) {
     const { users, total } = await this.userService.getAllUsers({
       page,
@@ -72,6 +79,7 @@ export class UserController {
       name,
       nickname,
       email,
+      isSuspended,
     });
     return {
       data: users,
