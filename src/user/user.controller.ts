@@ -391,7 +391,10 @@ export class UserController {
     let data = followersWithMutual.filter((follower) => !follower.isMutual);
 
     if (data.length === 0) {
-      const randomUsers = await this.userService.getRandomUsers(limit);
+      const randomUsers = await this.userService.getRandomUsers(
+        10,
+        req.user.userId,
+      );
       data = randomUsers.map((user) => ({
         isMutual: false,
         user: user,

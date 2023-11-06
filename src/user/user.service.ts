@@ -281,7 +281,7 @@ export class UserService {
     });
   }
 
-  async getRandomUsers(limit: number): Promise<User[]> {
+  async getRandomUsers(limit: number, excludeUserId: number): Promise<User[]> {
     const minMaxIds = await this.prisma.user.aggregate({
       _min: {
         id: true,
@@ -293,16 +293,19 @@ export class UserService {
 
     const minId = minMaxIds._min.id || 0;
     const maxId = minMaxIds._max.id || 0;
-    const randomIds = [];
+    const randomIds = new Set<number>();
 
-    for (let i = 0; i < limit; i++) {
+    while (randomIds.size < limit) {
       const randomId = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
-      randomIds.push(randomId);
+      if (randomId !== excludeUserId) {
+        randomIds.add(randomId);
+      }
     }
+
     return this.prisma.user.findMany({
       where: {
         id: {
-          in: randomIds,
+          in: Array.from(randomIds),
         },
       },
     });
