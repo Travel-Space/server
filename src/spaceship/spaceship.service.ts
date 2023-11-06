@@ -37,7 +37,7 @@ export class SpaceshipService {
   }
 
   async createSpaceship(userId: number, dto: CreateSpaceshipDto) {
-    return this.prisma.spaceship.create({
+    const spaceship = await this.prisma.spaceship.create({
       data: {
         ...dto,
         startDate: new Date(dto.startDate),
@@ -45,8 +45,17 @@ export class SpaceshipService {
         ownerId: userId,
       },
     });
-  }
 
+    await this.prisma.spaceshipMember.create({
+      data: {
+        spaceshipId: spaceship.id,
+        userId: userId,
+        role: 'OWNER',
+      },
+    });
+
+    return spaceship;
+  }
   async updateSpaceship(
     userId: number,
     spaceshipId: number,
