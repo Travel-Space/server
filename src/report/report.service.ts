@@ -137,14 +137,14 @@ export class ReportService {
   async approveReport(
     reportId: number,
     approvalReason: string,
-    suspensionEndDate: string,
+    suspensionEndDate?: string, // Make it optional
   ) {
-    const suspensionDate = suspensionEndDate
-      ? new Date(suspensionEndDate)
-      : null;
-
-    if (!suspensionDate || isNaN(suspensionDate.getTime())) {
-      throw new Error('Invalid suspensionEndDate provided');
+    let suspensionDate;
+    if (suspensionEndDate) {
+      suspensionDate = new Date(suspensionEndDate);
+      if (isNaN(suspensionDate.getTime())) {
+        throw new Error('Invalid suspensionEndDate provided');
+      }
     }
 
     const now = new Date();
@@ -169,6 +169,7 @@ export class ReportService {
 
       let userIdToUpdate = null;
 
+      // Check the report's targetType and find the authorId accordingly
       if (report.targetType === 'ARTICLE') {
         const article = await prisma.article.findUnique({
           where: { id: report.targetId },
@@ -188,14 +189,19 @@ export class ReportService {
       }
 
       if (userIdToUpdate) {
+        const userDataToUpdate: any = {
+          reportCount: {
+            increment: 1,
+          },
+        };
+
+        if (suspensionDate) {
+          userDataToUpdate.userSuspensionDate = suspensionDate;
+        }
+
         await prisma.user.update({
           where: { id: userIdToUpdate },
-          data: {
-            userSuspensionDate: suspensionDate,
-            reportCount: {
-              increment: 1,
-            },
-          },
+          data: userDataToUpdate,
         });
       }
 
