@@ -139,7 +139,13 @@ export class ReportService {
     approvalReason: string,
     suspensionEndDate: string,
   ) {
-    const suspensionDate = new Date(suspensionEndDate + 'T00:00:00+09:00');
+    const suspensionDate = suspensionEndDate
+      ? new Date(suspensionEndDate)
+      : null;
+
+    if (!suspensionDate || isNaN(suspensionDate.getTime())) {
+      throw new Error('Invalid suspensionEndDate provided');
+    }
 
     const now = new Date();
 
@@ -153,12 +159,14 @@ export class ReportService {
         },
       });
 
-      await prisma.user.update({
-        where: { id: report.targetId },
-        data: {
-          userSuspensionDate: suspensionDate,
-        },
-      });
+      if (report.targetId) {
+        await prisma.user.update({
+          where: { id: report.targetId },
+          data: {
+            userSuspensionDate: suspensionDate,
+          },
+        });
+      }
 
       return report;
     });

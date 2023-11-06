@@ -59,6 +59,7 @@ export class SpaceshipService {
 
     return spaceship;
   }
+
   async updateSpaceship(
     userId: number,
     spaceshipId: number,

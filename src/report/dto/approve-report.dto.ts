@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class ApproveReportDto {
   @ApiProperty({
@@ -14,7 +19,7 @@ export class ApproveReportDto {
     description: '활동 제한 날짜',
     example: '2023-11-10',
   })
-  @IsString()
+  @IsDateString()
   @IsOptional()
   suspensionEndDate?: string;
 }
