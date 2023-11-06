@@ -63,6 +63,6 @@ export class CreateArticleDto {
 
   @ApiProperty({ description: '연관될 우주선 ID' })
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   spaceshipId?: number;
 }
