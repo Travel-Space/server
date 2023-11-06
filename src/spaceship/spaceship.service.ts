@@ -166,25 +166,28 @@ export class SpaceshipService {
     newOwnerId: number,
   ) {
     return this.prisma.$transaction(async (prisma) => {
-      await prisma.spaceshipMember.updateMany({
+      await prisma.spaceshipMember.delete({
         where: {
-          spaceshipId: spaceshipId,
-          userId: currentOwnerId,
-          role: SpaceshipRole.OWNER,
-        },
-        data: {
-          role: SpaceshipRole.MEMBER,
+          spaceshipId_userId: {
+            spaceshipId: spaceshipId,
+            userId: currentOwnerId,
+          },
         },
       });
 
-      await prisma.spaceshipMember.update({
+      await prisma.spaceshipMember.upsert({
         where: {
           spaceshipId_userId: {
             spaceshipId: spaceshipId,
             userId: newOwnerId,
           },
         },
-        data: {
+        update: {
+          role: SpaceshipRole.OWNER,
+        },
+        create: {
+          spaceshipId: spaceshipId,
+          userId: newOwnerId,
           role: SpaceshipRole.OWNER,
         },
       });
