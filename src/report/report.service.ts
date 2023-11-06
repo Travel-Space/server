@@ -140,10 +140,12 @@ export class ReportService {
     approvalReason: string,
     suspensionEndDate: string,
   ) {
-    const suspensionDate = moment
-      .tz(suspensionEndDate, 'YYYY-MM-DD', 'Asia/Seoul')
-      .toDate();
-    const now = moment.tz('Asia/Seoul').toDate();
+    const suspensionDate = new Date(suspensionEndDate + 'T00:00:00Z');
+
+    suspensionDate.setMinutes(suspensionDate.getMinutes() + 540);
+
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + 540);
 
     const transaction = await this.prisma.$transaction(async (prisma) => {
       const report = await prisma.report.update({
