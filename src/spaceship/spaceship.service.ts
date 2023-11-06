@@ -32,7 +32,7 @@ export class SpaceshipService {
           include: {
             user: {
               select: {
-                name: true,
+                nickName: true,
                 email: true,
                 profileImage: true,
               },
@@ -48,7 +48,7 @@ export class SpaceshipService {
 
     spaceship.members = spaceship.members.map((member) => ({
       ...member,
-      name: member.user.name,
+      nickName: member.user.nickName,
       email: member.user.email,
       profileImage: member.user.profileImage,
       user: undefined,
