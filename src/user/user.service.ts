@@ -282,32 +282,28 @@ export class UserService {
   }
 
   async getRandomUsers(limit: number, excludeUserId: number): Promise<User[]> {
-    const minMaxIds = await this.prisma.user.aggregate({
-      _min: {
-        id: true,
+    const followedUserIds = await this.prisma.userFriend.findMany({
+      where: {
+        userId: excludeUserId,
       },
-      _max: {
-        id: true,
+      select: {
+        friendId: true,
       },
     });
 
-    const minId = minMaxIds._min.id || 0;
-    const maxId = minMaxIds._max.id || 0;
-    const randomIds = new Set<number>();
+    const followedIds = followedUserIds.map((f) => f.friendId);
 
-    while (randomIds.size < limit) {
-      const randomId = Math.floor(Math.random() * (maxId - minId + 1)) + minId;
-      if (randomId !== excludeUserId) {
-        randomIds.add(randomId);
-      }
-    }
+    followedIds.push(excludeUserId);
 
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: {
         id: {
-          in: Array.from(randomIds),
+          notIn: followedIds,
         },
       },
+      take: limit,
     });
+
+    return users;
   }
 }
