@@ -197,7 +197,6 @@ export class ArticlesController {
     @Req() req: any,
   ) {
     const userId = req.user.userId;
-    await this.viewCountService.incrementViewCount(articleId, null);
 
     const article = await this.articlesService.getArticleById(
       articleId,
@@ -206,6 +205,8 @@ export class ArticlesController {
     if (!article) {
       throw new NotFoundException('게시글을 찾을 수 없습니다.');
     }
+
+    await this.viewCountService.incrementViewCount(articleId, article.planetId);
 
     const { comments: topLevelComments, totalTopLevelCommentsCount } =
       await this.commentsService.getComments(

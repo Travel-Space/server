@@ -41,6 +41,7 @@ export class ViewCountService {
       });
     }
   }
+
   async getDailyViewCounts(
     planetId: number,
     from: Date,
