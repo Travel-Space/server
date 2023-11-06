@@ -72,6 +72,7 @@ export class CommentsService {
             select: {
               title: true,
               createdAt: true,
+              planetId: true,
               planet: {
                 select: {
                   name: true,

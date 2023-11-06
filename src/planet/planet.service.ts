@@ -640,6 +640,7 @@ export class PlanetService {
       totalCount,
     };
   }
+
   async transferOwnership(
     planetId: number,
     newOwnerId: number,
@@ -667,11 +668,35 @@ export class PlanetService {
     });
 
     if (!newOwnerMembership) {
-      throw new NotFoundException('새 소유자는 행성의 멤버가 아닙니다.');
+      throw new NotFoundException(
+        '새 소유자의 멤버십 정보를 찾을 수 없습니다.',
+      );
     }
-    await this.prisma.planet.update({
-      where: { id: planetId },
-      data: { ownerId: newOwnerId },
+
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.planet.update({
+        where: { id: planetId },
+        data: { ownerId: newOwnerId },
+      });
+
+      await prisma.planetMembership.update({
+        where: {
+          planetId_userId: {
+            planetId: planetId,
+            userId: newOwnerId,
+          },
+        },
+        data: { role: 'OWNER' },
+      });
+
+      await prisma.planetMembership.delete({
+        where: {
+          planetId_userId: {
+            planetId: planetId,
+            userId: currentOwnerId,
+          },
+        },
+      });
     });
   }
 
