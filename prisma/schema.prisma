@@ -153,6 +153,7 @@ model Report {
 model PlanetBookmark {
   userId   Int
   planetId Int
+  createdAt DateTime  @default(now())
   planet   Planet @relation(fields: [planetId], references: [id], onDelete: Cascade)
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 

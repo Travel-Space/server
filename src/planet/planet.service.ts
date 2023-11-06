@@ -607,6 +607,9 @@ export class PlanetService {
         where: {
           userId: userId,
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
         skip,
         take: limit,
         include: {
@@ -628,6 +631,7 @@ export class PlanetService {
       (bookmark) => ({
         ...bookmark.planet,
         memberCount: bookmark.planet.members.length,
+        bookmarkedAt: bookmark.createdAt,
       }),
     );
 
@@ -636,7 +640,6 @@ export class PlanetService {
       totalCount,
     };
   }
-
   async transferOwnership(
     planetId: number,
     newOwnerId: number,
