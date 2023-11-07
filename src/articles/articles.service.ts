@@ -260,6 +260,7 @@ export class ArticlesService {
     const articles = await this.prisma.article.findMany({
       where: {
         planetId,
+        ...spaceshipIdFilter,
         published: true,
       },
       include: {
