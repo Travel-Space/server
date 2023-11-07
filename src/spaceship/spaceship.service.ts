@@ -110,11 +110,14 @@ export class SpaceshipService {
       throw new ForbiddenException('우주선의 주인만 삭제 할 수 있습니다.');
     }
 
+    await this.prisma.spaceshipMember.deleteMany({
+      where: { spaceshipId: spaceshipId },
+    });
+
     return this.prisma.spaceship.delete({
       where: { id: spaceshipId },
     });
   }
-
   async updateSpaceshipStatus(
     userId: number,
     spaceshipId: number,
