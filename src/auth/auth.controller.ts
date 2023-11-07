@@ -201,7 +201,7 @@ export class AuthController {
     const { access_token } = await this.authService.googleLogin(req);
     res.cookie('ACCESS_TOKEN', access_token, {
       httpOnly: true,
-      maxAge: 3600000,
+      maxAge: 36000000,
     });
     // res.redirect('https://your-frontend-domain.com/success-page');
   }

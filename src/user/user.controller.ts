@@ -286,10 +286,13 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)
-  @Get('/ohter/:userId')
+  @Get('/other/:userId')
   @ApiOperation({ summary: '다른 사용자 정보 조회하기' })
-  async getOtherUser(@Param('userId', ParseIntPipe) userId: number) {
-    return await this.userService.getUserById(userId);
+  async getOtherUser(
+    @Req() req: any,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.userService.getUserByOtherId(req.user.userId, userId);
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)

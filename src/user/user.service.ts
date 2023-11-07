@@ -15,6 +15,31 @@ export class UserService {
     return await this.prisma.user.findUnique({ where: { id } });
   }
 
+  async getUserByOtherId(currentUserId: number, userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        friendedBy: {
+          where: {
+            userId: currentUserId,
+          },
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
+    const isFollowing = user.friendedBy.some(
+      (friend) => friend.userId === currentUserId,
+    );
+
+    return {
+      ...user,
+      isFollowing,
+    };
+  }
+
   async findByEmail(email: string) {
     return await this.prisma.user.findUnique({ where: { email } });
   }
