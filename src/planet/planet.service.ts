@@ -289,6 +289,14 @@ export class PlanetService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
+      await prisma.spaceshipMember.deleteMany({
+        where: { spaceship: { planetId: planetId } },
+      });
+
+      await prisma.spaceship.deleteMany({
+        where: { planetId: planetId },
+      });
+
       await prisma.article.deleteMany({
         where: { planetId: planetId },
       });

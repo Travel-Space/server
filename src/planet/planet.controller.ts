@@ -19,6 +19,7 @@ import { PlanetService } from './planet.service';
 import {
   CreatePlanetDto,
   TransferOwnershipDto,
+  UpdateInvitationDto,
   UpdateMemberRoleDto,
   UpdatePlanetDto,
 } from './dto';
