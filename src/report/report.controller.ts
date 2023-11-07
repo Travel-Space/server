@@ -18,7 +18,6 @@ import { ApproveReportDto, CreateReportDto, SearchReportsDto } from './dto';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { AdminGuard, JwtAuthGuard, LoggedInGuard } from 'src/auth/guard';
 import { ReportStatus } from '@prisma/client';
-import * as moment from 'moment-timezone';
 
 @ApiTags('신고 관리')
 @Controller('reports')
