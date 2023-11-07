@@ -140,15 +140,18 @@ export class CommentsService {
     };
   }
 
-  async getMoreChildComments(
-    parentId: number,
-    lastChildCommentId: number,
-    pageSize: number,
-  ) {
+  async getMoreChildComments(parentId: number, page: number, pageSize: number) {
+    const totalChildCommentsCount = await this.prisma.comment.count({
+      where: {
+        parentId: parentId,
+      },
+    });
+
+    const skip = (page - 1) * pageSize;
+
     const childComments = await this.prisma.comment.findMany({
       where: {
         parentId: parentId,
-        ...(lastChildCommentId && { id: { lt: lastChildCommentId } }),
       },
       include: {
         author: {
@@ -160,9 +163,13 @@ export class CommentsService {
         },
       },
       take: pageSize,
+      skip: skip,
       orderBy: { createdAt: 'asc' },
     });
 
-    return childComments;
+    return {
+      childComments,
+      totalChildCommentsCount,
+    };
   }
 }

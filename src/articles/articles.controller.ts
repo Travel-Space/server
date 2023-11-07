@@ -263,6 +263,13 @@ export class ArticlesController {
     example: 10,
   })
   @ApiQuery({
+    name: 'replyPage',
+    required: false,
+    type: Number,
+    description: '대댓글 페이지 번호',
+    example: 1,
+  })
+  @ApiQuery({
     name: 'replyPageSize',
     required: false,
     type: Number,
@@ -275,6 +282,7 @@ export class ArticlesController {
     @Param('id', ParseIntPipe) articleId: number,
     @Query('commentPage', ParseIntPipe) commentPage: number,
     @Query('commentPageSize', ParseIntPipe) commentPageSize: number,
+    @Query('replyPage', ParseIntPipe) replyPage: number,
     @Query('replyPageSize', ParseIntPipe) replyPageSize: number,
     @Req() req: any,
   ) {
@@ -299,14 +307,14 @@ export class ArticlesController {
 
     const commentsWithInitialReplies = await Promise.all(
       topLevelComments.map(async (comment) => {
-        const initialReplies = await this.commentsService.getMoreChildComments(
+        const replyData = await this.commentsService.getMoreChildComments(
           comment.id,
-          null,
+          replyPage,
           replyPageSize,
         );
         return {
           ...comment,
-          replies: initialReplies.map((reply) => ({
+          replies: replyData.childComments.map((reply) => ({
             ...reply,
             authorProfileImage: reply.author.profileImage,
             authorNationality: reply.author.nationality,
