@@ -157,6 +157,48 @@ export class ArticlesController {
     );
   }
 
+  @ApiQuery({
+    name: 'planetId',
+    required: true,
+    type: Number,
+    description: '조회하려는 행성의 ID',
+  })
+  @ApiQuery({
+    name: 'latitude',
+    required: false,
+    type: Number,
+    description: '게시글 위도',
+  })
+  @ApiQuery({
+    name: 'longitude',
+    required: false,
+    type: Number,
+    description: '게시글 경도',
+  })
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    type: Number,
+    description: '반경',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: '페이지 번호',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '한 페이지당 게시글 수',
+  })
+  @ApiQuery({
+    name: 'spaceshipName',
+    required: false,
+    type: String,
+    description: '조회하려는 우주선의 이름',
+  })
   @Get('byLocation')
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseGuards(JwtAuthGuard)
