@@ -597,6 +597,12 @@ export class PlanetController {
     required: false,
     description: '페이지당 행성 수',
   })
+  @ApiQuery({
+    name: 'userId',
+    type: 'number',
+    required: true,
+    description: '유저 ID',
+  })
   async getOtherUserNonOwnedPlanets(
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

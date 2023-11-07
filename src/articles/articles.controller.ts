@@ -199,6 +199,11 @@ export class ArticlesController {
     type: String,
     description: '조회하려는 우주선의 이름',
   })
+  @ApiOperation({
+    summary: '지도에 마커로 게시글 조회',
+    description:
+      '지도에 있는 마커를 클릭해서 위도/경도 반경을 계산해서 게시글을 불러온다.',
+  })
   @Get('byLocation')
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseGuards(JwtAuthGuard)

@@ -271,6 +271,11 @@ export class ArticlesService {
         locations: true,
         images: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip,
+      take,
     });
 
     const filteredArticles = articles.filter((article) => {
