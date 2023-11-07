@@ -20,7 +20,7 @@ export class PlanetService {
     hashtag?: string,
     ownerNickname?: string,
     published?: string,
-    user?: any, // 로그인한 사용자 정보를 추가합니다.
+    user?: any,
   ) {
     const skip = (page - 1) * limit;
     const where = {};

@@ -208,11 +208,35 @@ export class ArticlesService {
     };
   }
 
+  private getDistanceFromLatLonInKm(
+    centerLatitude,
+    centerLongitude,
+    latitude,
+    longitude,
+  ) {
+    const deg2rad = (deg) => {
+      return deg * (Math.PI / 180);
+    };
+
+    const R = 6371;
+    const dLat = deg2rad(latitude - centerLatitude);
+    const dLon = deg2rad(longitude - centerLongitude);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(centerLatitude)) *
+        Math.cos(deg2rad(latitude)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  }
+
   async getArticlesByLocation(
     userId: number,
-    latitude: number,
     planetId: number,
-    longitude: number,
+    centerLatitude: number,
+    centerLongitude: number,
     radius: number,
     page: number,
     limit: number,
@@ -220,51 +244,11 @@ export class ArticlesService {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const whereCondition = {
-      AND: [
-        {
-          planetId,
-        },
-        {
-          published: true,
-        },
-        {
-          locations: {
-            some: {
-              AND: [
-                {
-                  latitude: {
-                    gte: latitude - this.degreesToRadians(radius / 111.32),
-                    lte: latitude + this.degreesToRadians(radius / 111.32),
-                  },
-                },
-                {
-                  longitude: {
-                    gte:
-                      longitude -
-                      this.degreesToRadians(
-                        radius /
-                          (111.32 * Math.cos(this.degreesToRadians(latitude))),
-                      ),
-                    lte:
-                      longitude +
-                      this.degreesToRadians(
-                        radius /
-                          (111.32 * Math.cos(this.degreesToRadians(latitude))),
-                      ),
-                  },
-                },
-              ],
-            },
-          },
-        },
-      ],
-    };
-
     const articles = await this.prisma.article.findMany({
-      where: whereCondition,
-      skip,
-      take,
+      where: {
+        planetId,
+        published: true,
+      },
       include: {
         author: true,
         planet: true,
@@ -273,29 +257,37 @@ export class ArticlesService {
         locations: true,
         images: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
     });
 
-    const totalArticlesCount = await this.prisma.article.count({
-      where: whereCondition,
+    const filteredArticles = articles.filter((article) => {
+      return article.locations.some((location) => {
+        const distance = this.getDistanceFromLatLonInKm(
+          centerLatitude,
+          centerLongitude,
+          location.latitude,
+          location.longitude,
+        );
+        return distance <= radius;
+      });
     });
+
+    if (!filteredArticles.length) {
+      throw new NotFoundException('해당 위치에 게시글이 없습니다.');
+    }
+
+    const paginatedArticles = filteredArticles.slice(skip, skip + take);
 
     return {
-      total: totalArticlesCount,
-      totalPages: Math.ceil(totalArticlesCount / limit),
+      total: filteredArticles.length,
+      totalPages: Math.ceil(filteredArticles.length / limit),
       currentPage: page,
-      articles: articles.map((article) => ({
+      articles: paginatedArticles.map(({ likes, comments, ...article }) => ({
         ...article,
-        likeCount: article.likes.length,
-        isLiked: article.likes.some((like) => like.userId === userId),
+        likeCount: likes.length,
+        commentCount: comments.length,
+        isLiked: likes.some((like) => like.userId === userId),
       })),
     };
-  }
-
-  private degreesToRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
   }
 
   async createArticle(dto: CreateArticleDto, userId: number) {
@@ -503,7 +495,7 @@ export class ArticlesService {
           article: {
             include: {
               planet: true,
-              likes: true, // This will include all likes related to the article
+              likes: true,
             },
           },
         },

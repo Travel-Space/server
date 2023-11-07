@@ -1,5 +1,3 @@
-// src/report/dto/create-report.dto.ts
-
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { ReportTargetType } from '@prisma/client';

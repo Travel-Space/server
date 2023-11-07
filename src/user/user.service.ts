@@ -76,7 +76,6 @@ export class UserService {
       },
     });
 
-    // 활동 제한되지 않은 사용자를 조회합니다.
     const nonSuspendedUsers = await this.prisma.user.findMany({
       where: {
         ...where,
@@ -87,7 +86,6 @@ export class UserService {
       },
     });
 
-    // 두 결과를 병합합니다.
     const users = [...suspendedUsers, ...nonSuspendedUsers].slice(
       skip,
       skip + limit,

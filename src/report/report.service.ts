@@ -137,7 +137,7 @@ export class ReportService {
   async approveReport(
     reportId: number,
     approvalReason: string,
-    suspensionEndDate?: string, // Make it optional
+    suspensionEndDate?: string,
   ) {
     let suspensionDate;
     if (suspensionEndDate) {

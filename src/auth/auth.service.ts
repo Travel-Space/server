@@ -20,8 +20,8 @@ import * as nodemailer from 'nodemailer';
 import { UserService } from 'src/user/user.service';
 
 type UserWithMemberships = User & {
-  planetsMembership?: PlanetMembership[]; // Optional because it might not be included
-  spaceshipMemberships?: SpaceshipMember[]; // Optional because it might not be included
+  planetsMembership?: PlanetMembership[];
+  spaceshipMemberships?: SpaceshipMember[];
 };
 @Injectable()
 export class AuthService {
