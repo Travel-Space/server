@@ -597,7 +597,7 @@ export class PlanetController {
     required: false,
     description: '페이지당 행성 수',
   })
-  @ApiQuery({
+  @ApiParam({
     name: 'userId',
     type: 'number',
     required: true,
