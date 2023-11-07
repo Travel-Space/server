@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   Query,
   DefaultValuePipe,
+  Patch,
 } from '@nestjs/common';
 import { PlanetService } from './planet.service';
 import {
@@ -650,5 +651,52 @@ export class PlanetController {
       limit,
       totalPlanets,
     };
+  }
+
+  @Post(':planetId/invite/:userId')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '행성에 사용자 초대',
+    description: '행성 소유자 또는 관리자가 다른 사용자를 행성에 초대합니다.',
+  })
+  @ApiParam({ name: 'planetId', description: '초대할 행성의 ID' })
+  @ApiParam({ name: 'userId', description: '초대할 사용자의 ID' })
+  async inviteToPlanet(
+    @Req() req: any,
+    @Param('planetId', ParseIntPipe) planetId: number,
+    @Param('userId', ParseIntPipe) targetUserId: number,
+  ) {
+    const inviterUserId = req.user.userId;
+    try {
+      const result = await this.planetService.inviteUserToPlanet(
+        inviterUserId,
+        planetId,
+        targetUserId,
+      );
+      return result;
+    } catch (error) {
+      throw new ForbiddenException(error.message);
+    }
+  }
+
+  @Patch('invitations/:invitationId/respond')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '행성 초대 응답',
+    description: '사용자가 행성 초대를 승인하거나 거절합니다.',
+  })
+  @ApiParam({ name: 'invitationId', description: '응답할 초대의 ID' })
+  @ApiBody({ type: UpdateInvitationDto })
+  async respondToInvitation(
+    @Param('invitationId', ParseIntPipe) invitationId: number,
+    @Body() updateInvitationDto: UpdateInvitationDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId;
+    return await this.planetService.respondToInvitation(
+      invitationId,
+      userId,
+      updateInvitationDto.status,
+    );
   }
 }

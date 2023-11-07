@@ -39,6 +39,8 @@ model User {
   spaceshipMemberships SpaceshipMember[]
   friendedBy           UserFriend[]       @relation("FriendToUser")
   friends              UserFriend[]       @relation("UserToFriend")
+  invitationsSent     Invitation[] @relation("InviterRelation")
+  invitationsReceived Invitation[] @relation("InviteeRelation")
 }
 
 model Article {
@@ -61,6 +63,7 @@ model Article {
   likes       Like[]      @relation("LikeToArticle")
   locations   Location[]
   viewCount   ViewCount[]
+ 
 }
 
 model Planet {
@@ -84,6 +87,7 @@ model Planet {
   members        PlanetMembership[]
   spaceships     Spaceship[]
   viewCount      ViewCount[]
+  invitationsSent     Invitation[] @relation("PlanetToInvitation")
 }
 
 model PlanetMembership {
@@ -258,6 +262,27 @@ model ChatMembership {
   user       User     @relation(fields: [userId], references: [id])
 
   @@id([chatRoomId, userId])
+}
+
+model Invitation {
+  id            Int      @id @default(autoincrement())
+  planetId      Int
+  inviterId     Int
+  inviteeId     Int
+  status        InvitationStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  planet        Planet   @relation("PlanetToInvitation", fields: [planetId], references: [id])
+  inviter       User     @relation("InviterRelation", fields: [inviterId], references: [id])
+  invitee       User     @relation("InviteeRelation", fields: [inviteeId], references: [id])
+
+  @@unique([planetId, inviteeId])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
 enum SocialProvider {

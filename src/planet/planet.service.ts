@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
-import { PlanetMemberRole } from '@prisma/client';
-import { UpdatePlanetDto } from './dto';
+import { PlanetMemberRole, PlanetMembership } from '@prisma/client';
+import { InvitationResponse, UpdatePlanetDto } from './dto';
 
 @Injectable()
 export class PlanetService {
@@ -759,6 +759,105 @@ export class PlanetService {
       planets: memberships.map((membership) => membership.planet),
       totalMemberships,
     };
+  }
+
+  async inviteUserToPlanet(
+    inviterUserId: number,
+    planetId: number,
+    targetUserId: number,
+  ): Promise<any> {
+    const inviterMembership = await this.prisma.planetMembership.findUnique({
+      where: {
+        planetId_userId: {
+          userId: inviterUserId,
+          planetId: planetId,
+        },
+      },
+    });
+
+    if (
+      !inviterMembership ||
+      (inviterMembership.role !== 'OWNER' && inviterMembership.role !== 'ADMIN')
+    ) {
+      throw new ForbiddenException('초대 권한이 없습니다.');
+    }
+
+    const existingMembership = await this.prisma.planetMembership.findUnique({
+      where: {
+        planetId_userId: {
+          userId: targetUserId,
+          planetId: planetId,
+        },
+      },
+    });
+
+    if (existingMembership) {
+      throw new ConflictException('이미 멤버십이 존재합니다.');
+    }
+
+    await this.prisma.planetMembership.create({
+      data: {
+        userId: targetUserId,
+        planetId: planetId,
+        status: 'PENDING',
+        role: 'GUEST',
+      },
+    });
+
+    return { message: '초대가 성공적으로 생성되었습니다.' };
+  }
+
+  async respondToInvitation(
+    invitationId: number,
+    userId: number,
+    response: InvitationResponse,
+  ): Promise<PlanetMembership | null> {
+    const invitation = await this.prisma.invitation.findUnique({
+      where: { id: invitationId },
+      include: { planet: true },
+    });
+
+    if (
+      !invitation ||
+      invitation.status !== 'PENDING' ||
+      invitation.inviteeId !== userId
+    ) {
+      throw new Error('Invalid or already processed invitation.');
+    }
+
+    if (response === InvitationResponse.ACCEPTED) {
+      const membership = await this.prisma.planetMembership.upsert({
+        where: {
+          planetId_userId: {
+            planetId: invitation.planetId,
+            userId: userId,
+          },
+        },
+        create: {
+          planetId: invitation.planetId,
+          userId: userId,
+          role: 'MEMBER',
+          status: 'APPROVED',
+        },
+        update: {
+          status: 'APPROVED',
+        },
+      });
+
+      await this.prisma.invitation.update({
+        where: { id: invitationId },
+        data: { status: 'ACCEPTED' },
+      });
+
+      return membership;
+    } else if (response === InvitationResponse.REJECTED) {
+      await this.prisma.invitation.update({
+        where: { id: invitationId },
+        data: { status: 'DECLINED' },
+      });
+
+      return null;
+    }
   }
 }
 
