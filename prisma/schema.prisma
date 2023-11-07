@@ -87,7 +87,7 @@ model Planet {
   members        PlanetMembership[]
   spaceships     Spaceship[]
   viewCount      ViewCount[]
-  invitationsSent     Invitation[] @relation("PlanetToInvitation")
+  invitationsSent Invitation[] @relation("PlanetToInvitation")
 }
 
 model PlanetMembership {
@@ -282,7 +282,7 @@ model Invitation {
 enum InvitationStatus {
   PENDING
   ACCEPTED
-  DECLINED
+  REJECTED
 }
 
 enum SocialProvider {

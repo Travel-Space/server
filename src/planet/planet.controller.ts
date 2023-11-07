@@ -379,17 +379,25 @@ export class PlanetController {
     return { message: '사용자가 행성에서 성공적으로 추방되었습니다.' };
   }
 
-  @Get('pending-applications')
+  @Get('applications-invitations/:planetId')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
-    summary: '가입 대기 중인 신청 목록 조회 API',
-    description: '관리자로 속한 행성의 가입 대기 중인 신청 목록을 조회합니다.',
+    summary: '특정 행성의 가입 신청 및 초대 목록 조회 API',
+    description: '해당 행성의 관리자가 가입 신청 및 초대 목록을 조회합니다.',
   })
-  async getPendingApplications(@Req() req: any): Promise<any> {
+  @ApiParam({
+    name: 'planetId',
+    description: '행성의 고유 ID',
+  })
+  async getApplicationsAndInvitations(
+    @Param('planetId') planetId: number,
+    @Req() req: any,
+  ): Promise<any> {
     const userId = req.user.userId;
-    const applications =
-      await this.planetService.getPendingApplications(userId);
-    return applications;
+    return await this.planetService.getApplicationsAndInvitations(
+      planetId,
+      userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard, LoggedInGuard)

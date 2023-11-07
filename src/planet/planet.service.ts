@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlanetDto } from './dto/create-planet.dto';
-import { PlanetMemberRole, PlanetMembership } from '@prisma/client';
+import {
+  InvitationStatus,
+  PlanetMemberRole,
+  PlanetMembership,
+} from '@prisma/client';
 import { InvitationResponse, UpdatePlanetDto } from './dto';
 
 @Injectable()
@@ -561,24 +565,23 @@ export class PlanetService {
     return membership;
   }
 
-  async getPendingApplications(adminUserId: number): Promise<any> {
-    const adminPlanets = await this.prisma.planetMembership.findMany({
+  async getApplicationsAndInvitations(
+    planetId: number,
+    userId: number,
+  ): Promise<any> {
+    const planet = await this.prisma.planet.findUnique({
       where: {
-        userId: adminUserId,
-        role: PlanetMemberRole.ADMIN,
-      },
-      select: {
-        planetId: true,
+        id: planetId,
       },
     });
 
-    const planetIds = adminPlanets.map((p) => p.planetId);
+    if (!planet || planet.ownerId !== userId) {
+      throw new Error('Access denied: User is not the admin of this planet.');
+    }
 
     const pendingApplications = await this.prisma.planetMembership.findMany({
       where: {
-        planetId: {
-          in: planetIds,
-        },
+        planetId: planetId,
         status: MembershipStatus.PENDING,
       },
       include: {
@@ -587,8 +590,23 @@ export class PlanetService {
       },
     });
 
-    return pendingApplications;
+    const invitations = await this.prisma.invitation.findMany({
+      where: {
+        planetId: planetId,
+        status: InvitationStatus.PENDING,
+      },
+      include: {
+        inviter: true,
+        invitee: true,
+      },
+    });
+
+    return {
+      pendingApplications,
+      invitations,
+    };
   }
+
   async addBookmark(userId: number, planetId: number) {
     const existingBookmark = await this.prisma.planetBookmark.findUnique({
       where: {
@@ -861,7 +879,7 @@ export class PlanetService {
     } else if (response === InvitationResponse.REJECTED) {
       await this.prisma.invitation.update({
         where: { id: invitationId },
-        data: { status: 'DECLINED' },
+        data: { status: 'REJECTED' },
       });
 
       return null;
