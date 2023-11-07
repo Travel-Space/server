@@ -157,6 +157,33 @@ export class ArticlesController {
     );
   }
 
+  @Get('byLocation')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @UseGuards(JwtAuthGuard)
+  async getArticlesByLocation(
+    @Req() req: any,
+    @Query('latitude') latitude: number,
+    @Query('longitude') longitude: number,
+    @Query('radius') radius: number,
+  ) {
+    if (radius <= 0) {
+      throw new Error('반경은 0보다 커야 합니다.');
+    }
+    if (latitude < -90 || latitude > 90) {
+      throw new Error('위도는 -90과 90 사이의 값이어야 합니다.');
+    }
+    if (longitude < -180 || longitude > 180) {
+      throw new Error('경도는 -180과 180 사이의 값이어야 합니다.');
+    }
+
+    return this.articlesService.getArticlesByLocation(
+      req.user.userId,
+      latitude,
+      longitude,
+      radius,
+    );
+  }
+
   @ApiOperation({
     summary: '특정 게시글 조회 API',
     description: '특정 게시글과 관련된 주 댓글 및 초기 대댓글을 불러온다',

@@ -208,6 +208,81 @@ export class ArticlesService {
     };
   }
 
+  async getArticlesByLocation(
+    userId: number,
+    latitude: number,
+    longitude: number,
+    radius: number,
+  ) {
+    // 반경 내의 게시글을 찾기 위한 where 조건을 생성합니다.
+    const whereCondition = {
+      AND: [
+        {
+          published: true,
+        },
+        {
+          locations: {
+            some: {
+              AND: [
+                {
+                  latitude: {
+                    gte: latitude - this.degreesToRadians(radius / 111.32), // 대략적인 변환 값
+                    lte: latitude + this.degreesToRadians(radius / 111.32),
+                  },
+                },
+                {
+                  longitude: {
+                    gte:
+                      longitude -
+                      this.degreesToRadians(
+                        radius /
+                          (111.32 * Math.cos(this.degreesToRadians(latitude))),
+                      ),
+                    lte:
+                      longitude +
+                      this.degreesToRadians(
+                        radius /
+                          (111.32 * Math.cos(this.degreesToRadians(latitude))),
+                      ),
+                  },
+                },
+              ],
+            },
+          },
+        },
+      ],
+    };
+
+    const articles = await this.prisma.article.findMany({
+      where: whereCondition,
+      include: {
+        author: true,
+        planet: true,
+        likes: true,
+        comments: true,
+        locations: true,
+        images: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!articles.length) {
+      throw new NotFoundException('해당 위치에 게시글이 없습니다.');
+    }
+
+    return articles.map((article) => ({
+      ...article,
+      likeCount: article.likes.length,
+      isLiked: article.likes.some((like) => like.userId === userId),
+    }));
+  }
+
+  private degreesToRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
   async createArticle(dto: CreateArticleDto, userId: number) {
     const newArticle = await this.prisma.article.create({
       data: {
