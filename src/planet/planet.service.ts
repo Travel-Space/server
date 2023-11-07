@@ -337,7 +337,7 @@ export class PlanetService {
         userId: userId,
         planetId: planetId,
         status: membershipStatus,
-        role: PlanetMemberRole.MEMBER,
+        role: PlanetMemberRole.GUEST,
       },
     });
 
@@ -376,7 +376,7 @@ export class PlanetService {
     planetId: number,
     action: MembershipStatus,
   ): Promise<string> {
-    const membership = await this.prisma.planetMembership.findUnique({
+    const adminMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
           planetId: planetId,
@@ -386,9 +386,9 @@ export class PlanetService {
     });
 
     if (
-      !membership ||
-      (membership.role !== PlanetMemberRole.ADMIN &&
-        membership.role !== PlanetMemberRole.OWNER)
+      !adminMembership ||
+      (adminMembership.role !== PlanetMemberRole.ADMIN &&
+        adminMembership.role !== PlanetMemberRole.OWNER)
     ) {
       throw new ForbiddenException(
         '관리자나 주인만 승인/거절을 할 수 있습니다.',
@@ -411,23 +411,33 @@ export class PlanetService {
       throw new NotFoundException('유효하지 않은 가입 신청입니다.');
     }
 
-    await this.prisma.planetMembership.update({
-      where: {
-        planetId_userId: {
-          planetId: planetId,
-          userId: targetUserId,
+    if (action === MembershipStatus.APPROVED) {
+      await this.prisma.planetMembership.update({
+        where: {
+          planetId_userId: {
+            planetId: planetId,
+            userId: targetUserId,
+          },
         },
-      },
-      data: { status: action },
-    });
-
-    switch (action) {
-      case MembershipStatus.APPROVED:
-        return '가입 신청이 승인되었습니다.';
-      case MembershipStatus.REJECTED:
-        return '가입 신청이 거절되었습니다.';
-      default:
-        throw new Error('유효하지 않은 작업입니다.');
+        data: {
+          status: action,
+          role: PlanetMemberRole.MEMBER,
+        },
+      });
+      return '가입 신청이 승인되었습니다.';
+    } else if (action === MembershipStatus.REJECTED) {
+      await this.prisma.planetMembership.update({
+        where: {
+          planetId_userId: {
+            planetId: planetId,
+            userId: targetUserId,
+          },
+        },
+        data: { status: action },
+      });
+      return '가입 신청이 거절되었습니다.';
+    } else {
+      throw new Error('유효하지 않은 작업입니다.');
     }
   }
 
