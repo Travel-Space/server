@@ -84,14 +84,17 @@ export class PlanetController {
     description: '행성의 공개 상태 필터링 (all, true, false)',
     enum: ['all', 'true', 'false'],
   })
+  @UseGuards(JwtAuthGuard)
   async getAllPlanet(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
+    @Req() req: any,
     @Query('name') name?: string,
     @Query('hashtag') hashtag?: string,
     @Query('ownerNickname') ownerNickname?: string,
     @Query('published') published?: string,
   ) {
+    const user = req.user;
     return this.planetService.getAllPlanet(
       page,
       limit,
@@ -99,6 +102,7 @@ export class PlanetController {
       hashtag,
       ownerNickname,
       published,
+      user,
     );
   }
 

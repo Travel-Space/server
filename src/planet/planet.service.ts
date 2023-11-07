@@ -20,6 +20,7 @@ export class PlanetService {
     hashtag?: string,
     ownerNickname?: string,
     published?: string,
+    user?: any, // 로그인한 사용자 정보를 추가합니다.
   ) {
     const skip = (page - 1) * limit;
     const where = {};
@@ -55,10 +56,13 @@ export class PlanetService {
       }
     }
 
-    if (published) {
-      if (published !== 'all') {
-        where['published'] = published === 'true';
-      }
+    if (user) {
+      where['OR'] = [
+        { published: true },
+        { members: { some: { userId: user.id } } },
+      ];
+    } else if (published !== 'all') {
+      where['published'] = published === 'true';
     }
 
     const planets = await this.prisma.planet.findMany({
