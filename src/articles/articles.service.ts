@@ -240,9 +240,22 @@ export class ArticlesService {
     radius: number,
     page: number,
     limit: number,
+    spaceshipName?: string,
   ) {
     const skip = (page - 1) * limit;
     const take = limit;
+
+    let spaceshipIdFilter = {};
+    if (spaceshipName) {
+      const spaceship = await this.prisma.spaceship.findFirst({
+        where: { name: spaceshipName },
+        select: { id: true },
+      });
+      if (!spaceship) {
+        throw new NotFoundException('해당 이름을 가진 우주선이 없습니다.');
+      }
+      spaceshipIdFilter = { spaceshipId: spaceship.id };
+    }
 
     const articles = await this.prisma.article.findMany({
       where: {

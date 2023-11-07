@@ -166,6 +166,7 @@ export class ArticlesController {
     @Query('latitude') latitude: number,
     @Query('longitude') longitude: number,
     @Query('radius') radius: number,
+    @Query('spaceshipName') spaceshipName?: string,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ) {
@@ -187,6 +188,7 @@ export class ArticlesController {
       radius,
       page,
       limit,
+      spaceshipName,
     );
   }
 
