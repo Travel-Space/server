@@ -215,6 +215,7 @@ export class ReportService {
       where: { id: reportId },
       data: {
         status: ReportStatus.REJECTED,
+        processingDate: new Date(),
       },
     });
     return report;
