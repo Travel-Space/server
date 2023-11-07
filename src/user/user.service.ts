@@ -6,6 +6,7 @@ import {
 import { User } from '@prisma/client';
 import { CreateUserDto } from 'src/auth/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { SuspendUserDto } from './dto';
 
 @Injectable()
 export class UserService {
@@ -339,5 +340,22 @@ export class UserService {
     });
 
     return users;
+  }
+
+  async suspendUser(userId: number, suspendUserDto: SuspendUserDto) {
+    let suspensionDate;
+    if (suspendUserDto.suspensionEndDate) {
+      suspensionDate = new Date(suspendUserDto.suspensionEndDate);
+      if (isNaN(suspensionDate.getTime())) {
+        throw new BadRequestException('유효하지 않은 날짜입니다.');
+      }
+    }
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        userSuspensionDate: suspensionDate || null,
+        suspensionReason: suspendUserDto.suspensionReason || null,
+      },
+    });
   }
 }

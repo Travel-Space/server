@@ -4,8 +4,10 @@ import {
   DefaultValuePipe,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -15,8 +17,16 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ApiOperation, ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiQuery,
+  ApiParam,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 import { AdminGuard, LoggedInGuard } from 'src/auth/guard';
+import { SuspendUserDto } from './dto';
 
 @ApiTags('유저 API')
 @Controller('user')
@@ -420,5 +430,26 @@ export class UserController {
       page,
       limit,
     };
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Patch(':userId/suspend')
+  @ApiOperation({
+    summary: '사용자 활동 제한',
+    description: '관리자가 특정 사용자의 활동을 제한합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '사용자 활동 제한 성공',
+  })
+  @ApiBody({
+    description: '활동 제한 정보',
+    type: SuspendUserDto,
+  })
+  async suspendUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() suspendUserDto: SuspendUserDto,
+  ) {
+    return await this.userService.suspendUser(userId, suspendUserDto);
   }
 }
