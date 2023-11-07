@@ -211,6 +211,7 @@ export class ArticlesService {
   async getArticlesByLocation(
     userId: number,
     latitude: number,
+    planetId: number,
     longitude: number,
     radius: number,
     page: number,
@@ -221,6 +222,9 @@ export class ArticlesService {
 
     const whereCondition = {
       AND: [
+        {
+          planetId,
+        },
         {
           published: true,
         },

@@ -162,6 +162,7 @@ export class ArticlesController {
   @UseGuards(JwtAuthGuard)
   async getArticlesByLocation(
     @Req() req: any,
+    @Query('planetId', ParseIntPipe) planetId: number,
     @Query('latitude') latitude: number,
     @Query('longitude') longitude: number,
     @Query('radius') radius: number,
@@ -180,6 +181,7 @@ export class ArticlesController {
 
     return this.articlesService.getArticlesByLocation(
       req.user.userId,
+      planetId,
       latitude,
       longitude,
       radius,
