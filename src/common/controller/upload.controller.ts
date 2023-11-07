@@ -1,7 +1,9 @@
 import {
   Controller,
   Post,
+  Req,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -14,6 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AdminGuard, JwtAuthGuard } from 'src/auth/guard';
 
 const s3 = new S3({
   region: process.env.AWS_S3_REGION,
@@ -27,6 +30,7 @@ const s3 = new S3({
 @Controller('upload')
 export class UploadController {
   @Post()
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @ApiOperation({
     summary: '이미지 업로드 API',
     description:
@@ -58,12 +62,12 @@ export class UploadController {
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME,
         key: function (req, file, cb) {
-          cb(null, `YOUR_IMAGE_KEY/${file.originalname}`);
+          cb(null, `${req.user.userId}./${file.originalname}`);
         },
       }),
     }),
   )
-  async uploadFile(@UploadedFiles() files) {
+  async uploadFile(@UploadedFiles() files, @Req() req: any) {
     const uploadResults = files.map((file) => file.location);
     return uploadResults;
   }

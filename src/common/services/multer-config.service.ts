@@ -1,5 +1,3 @@
-// src/common/services/multer-config.service.ts
-
 import { diskStorage } from 'multer';
 
 export const multerConfig = {
@@ -12,4 +10,7 @@ export const multerConfig = {
       cb(null, file.fieldname + '-' + uniqueSuffix);
     },
   }),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
 };
