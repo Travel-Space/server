@@ -65,57 +65,47 @@ export class UserService {
     nickname,
     email,
     isSuspended,
-  }): Promise<{ users: User[]; total: number }> {
-    const skip = (page - 1) * limit;
-    const where = {};
+  }: {
+    page: number;
+    limit: number;
+    name?: string;
+    nickname?: string;
+    email?: string;
+    isSuspended?: boolean;
+  }) {
+    const whereClause: any = {
+      AND: [
+        name ? { name: { contains: name } } : {},
+        nickname ? { nickName: { contains: nickname } } : {},
+        email ? { email: { contains: email } } : {},
+      ],
+    };
 
-    if (name) {
-      where['name'] = {
-        contains: name,
-        mode: 'insensitive',
-      };
+    if (isSuspended !== undefined) {
+      const suspensionFilter = isSuspended
+        ? {
+            userSuspensionDate: {
+              gt: new Date(),
+            },
+          }
+        : {
+            OR: [
+              { userSuspensionDate: null },
+              { userSuspensionDate: { lt: new Date() } },
+            ],
+          };
+      whereClause.AND.push(suspensionFilter);
     }
 
-    if (nickname) {
-      where['nickName'] = {
-        contains: nickname,
-        mode: 'insensitive',
-      };
-    }
-
-    if (email) {
-      where['email'] = {
-        contains: email,
-        mode: 'insensitive',
-      };
-    }
-    const suspendedUsers = await this.prisma.user.findMany({
-      where: {
-        ...where,
-        userSuspensionDate: {
-          not: null,
-        },
-      },
-      orderBy: {
-        userSuspensionDate: 'desc',
-      },
+    const users = await this.prisma.user.findMany({
+      where: whereClause,
+      take: limit,
+      skip: (page - 1) * limit,
     });
 
-    const nonSuspendedUsers = await this.prisma.user.findMany({
-      where: {
-        ...where,
-        userSuspensionDate: null,
-      },
-      orderBy: {
-        id: 'asc',
-      },
+    const total = await this.prisma.user.count({
+      where: whereClause,
     });
-
-    const users = [...suspendedUsers, ...nonSuspendedUsers].slice(
-      skip,
-      skip + limit,
-    );
-    const total = suspendedUsers.length + nonSuspendedUsers.length;
 
     return {
       users,
