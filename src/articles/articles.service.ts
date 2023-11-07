@@ -213,8 +213,12 @@ export class ArticlesService {
     latitude: number,
     longitude: number,
     radius: number,
+    page: number,
+    limit: number,
   ) {
-    // 반경 내의 게시글을 찾기 위한 where 조건을 생성합니다.
+    const skip = (page - 1) * limit;
+    const take = limit;
+
     const whereCondition = {
       AND: [
         {
@@ -226,7 +230,7 @@ export class ArticlesService {
               AND: [
                 {
                   latitude: {
-                    gte: latitude - this.degreesToRadians(radius / 111.32), // 대략적인 변환 값
+                    gte: latitude - this.degreesToRadians(radius / 111.32),
                     lte: latitude + this.degreesToRadians(radius / 111.32),
                   },
                 },
@@ -255,6 +259,8 @@ export class ArticlesService {
 
     const articles = await this.prisma.article.findMany({
       where: whereCondition,
+      skip,
+      take,
       include: {
         author: true,
         planet: true,
@@ -268,15 +274,20 @@ export class ArticlesService {
       },
     });
 
-    if (!articles.length) {
-      throw new NotFoundException('해당 위치에 게시글이 없습니다.');
-    }
+    const totalArticlesCount = await this.prisma.article.count({
+      where: whereCondition,
+    });
 
-    return articles.map((article) => ({
-      ...article,
-      likeCount: article.likes.length,
-      isLiked: article.likes.some((like) => like.userId === userId),
-    }));
+    return {
+      total: totalArticlesCount,
+      totalPages: Math.ceil(totalArticlesCount / limit),
+      currentPage: page,
+      articles: articles.map((article) => ({
+        ...article,
+        likeCount: article.likes.length,
+        isLiked: article.likes.some((like) => like.userId === userId),
+      })),
+    };
   }
 
   private degreesToRadians(degrees: number): number {

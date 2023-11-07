@@ -165,6 +165,8 @@ export class ArticlesController {
     @Query('latitude') latitude: number,
     @Query('longitude') longitude: number,
     @Query('radius') radius: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ) {
     if (radius <= 0) {
       throw new Error('반경은 0보다 커야 합니다.');
@@ -181,6 +183,8 @@ export class ArticlesController {
       latitude,
       longitude,
       radius,
+      page,
+      limit,
     );
   }
 
