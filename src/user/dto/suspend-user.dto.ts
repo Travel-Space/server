@@ -12,7 +12,7 @@ export class SuspendUserDto {
     description: '활동 제한이 끝나는 날짜',
   })
   @IsNotEmpty()
-  @IsString()
+  @IsDateString()
   suspensionEndDate: string;
 
   @ApiProperty({
@@ -20,7 +20,7 @@ export class SuspendUserDto {
     description: '활동 제한 사유',
     required: false,
   })
-  @IsDateString()
+  @IsString()
   @IsOptional()
   suspensionReason?: string;
 }
