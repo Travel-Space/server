@@ -576,19 +576,8 @@ export class PlanetService {
     });
 
     if (!planet || planet.ownerId !== userId) {
-      throw new Error('Access denied: User is not the admin of this planet.');
+      throw new Error('해당 행성의 관리자가 아닙니다.');
     }
-
-    const pendingApplications = await this.prisma.planetMembership.findMany({
-      where: {
-        planetId: planetId,
-        status: MembershipStatus.PENDING,
-      },
-      include: {
-        user: true,
-        planet: true,
-      },
-    });
 
     const invitations = await this.prisma.invitation.findMany({
       where: {
@@ -598,6 +587,26 @@ export class PlanetService {
       include: {
         inviter: true,
         invitee: true,
+      },
+    });
+
+    const invitedUserIds = invitations.map(
+      (invitation) => invitation.inviteeId,
+    );
+
+    const pendingApplications = await this.prisma.planetMembership.findMany({
+      where: {
+        planetId: planetId,
+        status: MembershipStatus.PENDING,
+        NOT: {
+          userId: {
+            in: invitedUserIds,
+          },
+        },
+      },
+      include: {
+        user: true,
+        planet: true,
       },
     });
 
