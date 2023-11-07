@@ -438,14 +438,13 @@ export class PlanetService {
       });
       return '가입 신청이 승인되었습니다.';
     } else if (action === MembershipStatus.REJECTED) {
-      await this.prisma.planetMembership.update({
+      await this.prisma.planetMembership.delete({
         where: {
           planetId_userId: {
             planetId: planetId,
             userId: targetUserId,
           },
         },
-        data: { status: action },
       });
       return '가입 신청이 거절되었습니다.';
     } else {
@@ -801,6 +800,7 @@ export class PlanetService {
     planetId: number,
     targetUserId: number,
   ): Promise<any> {
+    // 초대하는 사용자가 행성의 관리자 또는 소유자인지 확인합니다.
     const inviterMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
@@ -817,6 +817,7 @@ export class PlanetService {
       throw new ForbiddenException('초대 권한이 없습니다.');
     }
 
+    // 대상 사용자가 이미 행성의 멤버인지 확인합니다.
     const existingMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
@@ -830,14 +831,38 @@ export class PlanetService {
       throw new ConflictException('이미 멤버십이 존재합니다.');
     }
 
-    await this.prisma.planetMembership.create({
-      data: {
-        userId: targetUserId,
-        planetId: planetId,
-        status: 'PENDING',
-        role: 'GUEST',
+    // 대상 사용자에게 이미 초대장이 발송되었는지 확인합니다.
+    const existingInvitation = await this.prisma.invitation.findUnique({
+      where: {
+        planetId_inviteeId: {
+          inviteeId: targetUserId,
+          planetId: planetId,
+        },
       },
     });
+
+    if (existingInvitation) {
+      throw new ConflictException('이미 초대장이 발송되었습니다.');
+    }
+
+    const transaction = await this.prisma.$transaction([
+      this.prisma.planetMembership.create({
+        data: {
+          userId: targetUserId,
+          planetId: planetId,
+          status: 'PENDING',
+          role: 'GUEST',
+        },
+      }),
+      this.prisma.invitation.create({
+        data: {
+          planetId: planetId,
+          inviterId: inviterUserId,
+          inviteeId: targetUserId,
+          status: 'PENDING',
+        },
+      }),
+    ]);
 
     return { message: '초대가 성공적으로 생성되었습니다.' };
   }
@@ -846,10 +871,9 @@ export class PlanetService {
     invitationId: number,
     userId: number,
     response: InvitationResponse,
-  ): Promise<PlanetMembership | null> {
+  ): Promise<null> {
     const invitation = await this.prisma.invitation.findUnique({
       where: { id: invitationId },
-      include: { planet: true },
     });
 
     if (
@@ -857,11 +881,11 @@ export class PlanetService {
       invitation.status !== 'PENDING' ||
       invitation.inviteeId !== userId
     ) {
-      throw new Error('Invalid or already processed invitation.');
+      throw new Error('유효하지 않은 초대입니다.');
     }
 
     if (response === InvitationResponse.ACCEPTED) {
-      const membership = await this.prisma.planetMembership.upsert({
+      await this.prisma.planetMembership.upsert({
         where: {
           planetId_userId: {
             planetId: invitation.planetId,
@@ -883,16 +907,21 @@ export class PlanetService {
         where: { id: invitationId },
         data: { status: 'ACCEPTED' },
       });
-
-      return membership;
     } else if (response === InvitationResponse.REJECTED) {
-      await this.prisma.invitation.update({
-        where: { id: invitationId },
-        data: { status: 'REJECTED' },
-      });
-
-      return null;
+      await this.prisma.$transaction([
+        this.prisma.invitation.delete({
+          where: { id: invitationId },
+        }),
+        this.prisma.planetMembership.deleteMany({
+          where: {
+            planetId: invitation.planetId,
+            userId: userId,
+          },
+        }),
+      ]);
     }
+
+    return null;
   }
 }
 
