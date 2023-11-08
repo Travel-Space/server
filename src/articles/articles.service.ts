@@ -438,6 +438,9 @@ export class ArticlesService {
         },
         skip,
         take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
         include: {
           author: true,
           planet: true,
@@ -463,6 +466,7 @@ export class ArticlesService {
       totalCount,
     };
   }
+
   async addLike(userId: number, articleId: number) {
     const existingLike = await this.prisma.like.findUnique({
       where: {
