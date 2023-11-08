@@ -99,6 +99,12 @@ export class ArticlesService {
         comments: true,
         locations: true,
         images: true,
+
+        spaceship: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -110,6 +116,7 @@ export class ArticlesService {
       ...article,
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
+      spaceshipName: article.spaceship?.name,
     };
   }
 
