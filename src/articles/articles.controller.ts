@@ -551,7 +551,7 @@ export class ArticlesController {
     );
   }
 
-  @Get('ohter/:userId/articles')
+  @Get('other/:userId/articles')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
     summary: '특정 사용자의 게시글 조회 API',
