@@ -174,7 +174,12 @@ export class UserService {
     });
   }
 
-  async getFollowing(userId: number, page: number, limit: number) {
+  async getFollowing(
+    currentUserId: number,
+    userId: number,
+    page: number,
+    limit: number,
+  ) {
     const skip = (page - 1) * limit;
     const friends = await this.prisma.userFriend.findMany({
       where: { userId },
@@ -183,17 +188,44 @@ export class UserService {
       include: { friend: true },
     });
 
+    let friendsWithFollowing;
+    if (currentUserId === userId) {
+      friendsWithFollowing = friends.map((userFriend) => ({
+        ...userFriend,
+        isFollowing: true,
+      }));
+    } else {
+      friendsWithFollowing = await Promise.all(
+        friends.map(async (userFriend) => {
+          const isFollowing =
+            (await this.prisma.userFriend.count({
+              where: {
+                userId: currentUserId,
+                friendId: userFriend.friendId,
+              },
+            })) > 0;
+          return {
+            ...userFriend,
+            isFollowing,
+          };
+        }),
+      );
+    }
     const total = await this.prisma.userFriend.count({
       where: { userId },
     });
 
     return {
-      friends,
+      friends: friendsWithFollowing,
       total,
     };
   }
-
-  async getFollowers(userId: number, page: number, limit: number) {
+  async getFollowers(
+    currentUserId: number,
+    userId: number,
+    page: number,
+    limit: number,
+  ) {
     const skip = (page - 1) * limit;
 
     const [followers, _following] = await Promise.all([
@@ -209,7 +241,7 @@ export class UserService {
       }),
       this.prisma.userFriend.findMany({
         where: {
-          userId: userId,
+          userId: currentUserId,
         },
       }),
     ]);
@@ -225,6 +257,7 @@ export class UserService {
     const followersWithMutual = followers.map((follower) => ({
       ...follower,
       isMutual: followingIds.includes(follower.userId),
+      isFollowing: followingIds.includes(follower.userId),
     }));
 
     return {

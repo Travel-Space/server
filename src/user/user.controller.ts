@@ -172,8 +172,10 @@ export class UserController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
+    const currentUserId = req.user.userId;
     const { friends, total } = await this.userService.getFollowing(
-      req.user.userId,
+      currentUserId,
+      currentUserId,
       page,
       limit,
     );
@@ -204,13 +206,16 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
+  @Get('other/:userId/followers')
   async getFollowers(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
+    const currentUserId = req.user.userId;
     const { followersWithMutual, total } = await this.userService.getFollowers(
-      req.user.userId,
+      currentUserId,
+      currentUserId,
       page,
       limit,
     );
@@ -325,11 +330,14 @@ export class UserController {
     description: '한 페이지당 친구 수',
   })
   async getOtherUserFollowing(
+    @Req() req: any,
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
+    const currentUserId = req.user.userId;
     const { friends, total } = await this.userService.getFollowing(
+      currentUserId,
       userId,
       page,
       limit,
@@ -362,11 +370,14 @@ export class UserController {
     description: '한 페이지당 친구 수',
   })
   async getOtherUserFollowers(
+    @Req() req: any,
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
+    const currentUserId = req.user.userId;
     const { followersWithMutual, total } = await this.userService.getFollowers(
+      currentUserId,
       userId,
       page,
       limit,
@@ -403,8 +414,10 @@ export class UserController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
+    const currentUserId = req.user.userId;
     const { followersWithMutual, total } = await this.userService.getFollowers(
-      req.user.userId,
+      currentUserId,
+      currentUserId,
       page,
       limit,
     );
@@ -414,13 +427,14 @@ export class UserController {
     if (data.length === 0) {
       const randomUsers = await this.userService.getRandomUsers(
         10,
-        req.user.userId,
+        currentUserId,
       );
       data = randomUsers.map((user) => ({
         isMutual: false,
+        isFollowing: false,
         user: user,
         userId: user.id,
-        friendId: req.user.userId,
+        friendId: currentUserId,
       }));
     }
 
