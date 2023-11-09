@@ -25,6 +25,7 @@ model User {
   role                 UserRole           @default(MEMBER)
   deletedAt            DateTime?          @map("deleted_at")
   userSuspensionDate   DateTime?
+  isSuspended          Boolean?           @default(false)
   suspensionReason     String?
   posts                Article[]
   chatMemberships      ChatMembership[]

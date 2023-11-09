@@ -435,13 +435,26 @@ export class ArticlesService {
     authorId: number,
     page: number,
     limit: number,
+    title?: string,
+    planetName?: string,
   ): Promise<{ articles: Article[]; totalCount: number }> {
     const skip = (page - 1) * limit;
+
+    const whereClause = {
+      authorId: authorId,
+      title: title ? { contains: title } : undefined,
+      planet: planetName
+        ? {
+            is: {
+              name: { contains: planetName },
+            },
+          }
+        : undefined,
+    };
+
     const [articles, totalCount] = await Promise.all([
       this.prisma.article.findMany({
-        where: {
-          authorId: authorId,
-        },
+        where: whereClause,
         skip,
         take: limit,
         orderBy: {
@@ -457,9 +470,7 @@ export class ArticlesService {
         },
       }),
       this.prisma.article.count({
-        where: {
-          authorId: authorId,
-        },
+        where: whereClause,
       }),
     ]);
 

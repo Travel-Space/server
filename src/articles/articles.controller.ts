@@ -434,6 +434,18 @@ export class ArticlesController {
       '로그인한 사용자의 게시글을 페이지네이션하여 조회하고, 전체 페이지 수를 반환합니다.',
   })
   @ApiQuery({
+    name: 'title',
+    type: String,
+    description: '검색할 게시글 제목',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'planetName',
+    type: String,
+    description: '검색할 행성 이름',
+    required: false,
+  })
+  @ApiQuery({
     name: 'page',
     type: Number,
     description: '페이지 번호',
@@ -449,12 +461,16 @@ export class ArticlesController {
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('title') title?: string,
+    @Query('planetName') planetName?: string,
   ) {
     const { articles, totalCount } =
       await this.articlesService.getArticlesByAuthor(
         req.user.userId,
         page,
         limit,
+        title,
+        planetName,
       );
     return {
       data: articles,
@@ -559,6 +575,18 @@ export class ArticlesController {
       '특정 사용자의 게시글을 페이지네이션하여 조회하고, 전체 페이지 수를 반환합니다.',
   })
   @ApiQuery({
+    name: 'title',
+    type: String,
+    description: '검색할 게시글 제목',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'planetName',
+    type: String,
+    description: '검색할 행성 이름',
+    required: false,
+  })
+  @ApiQuery({
     name: 'page',
     type: Number,
     description: '페이지 번호',
@@ -574,9 +602,17 @@ export class ArticlesController {
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('title') title?: string,
+    @Query('planetName') planetName?: string,
   ) {
     const { articles, totalCount } =
-      await this.articlesService.getArticlesByAuthor(userId, page, limit);
+      await this.articlesService.getArticlesByAuthor(
+        userId,
+        page,
+        limit,
+        title,
+        planetName,
+      );
     return {
       data: articles,
       page,
