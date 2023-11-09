@@ -514,10 +514,31 @@ export class PlanetService {
   }
 
   async listPlanetMembers(planetId: number) {
-    return await this.prisma.planetMembership.findMany({
+    const memberships = await this.prisma.planetMembership.findMany({
       where: { planetId: planetId },
       include: { user: true },
     });
+
+    const membersWithInvitationStatus = await Promise.all(
+      memberships.map(async (membership) => {
+        const invitation = await this.prisma.invitation.findFirst({
+          where: {
+            planetId: planetId,
+            inviteeId: membership.userId,
+            status: {
+              in: ['PENDING', 'ACCEPTED'],
+            },
+          },
+        });
+
+        return {
+          ...membership,
+          invited: invitation !== null,
+        };
+      }),
+    );
+
+    return membersWithInvitationStatus;
   }
 
   async updateMemberRole(
@@ -924,6 +945,7 @@ export class PlanetService {
           status: 'APPROVED',
         },
         update: {
+          role: 'MEMBER',
           status: 'APPROVED',
         },
       });
