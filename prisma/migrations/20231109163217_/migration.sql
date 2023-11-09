@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "nationImage" DROP DEFAULT,
+ALTER COLUMN "nationImage" SET DATA TYPE TEXT;

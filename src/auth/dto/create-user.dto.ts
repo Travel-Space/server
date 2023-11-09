@@ -44,7 +44,15 @@ export class CreateUserDto {
     description: '유저 프로필 이미지 URL',
     example: 'http://example.com/profile.jpg',
   })
+  @IsString()
   profileImage?: string;
+
+  @ApiProperty({
+    description: '유저 국가 이미지 URL',
+    example: 'http://example.com/nation.jpg',
+  })
+  @IsString()
+  nationImage: string;
 }
 
 export class CreateUserResponse extends CommonResponseDto {
