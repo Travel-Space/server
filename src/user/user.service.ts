@@ -377,17 +377,25 @@ export class UserService {
 
   async suspendUser(userId: number, suspendUserDto: SuspendUserDto) {
     let suspensionDate;
+    let isCurrentlySuspended = false;
+
     if (suspendUserDto.suspensionEndDate) {
       suspensionDate = new Date(suspendUserDto.suspensionEndDate);
       if (isNaN(suspensionDate.getTime())) {
         throw new BadRequestException('유효하지 않은 날짜입니다.');
       }
+
+      isCurrentlySuspended = suspensionDate > new Date();
     }
+
     return this.prisma.user.update({
       where: { id: userId },
       data: {
+        isSuspended: isCurrentlySuspended,
         userSuspensionDate: suspensionDate || null,
-        suspensionReason: suspendUserDto.suspensionReason || null,
+        suspensionReason: isCurrentlySuspended
+          ? suspendUserDto.suspensionReason
+          : null,
       },
     });
   }

@@ -192,10 +192,13 @@ export class ReportService {
           reportCount: {
             increment: 1,
           },
+
+          isSuspended: suspensionDate ? true : false,
         };
 
         if (suspensionDate) {
           userDataToUpdate.userSuspensionDate = suspensionDate;
+          userDataToUpdate.suspensionReason = approvalReason;
         }
 
         await prisma.user.update({
