@@ -61,12 +61,16 @@ export class PlanetService {
     }
 
     if (user) {
-      where['OR'] = [
-        { published: true },
-        { members: { some: { userId: user.id } } },
-      ];
-    } else if (published !== 'all') {
-      where['published'] = published === 'true';
+      if (published === 'true') {
+        where['OR'] = [
+          { published: true },
+          { members: { some: { userId: user.id } } },
+        ];
+      } else if (published === 'false') {
+        where['members'] = { some: { userId: user.id } };
+      }
+    } else {
+      where['published'] = true;
     }
 
     const planets = await this.prisma.planet.findMany({

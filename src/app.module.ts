@@ -14,6 +14,7 @@ import { ViewCountModule } from './view-count/view-count.module';
 import { ChatController } from './chat/chat.controller';
 import { ChatModule } from './chat/chat.module';
 import { CommonModule } from './common/common.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommonModule } from './common/common.module';
     ViewCountModule,
     ChatModule,
     CommonModule,
+    NotificationModule,
   ],
   controllers: [AppController, ChatController],
   providers: [AppService],
