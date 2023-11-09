@@ -60,7 +60,7 @@ export class PlanetService {
       }
     }
 
-    if (user) {
+    if (user && Object.keys(user).length !== 0) {
       if (published === 'true') {
         where['OR'] = [
           { published: true },
