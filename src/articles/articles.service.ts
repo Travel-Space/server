@@ -387,6 +387,8 @@ export class ArticlesService {
         planet: dto.planetId ? { connect: { id: dto.planetId } } : undefined,
         spaceship: dto.spaceshipId
           ? { connect: { id: dto.spaceshipId } }
+          : dto.spaceshipId === null
+          ? { disconnect: true }
           : undefined,
         locations: {
           create: dto.locations?.map((location) => ({
