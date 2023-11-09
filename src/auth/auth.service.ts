@@ -177,26 +177,6 @@ export class AuthService {
     };
   }
 
-  async findOrCreateUser(userInfo): Promise<User> {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: userInfo.email },
-    });
-
-    if (existingUser) {
-      return existingUser;
-    }
-    return await this.prisma.user.create({
-      data: {
-        email: userInfo.email,
-        name: userInfo.name,
-        provider: SocialProvider.GOOGLE,
-        nickName: 'UNKNOWN',
-        nationality: 'UNKNOWN',
-        password: '',
-      },
-    });
-  }
-
   async refreshToken(userId: number, oldRefreshToken: string): Promise<string> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
