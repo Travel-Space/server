@@ -34,16 +34,21 @@ export class ChatGateway {
 
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
-    @MessageBody() roomId: string,
+    @MessageBody() data: { roomId: string; type: string },
     @ConnectedSocket() client: Socket,
   ) {
-    client.join(roomId);
-    console.log(`Client ${client.id} joined room ${roomId}`);
+    const roomPrefix = data.type === 'planet' ? 'planet-' : 'spaceship-';
+    const roomName = roomPrefix + data.roomId;
 
-    const messages = await this.chatService.getMessagesByRoomId(roomId);
+    client.join(roomName);
+    console.log(
+      ` ${client.id} 자동으로 ${data.type} 채팅방에 입장하였습니다. ID: ${data.roomId}`,
+    );
 
+    const messages = await this.chatService.getMessagesByRoomId(data.roomId);
     client.emit('roomHistory', messages);
   }
+
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(
     @MessageBody() roomId: string,

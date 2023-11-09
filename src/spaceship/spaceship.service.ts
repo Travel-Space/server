@@ -67,6 +67,17 @@ export class SpaceshipService {
       },
     });
 
+    const chatRoom = await this.prisma.chatRoom.create({
+      data: {
+        spaceshipId: spaceship.id,
+      },
+    });
+
+    await this.prisma.spaceship.update({
+      where: { id: spaceship.id },
+      data: { chatRoomId: chatRoom.id },
+    });
+
     await this.prisma.spaceshipMember.create({
       data: {
         spaceshipId: spaceship.id,

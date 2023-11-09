@@ -221,6 +221,12 @@ export class PlanetService {
         owner: {
           connect: { id: userId },
         },
+        chatRoom: {
+          create: {},
+        },
+      },
+      include: {
+        chatRoom: true,
       },
     });
 
@@ -361,12 +367,27 @@ export class PlanetService {
     targetUserId: number,
     planetId: number,
   ): Promise<string> {
-    return this.handleApplication(
+    const approvalResponse = await this.handleApplication(
       adminUserId,
       targetUserId,
       planetId,
       MembershipStatus.APPROVED,
     );
+
+    const chatRoom = await this.prisma.chatRoom.findFirst({
+      where: { planetId: planetId },
+    });
+
+    if (chatRoom) {
+      await this.prisma.chatMembership.create({
+        data: {
+          chatRoomId: chatRoom.id,
+          userId: targetUserId,
+        },
+      });
+    }
+
+    return approvalResponse;
   }
 
   async rejectApplication(
@@ -902,6 +923,19 @@ export class PlanetService {
           status: 'APPROVED',
         },
       });
+
+      const chatRoom = await this.prisma.chatRoom.findFirst({
+        where: { planetId: invitation.planetId },
+      });
+
+      if (chatRoom) {
+        await this.prisma.chatMembership.create({
+          data: {
+            chatRoomId: chatRoom.id,
+            userId: userId,
+          },
+        });
+      }
 
       await this.prisma.invitation.update({
         where: { id: invitationId },

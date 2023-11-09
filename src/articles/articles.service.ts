@@ -385,6 +385,9 @@ export class ArticlesService {
         address: dto.address,
         hashtags: dto.hashtags,
         planet: dto.planetId ? { connect: { id: dto.planetId } } : undefined,
+        spaceship: dto.spaceshipId
+          ? { connect: { id: dto.spaceshipId } }
+          : undefined,
         locations: {
           create: dto.locations?.map((location) => ({
             latitude: location.latitude,
@@ -403,6 +406,7 @@ export class ArticlesService {
         images: true,
         author: true,
         planet: true,
+        spaceship: true,
         likes: true,
         comments: true,
       },
