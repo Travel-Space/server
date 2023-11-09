@@ -514,6 +514,7 @@ export class PlanetService {
   }
 
   async listPlanetMembers(planetId: number) {
+    // 행성 멤버십을 찾아옵니다.
     const memberships = await this.prisma.planetMembership.findMany({
       where: { planetId: planetId },
       include: { user: true },
@@ -521,19 +522,24 @@ export class PlanetService {
 
     const membersWithInvitationStatus = await Promise.all(
       memberships.map(async (membership) => {
-        const invitation = await this.prisma.invitation.findFirst({
-          where: {
-            planetId: planetId,
-            inviteeId: membership.userId,
-            status: {
-              in: ['PENDING', 'ACCEPTED'],
+        let invited = false;
+
+        if (membership.role === 'GUEST') {
+          const invitation = await this.prisma.invitation.findFirst({
+            where: {
+              inviteeId: membership.userId,
+              planetId: planetId,
             },
-          },
-        });
+          });
+          invited = invitation !== null;
+        }
 
         return {
           ...membership,
-          invited: invitation !== null,
+          user: {
+            ...membership.user,
+            invited: invited,
+          },
         };
       }),
     );
