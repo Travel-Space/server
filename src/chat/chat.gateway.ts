@@ -32,6 +32,19 @@ export class ChatGateway {
     console.log(`Client disconnected: ${client.id}`);
   }
 
+  @SubscribeMessage('getUserRooms')
+  async handleGetUserRooms(
+    @MessageBody() userId: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const rooms = await this.chatService.listChatsForUser(userId);
+      client.emit('userRooms', rooms);
+    } catch (error) {
+      client.emit('error', '채팅방을 받아오는데 실패하였습니다.');
+    }
+  }
+
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
     @MessageBody() data: { roomId: string; type: string },

@@ -1,9 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class NotificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService, // 추가
+    private notificationGateway: NotificationGateway, // 추가
+  ) {}
 
   async createNotification(content: string, userId: number) {
     return this.prisma.notification.create({
@@ -47,5 +56,63 @@ export class NotificationService {
         articleId,
       },
     });
+  }
+
+  async notifyUserAboutLike(likerId: number, articleId: number) {
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+    });
+
+    const content = `게시글이 좋아요를 받았습니다: ${likerId}님이 좋아요를 눌렀습니다.`;
+
+    return this.prisma.notification.create({
+      data: {
+        userId: article.authorId,
+        content,
+        articleId,
+      },
+    });
+  }
+
+  async addLike(userId: number, articleId: number) {
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        userId_articleId: {
+          userId: userId,
+          articleId: articleId,
+        },
+      },
+    });
+
+    if (existingLike) {
+      throw new ConflictException('이미 좋아요를 눌렀습니다.');
+    }
+
+    const like = await this.prisma.like.create({
+      data: {
+        userId: userId,
+        articleId: articleId,
+      },
+    });
+
+    await this.notificationService.notifyUserAboutLike(userId, articleId);
+    await this.notificationGateway.sendLikeNotificationToUser(
+      userId,
+      articleId,
+    );
+
+    return like;
+  }
+
+  async getArticleAuthorId(articleId: number): Promise<number> {
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+    });
+
+    if (!article || !article.authorId) {
+      throw new NotFoundException('게시글 또는 저자를 찾을 수 없습니다.');
+    }
+
+    return article.authorId;
   }
 }

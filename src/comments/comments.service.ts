@@ -6,10 +6,16 @@ import {
 } from '@nestjs/common';
 import { CreateCommentDto, UpdateCommentDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationService } from 'src/notification/notification.service';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @Injectable()
 export class CommentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   async createComment(
     data: CreateCommentDto,
@@ -26,6 +32,18 @@ export class CommentsService {
         throw new BadRequestException(
           '부모 댓글의 게시글 ID와 일치하지 않습니다.',
         );
+
+      if (parentComment.authorId !== userId) {
+        const content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
+        await this.notificationService.createNotification(
+          content,
+          parentComment.authorId,
+        );
+        await this.notificationGateway.sendCommentNotificationToUser(
+          parentComment.authorId,
+          content,
+        );
+      }
     }
 
     return this.prisma.comment.create({

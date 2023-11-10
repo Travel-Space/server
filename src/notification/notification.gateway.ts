@@ -68,4 +68,31 @@ export class NotificationGateway {
 
     this.server.to(userId.toString()).emit('notification', notification);
   }
+
+  async sendLikeNotificationToUser(likerId: number, articleId: number) {
+    const articleAuthorId =
+      await this.notificationService.getArticleAuthorId(articleId);
+    const notification = await this.notificationService.notifyUserAboutLike(
+      likerId,
+      articleId,
+    );
+
+    this.server
+      .to(articleAuthorId.toString())
+      .emit('notification', notification);
+  }
+
+  async sendCommentNotificationToUser(
+    commentAuthorId: number,
+    content: string,
+  ) {
+    const notification = await this.notificationService.createNotification(
+      content,
+      commentAuthorId,
+    );
+
+    this.server
+      .to(commentAuthorId.toString())
+      .emit('notification', notification);
+  }
 }
