@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { NotificationService } from './notification.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @WebSocketGateway({
   cors: {
@@ -21,7 +22,10 @@ import { NotificationService } from './notification.service';
 export class NotificationGateway {
   @WebSocketServer() server: Server;
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(
+    private notificationService: NotificationService,
+    private prisma: PrismaService,
+  ) {}
 
   @SubscribeMessage('createNotification')
   async handleCreateNotification(
@@ -78,6 +82,17 @@ export class NotificationGateway {
     this.server
       .to(notification.userId.toString())
       .emit('notification', notification);
+  }
+
+  async sendNotificationToPlanetMembers(
+    userId: number,
+    notificationId: number,
+  ) {
+    const notification = await this.prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+
+    this.server.to(userId.toString()).emit('notification', notification);
   }
 
   async sendCommentNotificationToUser(

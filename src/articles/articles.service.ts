@@ -7,11 +7,15 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArticleDto, UpdateArticleDto } from './dto';
-import { Article } from '@prisma/client';
+import { Article, PlanetMemberRole } from '@prisma/client';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   async getAllArticles(
     userId: number,
@@ -355,6 +359,31 @@ export class ArticlesService {
       },
     });
 
+    if (dto.planetId) {
+      const membersOfPlanet = await this.prisma.planetMembership.findMany({
+        where: { planetId: dto.planetId },
+      });
+
+      const membersToNotify = membersOfPlanet.filter(
+        (member) => member.role !== PlanetMemberRole.GUEST,
+      );
+
+      for (const member of membersToNotify) {
+        const content = `새 게시글이 작성되었습니다: ${dto.title}`;
+        const notification = await this.prisma.notification.create({
+          data: {
+            userId: member.userId,
+            content,
+            articleId: newArticle.id,
+          },
+        });
+
+        this.notificationGateway.sendNotificationToPlanetMembers(
+          member.userId,
+          notification.id,
+        );
+      }
+    }
     return newArticle;
   }
 
