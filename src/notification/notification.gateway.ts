@@ -107,7 +107,6 @@ export class NotificationGateway {
       content,
       commentAuthorId,
     );
-
     this.server
       .to(commentAuthorId.toString())
       .emit('notification', notification);
