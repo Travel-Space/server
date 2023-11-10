@@ -32,4 +32,20 @@ export class NotificationService {
       },
     });
   }
+
+  async notifyUserAboutComment(
+    userId: number,
+    articleId: number,
+    commentContent: string,
+  ) {
+    const content = `새 댓글이 달렸습니다: ${commentContent}`;
+
+    return this.prisma.notification.create({
+      data: {
+        userId,
+        content,
+        articleId,
+      },
+    });
+  }
 }

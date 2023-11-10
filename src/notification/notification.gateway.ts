@@ -54,4 +54,18 @@ export class NotificationGateway {
       .to(data.userId.toString())
       .emit('notificationDeleted', data.notificationId);
   }
+
+  async sendNotificationToUser(
+    userId: number,
+    articleId: number,
+    commentContent: string,
+  ) {
+    const notification = await this.notificationService.notifyUserAboutComment(
+      userId,
+      articleId,
+      commentContent,
+    );
+
+    this.server.to(userId.toString()).emit('notification', notification);
+  }
 }
