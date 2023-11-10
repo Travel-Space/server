@@ -65,7 +65,6 @@ model Article {
   likes       Like[]      @relation("LikeToArticle")
   locations   Location[]
   viewCount   ViewCount[]
-  notification Notification[]
 }
 
 model Planet {
@@ -134,7 +133,6 @@ model Notification {
   commentId Int?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  article   Article? @relation(fields: [articleId], references: [id])
   comment   Comment? @relation(fields: [commentId], references: [id])
 }
 

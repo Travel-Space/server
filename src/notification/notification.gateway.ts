@@ -90,12 +90,11 @@ export class NotificationGateway {
   ) {
     const notification = await this.prisma.notification.findUnique({
       where: { id: notificationId },
-      include: { article: true },
     });
 
     this.server.to(userId.toString()).emit('notification', {
       ...notification,
-      articleId: notification.article.id,
+      articleId: notification.articleId,
     });
   }
 
