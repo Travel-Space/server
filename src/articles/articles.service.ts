@@ -558,13 +558,25 @@ export class ArticlesService {
       },
     });
   }
-  async getLikedArticles(userId: number, page: number, limit: number) {
+  async getLikedArticles(
+    userId: number,
+    page: number,
+    limit: number,
+    title?: string,
+  ) {
     const skip = (page - 1) * limit;
+    const whereClause: any = {
+      userId,
+      article: {},
+    };
+
+    if (title) {
+      whereClause.article.title = { contains: title };
+    }
+
     const [likes, totalCount] = await Promise.all([
       this.prisma.like.findMany({
-        where: {
-          userId: userId,
-        },
+        where: whereClause,
         skip,
         take: limit,
         include: {
@@ -582,9 +594,7 @@ export class ArticlesService {
         },
       }),
       this.prisma.like.count({
-        where: {
-          userId: userId,
-        },
+        where: whereClause,
       }),
     ]);
 

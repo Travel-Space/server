@@ -33,7 +33,7 @@ import { SuspendUserDto } from './dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
   @Get()
   @ApiOperation({
     summary: '모든 사용자 조회 API',
@@ -167,10 +167,24 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+    type: 'string',
+    description: '검색할 닉네임',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: 'string',
+    description: '검색할 이메일',
+  })
   async getFollowing(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('nickname') nickname?: string,
+    @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
     const { friends, total } = await this.userService.getFollowing(
@@ -178,6 +192,8 @@ export class UserController {
       currentUserId,
       page,
       limit,
+      nickname,
+      email,
     );
     return {
       data: friends,
@@ -329,11 +345,25 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+    type: 'string',
+    description: '검색할 닉네임',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: 'string',
+    description: '검색할 이메일',
+  })
   async getOtherUserFollowing(
     @Req() req: any,
     @Param('userId', ParseIntPipe) userId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('nickname') nickname?: string,
+    @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
     const { friends, total } = await this.userService.getFollowing(
@@ -341,6 +371,8 @@ export class UserController {
       userId,
       page,
       limit,
+      nickname,
+      email,
     );
     return {
       data: friends,

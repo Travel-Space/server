@@ -698,43 +698,35 @@ export class PlanetService {
     });
   }
 
-  async getBookmarkedPlanets(userId: number, page: number, limit: number) {
+  async getBookmarkedPlanets(
+    userId: number,
+    page: number,
+    limit: number,
+    name?: string,
+  ) {
     const skip = (page - 1) * limit;
-    const [bookmarkedPlanets, totalCount] = await Promise.all([
-      this.prisma.planetBookmark.findMany({
-        where: {
-          userId: userId,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        skip,
-        take: limit,
-        include: {
-          planet: {
-            include: {
-              members: true,
-            },
-          },
-        },
-      }),
-      this.prisma.planetBookmark.count({
-        where: {
-          userId: userId,
-        },
-      }),
-    ]);
+    const whereClause: any = {
+      userId,
+      planet: {},
+    };
 
-    const bookmarkedPlanetsWithMemberCount = bookmarkedPlanets.map(
-      (bookmark) => ({
-        ...bookmark.planet,
-        memberCount: bookmark.planet.members.length,
-        bookmarkedAt: bookmark.createdAt,
-      }),
-    );
+    if (name) {
+      whereClause.planet.name = { contains: name };
+    }
+
+    const bookmarkedPlanets = await this.prisma.planetBookmark.findMany({
+      where: whereClause,
+      skip,
+      take: limit,
+      include: { planet: true },
+    });
+
+    const totalCount = await this.prisma.planetBookmark.count({
+      where: whereClause,
+    });
 
     return {
-      bookmarkedPlanets: bookmarkedPlanetsWithMemberCount,
+      bookmarkedPlanets,
       totalCount,
     };
   }

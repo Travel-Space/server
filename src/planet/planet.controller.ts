@@ -443,16 +443,24 @@ export class PlanetController {
     required: false,
     description: '페이지당 행성 수',
   })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    required: false,
+    description: '검색할 행성 이름',
+  })
   async getBookmarkedPlanets(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('name') name?: string,
   ) {
     const { bookmarkedPlanets, totalCount } =
       await this.planetService.getBookmarkedPlanets(
         req.user.userId,
         page,
         limit,
+        name,
       );
     return {
       data: bookmarkedPlanets,

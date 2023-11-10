@@ -179,10 +179,25 @@ export class UserService {
     userId: number,
     page: number,
     limit: number,
+    nickname?: string,
+    email?: string,
   ) {
     const skip = (page - 1) * limit;
+    const whereClause: any = {
+      userId,
+      friend: {},
+    };
+
+    if (nickname) {
+      whereClause.friend.nickName = { contains: nickname };
+    }
+
+    if (email) {
+      whereClause.friend.email = { contains: email };
+    }
+
     const friends = await this.prisma.userFriend.findMany({
-      where: { userId },
+      where: whereClause,
       skip,
       take: limit,
       include: { friend: true },
@@ -211,8 +226,9 @@ export class UserService {
         }),
       );
     }
+
     const total = await this.prisma.userFriend.count({
-      where: { userId },
+      where: whereClause,
     });
 
     return {
@@ -220,6 +236,7 @@ export class UserService {
       total,
     };
   }
+
   async getFollowers(
     currentUserId: number,
     userId: number,

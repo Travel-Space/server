@@ -527,13 +527,25 @@ export class ArticlesController {
     required: false,
     description: '페이지당 게시글 수',
   })
+  @ApiQuery({
+    name: 'title',
+    type: String,
+    required: false,
+    description: '검색할 게시글 제목',
+  })
   async getMyLikedArticles(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('title') title?: string,
   ) {
     const { likedArticles, totalCount } =
-      await this.articlesService.getLikedArticles(req.user.userId, page, limit);
+      await this.articlesService.getLikedArticles(
+        req.user.userId,
+        page,
+        limit,
+        title,
+      );
     return {
       data: likedArticles,
       page,
