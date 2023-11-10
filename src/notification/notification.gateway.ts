@@ -15,7 +15,7 @@ import { NotificationService } from './notification.service';
     allowedHeaders: ['authorization', 'Authorization'],
     credentials: true,
   },
-  namespace: /\/ws-.+/,
+  namespace: /\/ws-notification-.+/,
   transports: ['websocket', 'polling'],
 })
 export class NotificationGateway {

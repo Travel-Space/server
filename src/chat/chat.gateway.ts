@@ -15,7 +15,7 @@ import { ChatService } from './chat.service';
     allowedHeaders: ['authorization', 'Authorization'],
     credentials: true,
   },
-  namespace: /\/ws-.+/,
+  namespace: /\/ws-chat-.+/,
   transports: ['websocket', 'polling'],
 })
 export class ChatGateway {
