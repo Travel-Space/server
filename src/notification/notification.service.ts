@@ -8,11 +8,7 @@ import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class NotificationService {
-  constructor(
-    private prisma: PrismaService,
-    private notificationService: NotificationService, // 추가
-    private notificationGateway: NotificationGateway, // 추가
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createNotification(content: string, userId: number) {
     return this.prisma.notification.create({
@@ -95,11 +91,7 @@ export class NotificationService {
       },
     });
 
-    await this.notificationService.notifyUserAboutLike(userId, articleId);
-    await this.notificationGateway.sendLikeNotificationToUser(
-      userId,
-      articleId,
-    );
+    await this.notifyUserAboutLike(userId, articleId);
 
     return like;
   }
