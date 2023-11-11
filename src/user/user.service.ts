@@ -305,7 +305,6 @@ export class UserService {
 
     const followersWithMutualAndFollowing = await Promise.all(
       followers.map(async (userFriend) => {
-        const isMutual = userFriend.userId === currentUserId;
         const isFollowing =
           (await this.prisma.userFriend.count({
             where: {
@@ -313,6 +312,14 @@ export class UserService {
               friendId: userFriend.userId,
             },
           })) > 0;
+        const isFollowedBy =
+          (await this.prisma.userFriend.count({
+            where: {
+              userId: userFriend.userId,
+              friendId: currentUserId,
+            },
+          })) > 0;
+        const isMutual = isFollowing && isFollowedBy;
         return {
           ...userFriend,
           isMutual,
