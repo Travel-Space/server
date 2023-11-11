@@ -187,7 +187,7 @@ export class UserController {
     @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
-    const { friends, total } = await this.userService.getFollowing(
+    const { friends, total, searchTotal } = await this.userService.getFollowing(
       currentUserId,
       currentUserId,
       page,
@@ -198,6 +198,7 @@ export class UserController {
     return {
       data: friends,
       total,
+      searchTotal,
       page,
       limit,
     };
@@ -242,17 +243,19 @@ export class UserController {
     @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
-    const { followers, total } = await this.userService.getFollowers(
-      currentUserId,
-      currentUserId,
-      page,
-      limit,
-      nickname,
-      email,
-    );
+    const { followers, total, searchTotal } =
+      await this.userService.getFollowers(
+        currentUserId,
+        currentUserId,
+        page,
+        limit,
+        nickname,
+        email,
+      );
     return {
       data: followers,
       total,
+      searchTotal,
       page,
       limit,
     };
@@ -381,7 +384,7 @@ export class UserController {
     @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
-    const { friends, total } = await this.userService.getFollowing(
+    const { friends, total, searchTotal } = await this.userService.getFollowing(
       currentUserId,
       userId,
       page,
@@ -392,6 +395,7 @@ export class UserController {
     return {
       data: friends,
       total,
+      searchTotal,
       page,
       limit,
     };
@@ -423,15 +427,12 @@ export class UserController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     const currentUserId = req.user.userId;
-    const { followers, total } = await this.userService.getFollowers(
-      currentUserId,
-      userId,
-      page,
-      limit,
-    );
+    const { followers, total, searchTotal } =
+      await this.userService.getFollowers(currentUserId, userId, page, limit);
     return {
       data: followers,
       total,
+      searchTotal,
       page,
       limit,
     };
@@ -462,32 +463,17 @@ export class UserController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     const currentUserId = req.user.userId;
-    const { followers, total } = await this.userService.getFollowers(
-      currentUserId,
-      currentUserId,
-      page,
-      limit,
-    );
-
-    let data = followers.filter((follower) => !follower.isMutual);
-
-    if (data.length === 0) {
-      const randomUsers = await this.userService.getRandomUsers(
-        10,
+    const { followers, total, searchTotal } =
+      await this.userService.getFollowers(
         currentUserId,
+        currentUserId,
+        page,
+        limit,
       );
-      data = randomUsers.map((user) => ({
-        isMutual: false,
-        isFollowing: false,
-        user: user,
-        userId: user.id,
-        friendId: currentUserId,
-      }));
-    }
-
     return {
-      data: data,
-      total: data.length,
+      data: followers,
+      total,
+      searchTotal,
       page,
       limit,
     };
