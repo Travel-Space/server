@@ -64,6 +64,7 @@ export class UserService {
   }
 
   async getAllUsers({
+    currentUserId,
     page,
     limit,
     name,
@@ -71,6 +72,7 @@ export class UserService {
     email,
     isSuspended,
   }: {
+    currentUserId: number;
     page: number;
     limit: number;
     name?: string;
@@ -102,7 +104,7 @@ export class UserService {
       whereClause.AND.push(suspensionFilter);
     }
 
-    const users = await this.prisma.user.findMany({
+    let users = await this.prisma.user.findMany({
       where: whereClause,
       take: limit,
       skip: (page - 1) * limit,
@@ -111,6 +113,22 @@ export class UserService {
     const total = await this.prisma.user.count({
       where: whereClause,
     });
+
+    users = await Promise.all(
+      users.map(async (user) => {
+        const isFollowing =
+          (await this.prisma.userFriend.count({
+            where: {
+              userId: currentUserId,
+              friendId: user.id,
+            },
+          })) > 0;
+        return {
+          ...user,
+          isFollowing,
+        };
+      }),
+    );
 
     return {
       users,

@@ -76,6 +76,7 @@ export class UserController {
     description: '활동제한 여부',
   })
   async getAllUsers(
+    @Req() req: any,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
     @Query('name') name?: string,
@@ -83,7 +84,9 @@ export class UserController {
     @Query('email') email?: string,
     @Query('isSuspended') isSuspended?: boolean,
   ) {
+    const currentUserId = req.user.userId;
     const { users, total } = await this.userService.getAllUsers({
+      currentUserId,
       page,
       limit,
       name,
@@ -98,7 +101,6 @@ export class UserController {
       limit,
     };
   }
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':userId')
   @ApiOperation({ summary: '유저 정보 삭제하기' })
