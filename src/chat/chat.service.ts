@@ -143,6 +143,14 @@ export class ChatService {
     return this.prisma.message.findMany({
       where: { chatRoomId: Number(roomId) },
       orderBy: { createdAt: 'asc' },
+      include: {
+        sender: {
+          select: {
+            nickName: true,
+            profileImage: true,
+          },
+        },
+      },
     });
   }
 }
