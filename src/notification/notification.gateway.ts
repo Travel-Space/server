@@ -60,18 +60,18 @@ export class NotificationGateway {
       .emit('notificationDeleted', data.notificationId);
   }
 
-  async sendNotificationToUser(
-    userId: number,
-    articleId: number,
-    commentContent: string,
-  ) {
-    const notification = await this.notificationService.notifyUserAboutComment(
-      userId,
-      articleId,
-      commentContent,
-    );
+  async sendNotificationToUser(userId: number, notificationId: number) {
+    const notification = await this.prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
 
-    this.server.to(userId.toString()).emit('notifications', notification);
+    const notificationData = {
+      id: notification.id,
+      content: notification.content,
+      articleId: notification.articleId,
+    };
+
+    this.server.emit('notifications', notificationData);
   }
 
   async sendLikeNotificationToUser(likerId: number, articleId: number) {
@@ -112,9 +112,6 @@ export class NotificationGateway {
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: commentAuthorId },
-      select: {
-        nickName: true,
-      },
     });
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');

@@ -28,6 +28,13 @@ export class CommentsService {
       where: { id: articleId },
     });
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
     if (data.parentId) {
       const parentComment = await this.prisma.comment.findUnique({
         where: { id: data.parentId },
@@ -43,12 +50,17 @@ export class CommentsService {
 
       if (parentComment.authorId !== userId) {
         content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
-        await this.notificationGateway.sendCommentNotificationToUser(
-          parentComment.authorId,
+        const notification = await this.notificationService.createNotification({
+          userId: parentComment.authorId,
           content,
-          data.parentId,
+          commentId: data.parentId,
           articleId,
-          article.planetId,
+          userNickName: user.nickName,
+          planetId: article.planetId,
+        });
+        this.notificationGateway.sendNotificationToUser(
+          parentComment.authorId,
+          notification.id,
         );
       }
     }
@@ -63,12 +75,17 @@ export class CommentsService {
 
     if (article && article.authorId !== userId) {
       content = `새 댓글이 달렸습니다: ${data.content}`;
-      await this.notificationGateway.sendCommentNotificationToUser(
-        article.authorId,
+      const notification = await this.notificationService.createNotification({
+        userId: article.authorId,
         content,
-        newComment.id,
+        commentId: newComment.id,
         articleId,
-        article.planetId,
+        userNickName: user.nickName,
+        planetId: article.planetId,
+      });
+      this.notificationGateway.sendNotificationToUser(
+        article.authorId,
+        notification.id,
       );
     }
 
