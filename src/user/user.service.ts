@@ -278,7 +278,7 @@ export class UserService {
 
     const whereClauseForSearch: any = {
       friendId: userId,
-      freiend: {},
+      friend: {},
     };
 
     const whereClauseForTotal: any = {
@@ -286,11 +286,11 @@ export class UserService {
     };
 
     if (nickname) {
-      whereClauseForSearch.freiend.nickname = { contains: nickname };
+      whereClauseForSearch.friend.nickname = { contains: nickname };
     }
 
     if (email) {
-      whereClauseForSearch.freiend.email = { contains: email };
+      whereClauseForSearch.friend.email = { contains: email };
     }
 
     const followers = await this.prisma.userFriend.findMany({
