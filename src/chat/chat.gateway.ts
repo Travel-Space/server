@@ -39,7 +39,14 @@ export class ChatGateway {
   ) {
     try {
       const rooms = await this.chatService.listChatsForUser(userId);
-      client.emit('userRooms', rooms);
+      const roomsWithMemberCounts = rooms.map((room) => ({
+        ...room,
+        totalMembers: room.chatMemberships.length,
+        maxMembers: room.planet
+          ? room.planet.memberLimit
+          : room.spaceship.maxMembers,
+      }));
+      client.emit('userRooms', roomsWithMemberCounts);
     } catch (error) {
       client.emit('error', '채팅방을 받아오는데 실패하였습니다.');
     }

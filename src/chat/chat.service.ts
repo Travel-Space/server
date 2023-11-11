@@ -1,7 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ChatRoom, Message } from '@prisma/client';
+import {
+  ChatMembership,
+  ChatRoom,
+  Message,
+  Planet,
+  Prisma,
+  Spaceship,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+type ChatRoomWithRelations = Prisma.ChatRoomGetPayload<{
+  include: { chatMemberships: true; planet: true; spaceship: true };
+}>;
 @Injectable()
 export class ChatService {
   constructor(private prisma: PrismaService) {}
@@ -23,7 +32,7 @@ export class ChatService {
     return chatRoom;
   }
 
-  async listChatsForUser(userId: number): Promise<ChatRoom[]> {
+  async listChatsForUser(userId: number): Promise<ChatRoomWithRelations[]> {
     return await this.prisma.chatRoom.findMany({
       where: {
         chatMemberships: {
@@ -34,16 +43,9 @@ export class ChatService {
       },
       include: {
         messages: true,
-        planet: {
-          select: {
-            name: true,
-          },
-        },
-        spaceship: {
-          select: {
-            name: true,
-          },
-        },
+        planet: true,
+        spaceship: true,
+        chatMemberships: true,
       },
     });
   }
