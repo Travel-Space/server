@@ -242,7 +242,7 @@ export class UserController {
     @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
-    const { followersWithMutual, total } = await this.userService.getFollowers(
+    const { followers, total } = await this.userService.getFollowers(
       currentUserId,
       currentUserId,
       page,
@@ -251,7 +251,7 @@ export class UserController {
       email,
     );
     return {
-      data: followersWithMutual,
+      data: followers,
       total,
       page,
       limit,
@@ -423,14 +423,14 @@ export class UserController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     const currentUserId = req.user.userId;
-    const { followersWithMutual, total } = await this.userService.getFollowers(
+    const { followers, total } = await this.userService.getFollowers(
       currentUserId,
       userId,
       page,
       limit,
     );
     return {
-      data: followersWithMutual,
+      data: followers,
       total,
       page,
       limit,
@@ -462,14 +462,14 @@ export class UserController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     const currentUserId = req.user.userId;
-    const { followersWithMutual, total } = await this.userService.getFollowers(
+    const { followers, total } = await this.userService.getFollowers(
       currentUserId,
       currentUserId,
       page,
       limit,
     );
 
-    let data = followersWithMutual.filter((follower) => !follower.isMutual);
+    let data = followers.filter((follower) => !follower.isMutual);
 
     if (data.length === 0) {
       const randomUsers = await this.userService.getRandomUsers(

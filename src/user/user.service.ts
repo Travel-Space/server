@@ -303,17 +303,30 @@ export class UserService {
       });
     }
 
-    const followersWithMutual = followers.map((userFriend) => ({
-      ...userFriend,
-      isMutual: userFriend.userId === currentUserId,
-    }));
+    const followersWithMutualAndFollowing = await Promise.all(
+      followers.map(async (userFriend) => {
+        const isMutual = userFriend.userId === currentUserId;
+        const isFollowing =
+          (await this.prisma.userFriend.count({
+            where: {
+              userId: currentUserId,
+              friendId: userFriend.userId,
+            },
+          })) > 0;
+        return {
+          ...userFriend,
+          isMutual,
+          isFollowing,
+        };
+      }),
+    );
 
     const total = await this.prisma.userFriend.count({
       where: whereClauseForTotal,
     });
 
     return {
-      followersWithMutual,
+      followers: followersWithMutualAndFollowing,
       total,
     };
   }
