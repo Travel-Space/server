@@ -278,48 +278,35 @@ export class UserService {
 
     const whereClauseForSearch: any = {
       friendId: userId,
-      friend: {},
     };
 
     const whereClauseForTotal: any = {
       friendId: userId,
     };
 
-    if (nickname) {
-      whereClauseForSearch.friend.nickname = { contains: nickname };
-    }
-
-    if (email) {
-      whereClauseForSearch.friend.email = { contains: email };
-    }
-
-    const followers = await this.prisma.userFriend.findMany({
+    let followers = await this.prisma.userFriend.findMany({
       where: whereClauseForSearch,
       skip,
       take: limit,
       include: { user: true },
     });
 
-    let followersWithMutual;
-    if (currentUserId === userId) {
-      followersWithMutual = followers.map((userFriend) => ({
-        ...userFriend,
-        isMutual: true,
-      }));
-    } else {
-      const _following = await this.prisma.userFriend.findMany({
-        where: {
-          userId: currentUserId,
-        },
+    if (nickname || email) {
+      followers = followers.filter((userFriend) => {
+        if (nickname && userFriend.user.nickName.includes(nickname)) {
+          return true;
+        }
+        if (email && userFriend.user.email.includes(email)) {
+          return true;
+        }
+        return false;
       });
-
-      const followingIds = _following.map((f) => f.friendId);
-
-      followersWithMutual = followers.map((follower) => ({
-        ...follower,
-        isMutual: followingIds.includes(follower.userId),
-      }));
     }
+
+    const followersWithMutual = followers.map((userFriend) => ({
+      ...userFriend,
+      isMutual: userFriend.userId === currentUserId,
+    }));
 
     const total = await this.prisma.userFriend.count({
       where: whereClauseForTotal,
