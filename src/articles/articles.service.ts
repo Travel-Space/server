@@ -367,6 +367,13 @@ export class ArticlesService {
     }
 
     if (dto.planetId) {
+      const planet = await this.prisma.planet.findUnique({
+        where: { id: dto.planetId },
+      });
+      if (!planet) {
+        throw new NotFoundException('행성을 찾을 수 없습니다.');
+      }
+
       const membersOfPlanet = await this.prisma.planetMembership.findMany({
         where: { planetId: dto.planetId },
       });
@@ -376,7 +383,7 @@ export class ArticlesService {
       );
 
       for (const member of membersToNotify) {
-        const content = `새 게시글이 작성되었습니다: ${dto.title}`;
+        const content = `${planet.name}행성에 새로운 게시글이 올라왔어요.`;
         const notification = await this.prisma.notification.create({
           data: {
             userId: member.userId,
@@ -536,12 +543,44 @@ export class ArticlesService {
       throw new ConflictException('이미 좋아요를 눌렀습니다.');
     }
 
-    return await this.prisma.like.create({
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+    });
+
+    if (!article) {
+      throw new NotFoundException('게시글을 찾을 수 없습니다.');
+    }
+
+    const newLike = await this.prisma.like.create({
       data: {
         userId: userId,
         articleId: articleId,
       },
     });
+
+    const content = `${user.nickName}님이 회원님의 게시글을 좋아해요.`;
+    const notification = await this.prisma.notification.create({
+      data: {
+        userId: article.authorId,
+        content,
+        userNickName: user.nickName,
+        articleId: articleId,
+      },
+    });
+
+    this.notificationGateway.sendNotificationToUser(
+      article.authorId,
+      notification.id,
+    );
+
+    return newLike;
   }
 
   async removeLike(userId: number, articleId: number) {

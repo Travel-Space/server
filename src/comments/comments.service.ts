@@ -49,7 +49,7 @@ export class CommentsService {
       }
 
       if (parentComment.authorId !== userId) {
-        content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
+        content = `${user.nickName}님이 회원님의 댓글에 대댓글을 달았어요.`;
         const notification = await this.prisma.notification.create({
           data: {
             userId: parentComment.authorId,
@@ -76,7 +76,7 @@ export class CommentsService {
     });
 
     if (article && article.authorId !== userId) {
-      content = `새 댓글이 달렸습니다: ${data.content}`;
+      content = `${user.nickName}님이 회원님의 게시글에 댓글을 달았어요.`;
       const notification = await this.prisma.notification.create({
         data: {
           userId: article.authorId,

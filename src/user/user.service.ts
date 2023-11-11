@@ -7,10 +7,14 @@ import { User } from '@prisma/client';
 import { CreateUserDto } from 'src/auth/dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SuspendUserDto } from './dto';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   async getUserById(id: number) {
     return await this.prisma.user.findUnique({ where: { id } });
@@ -155,12 +159,32 @@ export class UserService {
       throw new BadRequestException('이미 팔로우하고 있습니다.');
     }
 
-    return this.prisma.userFriend.create({
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const newFriendship = await this.prisma.userFriend.create({
       data: {
         userId,
         friendId,
       },
     });
+
+    const content = `${user.nickName}님이 회원님을 팔로우 했어요.`;
+    const notification = await this.prisma.notification.create({
+      data: {
+        userId: friendId,
+        content,
+        userNickName: user.nickName,
+      },
+    });
+
+    this.notificationGateway.sendNotificationToUser(friendId, notification.id);
+
+    return newFriendship;
   }
 
   async unfollowUser(userId: number, friendId: number) {
@@ -429,7 +453,7 @@ export class UserService {
       isCurrentlySuspended = suspensionDate > new Date();
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
         isSuspended: isCurrentlySuspended,
@@ -439,5 +463,19 @@ export class UserService {
           : null,
       },
     });
+
+    if (isCurrentlySuspended) {
+      const content = `활동이 ${suspendUserDto.suspensionEndDate}까지 제한됩니다.`;
+      const notification = await this.prisma.notification.create({
+        data: {
+          userId: userId,
+          content,
+        },
+      });
+
+      this.notificationGateway.sendNotificationToUser(userId, notification.id);
+    }
+
+    return updatedUser;
   }
 }

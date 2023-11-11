@@ -12,10 +12,14 @@ import {
   PlanetMembership,
 } from '@prisma/client';
 import { InvitationResponse, UpdatePlanetDto } from './dto';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @Injectable()
 export class PlanetService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private notificationGateway: NotificationGateway,
+  ) {}
 
   async getAllPlanet(
     page: number,
@@ -848,7 +852,6 @@ export class PlanetService {
     planetId: number,
     targetUserId: number,
   ): Promise<any> {
-    // 초대하는 사용자가 행성의 관리자 또는 소유자인지 확인합니다.
     const inviterMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
@@ -865,7 +868,6 @@ export class PlanetService {
       throw new ForbiddenException('초대 권한이 없습니다.');
     }
 
-    // 대상 사용자가 이미 행성의 멤버인지 확인합니다.
     const existingMembership = await this.prisma.planetMembership.findUnique({
       where: {
         planetId_userId: {
@@ -879,7 +881,6 @@ export class PlanetService {
       throw new ConflictException('이미 멤버십이 존재합니다.');
     }
 
-    // 대상 사용자에게 이미 초대장이 발송되었는지 확인합니다.
     const existingInvitation = await this.prisma.invitation.findUnique({
       where: {
         planetId_inviteeId: {
@@ -891,6 +892,20 @@ export class PlanetService {
 
     if (existingInvitation) {
       throw new ConflictException('이미 초대장이 발송되었습니다.');
+    }
+
+    const inviter = await this.prisma.user.findUnique({
+      where: { id: inviterUserId },
+    });
+    if (!inviter) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const planet = await this.prisma.planet.findUnique({
+      where: { id: planetId },
+    });
+    if (!planet) {
+      throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
 
     const transaction = await this.prisma.$transaction([
@@ -911,6 +926,21 @@ export class PlanetService {
         },
       }),
     ]);
+
+    const content = `${inviter.nickName}님이 회원님을 ${planet.name} 행성에 초대했어요.`;
+    const notification = await this.prisma.notification.create({
+      data: {
+        userId: targetUserId,
+        content,
+        userNickName: inviter.nickName,
+        planetId: planetId,
+      },
+    });
+
+    this.notificationGateway.sendNotificationToUser(
+      targetUserId,
+      notification.id,
+    );
 
     return { message: '초대가 성공적으로 생성되었습니다.' };
   }
