@@ -70,7 +70,7 @@ export class NotificationGateway {
       commentContent,
     );
 
-    this.server.to(userId.toString()).emit('notification', notification);
+    this.server.to(userId.toString()).emit('notifications', notification);
   }
 
   async sendLikeNotificationToUser(likerId: number, articleId: number) {
@@ -81,7 +81,7 @@ export class NotificationGateway {
 
     this.server
       .to(notification.userId.toString())
-      .emit('notification', notification);
+      .emit('notifications', notification);
   }
 
   async sendNotificationToPlanetMembers(
@@ -98,7 +98,7 @@ export class NotificationGateway {
       articleId: notification.articleId,
     };
 
-    this.server.emit('notification', notificationData);
+    this.server.emit('notifications', notificationData);
     // this.server.to(userId.toString()).emit('notification', notificationData);
   }
 
@@ -119,6 +119,6 @@ export class NotificationGateway {
     //   .to(commentAuthorId.toString())
     //   .emit('notification', notificationData);
 
-    this.server.emit('notification', notificationData);
+    this.server.emit('notifications', notificationData);
   }
 }
