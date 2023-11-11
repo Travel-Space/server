@@ -222,11 +222,24 @@ export class UserController {
     required: false,
     description: '한 페이지당 친구 수',
   })
-  @Get('other/:userId/followers')
+  @ApiQuery({
+    name: 'nickname',
+    required: false,
+    type: 'string',
+    description: '검색할 닉네임',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: 'string',
+    description: '검색할 이메일',
+  })
   async getFollowers(
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('nickname') nickname?: string,
+    @Query('email') email?: string,
   ) {
     const currentUserId = req.user.userId;
     const { followersWithMutual, total } = await this.userService.getFollowers(
@@ -234,6 +247,8 @@ export class UserController {
       currentUserId,
       page,
       limit,
+      nickname,
+      email,
     );
     return {
       data: followersWithMutual,
