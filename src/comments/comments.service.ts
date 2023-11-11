@@ -24,7 +24,6 @@ export class CommentsService {
   ) {
     let content;
 
-    // 대댓글인 경우 부모 댓글 확인 및 알림 처리
     if (data.parentId) {
       const parentComment = await this.prisma.comment.findUnique({
         where: { id: data.parentId },
@@ -49,7 +48,6 @@ export class CommentsService {
       }
     }
 
-    // 새 댓글 생성
     const newComment = await this.prisma.comment.create({
       data: {
         ...data,
@@ -58,7 +56,6 @@ export class CommentsService {
       },
     });
 
-    // 게시글의 작성자에게 댓글 알림 보내기
     const article = await this.prisma.article.findUnique({
       where: { id: articleId },
     });

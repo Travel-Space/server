@@ -131,6 +131,7 @@ model Notification {
   userId    Int
   articleId Int?
   commentId Int?
+  userNickName String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comment   Comment? @relation(fields: [commentId], references: [id])

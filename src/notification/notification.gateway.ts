@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { NotificationService } from './notification.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotFoundException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -108,9 +109,17 @@ export class NotificationGateway {
     commentId: number,
     articleId: number,
   ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: commentAuthorId },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
     const notificationData = await this.notificationService.createNotification({
       content,
       userId: commentAuthorId,
+      userNickName: user.nickName,
       commentId,
       articleId,
     });

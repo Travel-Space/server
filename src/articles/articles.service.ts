@@ -359,6 +359,13 @@ export class ArticlesService {
       },
     });
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
     if (dto.planetId) {
       const membersOfPlanet = await this.prisma.planetMembership.findMany({
         where: { planetId: dto.planetId },
@@ -374,6 +381,7 @@ export class ArticlesService {
           data: {
             userId: member.userId,
             content,
+            userNickName: user.nickName,
             articleId: newArticle.id,
           },
         });
