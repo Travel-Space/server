@@ -39,38 +39,59 @@ export class ChatGateway {
   ) {
     try {
       const rooms = await this.chatService.listChatsForUser(userId);
-      const roomsWithMemberDetails = rooms.map((room) => {
-        const members = room.chatMemberships.map((membership) => {
-          const planetMembership = room.planet
-            ? room.planet.members.find(
-                (member) => member.userId === membership.userId,
-              )
-            : null;
-          const spaceshipMember = room.spaceship
-            ? room.spaceship.members.find(
-                (member) => member.userId === membership.userId,
-              )
-            : null;
+      const roomsWithDetails = await Promise.all(
+        rooms.map(async (room) => {
+          const members = room.chatMemberships.map((membership) => {
+            const planetMembership = room.planet
+              ? room.planet.members.find(
+                  (member) => member.userId === membership.userId,
+                )
+              : null;
+            const spaceshipMember = room.spaceship
+              ? room.spaceship.members.find(
+                  (member) => member.userId === membership.userId,
+                )
+              : null;
+            return {
+              nickname: membership.user.nickName,
+              profileImage: membership.user.profileImage,
+              role: planetMembership
+                ? planetMembership.role
+                : spaceshipMember
+                ? spaceshipMember.role
+                : null,
+              joinedAt: planetMembership
+                ? planetMembership.joinedAt
+                : spaceshipMember
+                ? spaceshipMember.joinedAt
+                : null,
+            };
+          });
+
+          members.sort((a, b) => {
+            if (a.role === 'OWNER') return -1;
+            if (b.role === 'OWNER') return 1;
+            if (a.joinedAt < b.joinedAt) return -1;
+            if (a.joinedAt > b.joinedAt) return 1;
+            return 0;
+          });
+
+          const messages = await this.chatService.getMessagesByRoomId(
+            room.id.toString(),
+          );
+
           return {
-            nickname: membership.user.nickName,
-            profileImage: membership.user.profileImage,
-            role: planetMembership
-              ? planetMembership.role
-              : spaceshipMember
-              ? spaceshipMember.role
-              : null,
+            ...room,
+            totalMembers: room.chatMemberships.length,
+            members,
+            maxMembers: room.planet
+              ? room.planet.memberLimit
+              : room.spaceship.maxMembers,
+            messages,
           };
-        });
-        return {
-          ...room,
-          totalMembers: room.chatMemberships.length,
-          members,
-          maxMembers: room.planet
-            ? room.planet.memberLimit
-            : room.spaceship.maxMembers,
-        };
-      });
-      client.emit('userRooms', roomsWithMemberDetails);
+        }),
+      );
+      client.emit('userRooms', roomsWithDetails);
     } catch (error) {
       client.emit('error', '채팅방을 받아오는데 실패하였습니다.');
     }

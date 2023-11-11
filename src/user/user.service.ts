@@ -260,9 +260,14 @@ export class UserService {
       where: whereClauseForTotal,
     });
 
+    const searchTotal = await this.prisma.userFriend.count({
+      where: whereClauseForSearch,
+    });
+
     return {
       friends: friendsWithFollowing,
       total,
+      searchTotal,
     };
   }
 
@@ -278,30 +283,27 @@ export class UserService {
 
     const whereClauseForSearch: any = {
       friendId: userId,
+      user: {},
     };
 
     const whereClauseForTotal: any = {
       friendId: userId,
     };
 
-    let followers = await this.prisma.userFriend.findMany({
+    if (nickname) {
+      whereClauseForSearch.user.nickName = { contains: nickname };
+    }
+
+    if (email) {
+      whereClauseForSearch.user.email = { contains: email };
+    }
+
+    const followers = await this.prisma.userFriend.findMany({
       where: whereClauseForSearch,
       skip,
       take: limit,
       include: { user: true },
     });
-
-    if (nickname || email) {
-      followers = followers.filter((userFriend) => {
-        if (nickname && userFriend.user.nickName.includes(nickname)) {
-          return true;
-        }
-        if (email && userFriend.user.email.includes(email)) {
-          return true;
-        }
-        return false;
-      });
-    }
 
     const followersWithMutualAndFollowing = await Promise.all(
       followers.map(async (userFriend) => {
@@ -332,9 +334,14 @@ export class UserService {
       where: whereClauseForTotal,
     });
 
+    const searchTotal = await this.prisma.userFriend.count({
+      where: whereClauseForSearch,
+    });
+
     return {
       followers: followersWithMutualAndFollowing,
       total,
+      searchTotal,
     };
   }
 

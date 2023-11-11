@@ -94,6 +94,7 @@ model Planet {
 model PlanetMembership {
   planetId Int
   userId   Int
+  joinedAt DateTime      @default(now())
   role     PlanetMemberRole @default(GUEST)
   status   MembershipStatus @default(PENDING)
   planet   Planet           @relation(fields: [planetId], references: [id], onDelete: Cascade)
