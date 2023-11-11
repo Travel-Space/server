@@ -22,37 +22,57 @@ export class CommentsService {
     userId: number,
     articleId: number,
   ) {
+    let content;
+
+    // 대댓글인 경우 부모 댓글 확인 및 알림 처리
     if (data.parentId) {
       const parentComment = await this.prisma.comment.findUnique({
         where: { id: data.parentId },
       });
-      if (!parentComment)
+      if (!parentComment) {
         throw new NotFoundException('부모 댓글을 찾을 수 없습니다.');
-      if (parentComment.articleId !== articleId)
+      }
+      if (parentComment.articleId !== articleId) {
         throw new BadRequestException(
           '부모 댓글의 게시글 ID와 일치하지 않습니다.',
         );
+      }
 
       if (parentComment.authorId !== userId) {
-        const content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
-        await this.notificationService.createNotification(
-          content,
-          parentComment.authorId,
-        );
+        content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
         await this.notificationGateway.sendCommentNotificationToUser(
           parentComment.authorId,
           content,
+          data.parentId,
+          articleId,
         );
       }
     }
 
-    return this.prisma.comment.create({
+    // 새 댓글 생성
+    const newComment = await this.prisma.comment.create({
       data: {
         ...data,
         authorId: userId,
         articleId: articleId,
       },
     });
+
+    // 게시글의 작성자에게 댓글 알림 보내기
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+    });
+    if (article && article.authorId !== userId) {
+      content = `새 댓글이 달렸습니다: ${data.content}`;
+      await this.notificationGateway.sendCommentNotificationToUser(
+        article.authorId,
+        content,
+        newComment.id,
+        articleId,
+      );
+    }
+
+    return newComment;
   }
 
   async updateComment(id: number, data: UpdateCommentDto, userId: number) {

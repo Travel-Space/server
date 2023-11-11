@@ -10,11 +10,13 @@ import { NotificationGateway } from './notification.gateway';
 export class NotificationService {
   constructor(private prisma: PrismaService) {}
 
-  async createNotification(content: string, userId: number) {
-    return this.prisma.notification.create({
+  async createNotification({ content, userId, commentId, articleId }) {
+    return await this.prisma.notification.create({
       data: {
         content,
         userId,
+        commentId,
+        articleId,
       },
     });
   }

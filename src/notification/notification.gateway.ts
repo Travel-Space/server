@@ -27,16 +27,16 @@ export class NotificationGateway {
     private prisma: PrismaService,
   ) {}
 
-  @SubscribeMessage('createNotification')
-  async handleCreateNotification(
-    @MessageBody() data: { userId: number; content: string },
-  ): Promise<void> {
-    const notification = await this.notificationService.createNotification(
-      data.content,
-      data.userId,
-    );
-    this.server.to(data.userId.toString()).emit('notification', notification);
-  }
+  // @SubscribeMessage('createNotification')
+  // async handleCreateNotification(
+  //   @MessageBody() data: { userId: number; content: string },
+  // ): Promise<void> {
+  //   const notification = await this.notificationService.createNotification(
+  //     data.content,
+  //     data.userId,
+  //   );
+  //   this.server.to(data.userId.toString()).emit('notification', notification);
+  // }
 
   @SubscribeMessage('subscribeToNotifications')
   async handleSubscribeToNotifications(
@@ -92,22 +92,33 @@ export class NotificationGateway {
       where: { id: notificationId },
     });
 
-    this.server.to(userId.toString()).emit('notification', {
-      ...notification,
+    const notificationData = {
+      id: notification.id,
+      content: notification.content,
       articleId: notification.articleId,
-    });
+    };
+
+    this.server.emit('notification', notificationData);
+    // this.server.to(userId.toString()).emit('notification', notificationData);
   }
 
   async sendCommentNotificationToUser(
     commentAuthorId: number,
     content: string,
+    commentId: number,
+    articleId: number,
   ) {
-    const notification = await this.notificationService.createNotification(
+    const notificationData = await this.notificationService.createNotification({
       content,
-      commentAuthorId,
-    );
-    this.server
-      .to(commentAuthorId.toString())
-      .emit('notification', notification);
+      userId: commentAuthorId,
+      commentId,
+      articleId,
+    });
+
+    // this.server
+    //   .to(commentAuthorId.toString())
+    //   .emit('notification', notificationData);
+
+    this.server.emit('notification', notificationData);
   }
 }
