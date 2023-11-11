@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ChatRoom, Message } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -34,22 +34,52 @@ export class ChatService {
       },
       include: {
         messages: true,
+        planet: {
+          select: {
+            name: true,
+          },
+        },
+        spaceship: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
   }
 
-  async createMessage(
-    chatRoomId: number,
-    senderId: number,
-    content: string,
-  ): Promise<Message> {
-    return await this.prisma.message.create({
+  async createMessage(chatRoomId: number, senderId: number, content: string) {
+    const sender = await this.prisma.user.findUnique({
+      where: { id: senderId },
+      select: { nickName: true, profileImage: true },
+    });
+
+    if (!sender) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const message = await this.prisma.message.create({
       data: {
         content,
         senderId,
         chatRoomId,
       },
+      select: {
+        id: true,
+        content: true,
+        senderId: true,
+        chatRoomId: true,
+        createdAt: true,
+        sender: {
+          select: {
+            nickName: true,
+            profileImage: true,
+          },
+        },
+      },
     });
+
+    return message;
   }
 
   async getMessagesFromChat(chatRoomId: number): Promise<Message[]> {
@@ -63,10 +93,7 @@ export class ChatService {
     });
   }
 
-  async updateMessage(
-    messageId: number,
-    content: string,
-  ): Promise<Message | null> {
+  async updateMessage(messageId: number, content: string) {
     try {
       const updatedMessage = await this.prisma.message.update({
         where: {
@@ -74,6 +101,19 @@ export class ChatService {
         },
         data: {
           content,
+        },
+        select: {
+          id: true,
+          content: true,
+          senderId: true,
+          chatRoomId: true,
+          createdAt: true,
+          sender: {
+            select: {
+              nickName: true,
+              profileImage: true,
+            },
+          },
         },
       });
       return updatedMessage;
