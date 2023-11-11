@@ -383,6 +383,7 @@ export class ArticlesService {
             content,
             userNickName: user.nickName,
             articleId: newArticle.id,
+            planetId: dto.planetId,
           },
         });
 

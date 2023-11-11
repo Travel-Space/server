@@ -108,6 +108,7 @@ export class NotificationGateway {
     content: string,
     commentId: number,
     articleId: number,
+    planetId: number,
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: commentAuthorId },
@@ -122,6 +123,7 @@ export class NotificationGateway {
       userNickName: user.nickName,
       commentId,
       articleId,
+      planetId,
     });
 
     // this.server

@@ -24,6 +24,10 @@ export class CommentsService {
   ) {
     let content;
 
+    const article = await this.prisma.article.findUnique({
+      where: { id: articleId },
+    });
+
     if (data.parentId) {
       const parentComment = await this.prisma.comment.findUnique({
         where: { id: data.parentId },
@@ -44,6 +48,7 @@ export class CommentsService {
           content,
           data.parentId,
           articleId,
+          article.planetId,
         );
       }
     }
@@ -56,9 +61,6 @@ export class CommentsService {
       },
     });
 
-    const article = await this.prisma.article.findUnique({
-      where: { id: articleId },
-    });
     if (article && article.authorId !== userId) {
       content = `새 댓글이 달렸습니다: ${data.content}`;
       await this.notificationGateway.sendCommentNotificationToUser(
@@ -66,6 +68,7 @@ export class CommentsService {
         content,
         newComment.id,
         articleId,
+        article.planetId,
       );
     }
 

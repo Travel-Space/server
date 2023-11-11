@@ -16,6 +16,7 @@ export class NotificationService {
     commentId,
     articleId,
     userNickName,
+    planetId,
   }) {
     return await this.prisma.notification.create({
       data: {
@@ -24,6 +25,7 @@ export class NotificationService {
         commentId,
         articleId,
         userNickName,
+        planetId,
       },
     });
   }
