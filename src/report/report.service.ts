@@ -244,6 +244,9 @@ export class ReportService {
           },
         },
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     const totalCount = await this.prisma.report.count({

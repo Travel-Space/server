@@ -84,7 +84,7 @@ export class PlanetController {
     required: false,
     type: 'string',
     description: '행성의 공개 상태 필터링 (all, true, false)',
-    enum: ['all', 'true', 'false'],
+    enum: ['all', 'true', 'false', 'onlyfalse'],
   })
   @UseGuards(JwtAuthGuard)
   async getAllPlanet(

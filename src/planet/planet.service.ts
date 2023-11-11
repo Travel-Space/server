@@ -68,6 +68,8 @@ export class PlanetService {
         ];
       } else if (published === 'false') {
         where['members'] = { some: { userId: user.id } };
+      } else if (published === 'onlyfalse') {
+        where['published'] = false;
       }
     } else {
       where['published'] = true;

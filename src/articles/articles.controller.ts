@@ -352,7 +352,6 @@ export class ArticlesController {
     const userId = req.user.userId;
     const planetId = createArticleDto.planetId;
 
-    console.log('userid' + userId, 'planetId' + planetId);
     if (
       planetId &&
       !(await this.articlesService.isUserToPlanet(userId, planetId))
@@ -365,6 +364,7 @@ export class ArticlesController {
       createArticleDto,
       userId,
     );
+
     return res.status(201).json(article);
   }
 
