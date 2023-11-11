@@ -50,13 +50,15 @@ export class CommentsService {
 
       if (parentComment.authorId !== userId) {
         content = `댓글에 대댓글이 달렸습니다: ${data.content}`;
-        const notification = await this.notificationService.createNotification({
-          userId: parentComment.authorId,
-          content,
-          commentId: data.parentId,
-          articleId,
-          userNickName: user.nickName,
-          planetId: article.planetId,
+        const notification = await this.prisma.notification.create({
+          data: {
+            userId: parentComment.authorId,
+            content,
+            userNickName: user.nickName,
+            commentId: data.parentId,
+            articleId,
+            planetId: article.planetId,
+          },
         });
         this.notificationGateway.sendNotificationToUser(
           parentComment.authorId,
@@ -75,13 +77,15 @@ export class CommentsService {
 
     if (article && article.authorId !== userId) {
       content = `새 댓글이 달렸습니다: ${data.content}`;
-      const notification = await this.notificationService.createNotification({
-        userId: article.authorId,
-        content,
-        commentId: newComment.id,
-        articleId,
-        userNickName: user.nickName,
-        planetId: article.planetId,
+      const notification = await this.prisma.notification.create({
+        data: {
+          userId: article.authorId,
+          content,
+          userNickName: user.nickName,
+          commentId: newComment.id,
+          articleId,
+          planetId: article.planetId,
+        },
       });
       this.notificationGateway.sendNotificationToUser(
         article.authorId,
