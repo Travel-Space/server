@@ -16,7 +16,7 @@ import { PrismaService } from '../prisma/prisma.service';
     allowedHeaders: ['authorization', 'Authorization'],
     credentials: true,
   },
-  namespace: /\/ws-notification-.+/,
+  namespace: /\/ws-notifications-.+/,
   transports: ['websocket', 'polling'],
 })
 export class NotificationGateway {
