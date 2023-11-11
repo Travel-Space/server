@@ -32,20 +32,31 @@ export class ChatService {
     return chatRoom;
   }
 
-  async listChatsForUser(userId: number): Promise<ChatRoomWithRelations[]> {
-    return await this.prisma.chatRoom.findMany({
+  async listChatsForUser(userId: number) {
+    return this.prisma.chatRoom.findMany({
       where: {
         chatMemberships: {
           some: {
-            userId,
+            userId: userId,
           },
         },
       },
       include: {
-        messages: true,
-        planet: true,
-        spaceship: true,
-        chatMemberships: true,
+        chatMemberships: {
+          include: {
+            user: true,
+          },
+        },
+        planet: {
+          include: {
+            members: true,
+          },
+        },
+        spaceship: {
+          include: {
+            members: true,
+          },
+        },
       },
     });
   }

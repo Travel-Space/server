@@ -39,14 +39,38 @@ export class ChatGateway {
   ) {
     try {
       const rooms = await this.chatService.listChatsForUser(userId);
-      const roomsWithMemberCounts = rooms.map((room) => ({
-        ...room,
-        totalMembers: room.chatMemberships.length,
-        maxMembers: room.planet
-          ? room.planet.memberLimit
-          : room.spaceship.maxMembers,
-      }));
-      client.emit('userRooms', roomsWithMemberCounts);
+      const roomsWithMemberDetails = rooms.map((room) => {
+        const members = room.chatMemberships.map((membership) => {
+          const planetMembership = room.planet
+            ? room.planet.members.find(
+                (member) => member.userId === membership.userId,
+              )
+            : null;
+          const spaceshipMember = room.spaceship
+            ? room.spaceship.members.find(
+                (member) => member.userId === membership.userId,
+              )
+            : null;
+          return {
+            nickname: membership.user.nickName,
+            profileImage: membership.user.profileImage,
+            role: planetMembership
+              ? planetMembership.role
+              : spaceshipMember
+              ? spaceshipMember.role
+              : null,
+          };
+        });
+        return {
+          ...room,
+          totalMembers: room.chatMemberships.length,
+          members,
+          maxMembers: room.planet
+            ? room.planet.memberLimit
+            : room.spaceship.maxMembers,
+        };
+      });
+      client.emit('userRooms', roomsWithMemberDetails);
     } catch (error) {
       client.emit('error', '채팅방을 받아오는데 실패하였습니다.');
     }
