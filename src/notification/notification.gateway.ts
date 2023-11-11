@@ -112,6 +112,9 @@ export class NotificationGateway {
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: commentAuthorId },
+      select: {
+        nickName: true,
+      },
     });
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
