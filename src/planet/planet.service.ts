@@ -70,6 +70,8 @@ export class PlanetService {
         where['members'] = { some: { userId: user.id } };
       } else if (published === 'onlyfalse') {
         where['published'] = false;
+      } else if (published === 'onlytrue') {
+        where['published'] = true;
       }
     } else {
       where['published'] = true;
