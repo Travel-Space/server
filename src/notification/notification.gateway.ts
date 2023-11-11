@@ -50,15 +50,15 @@ export class NotificationGateway {
     client.emit('notifications', notifications);
   }
 
-  @SubscribeMessage('deleteNotification')
-  async handleDeleteNotification(
-    @MessageBody() data: { notificationId: number; userId: number },
-  ): Promise<void> {
-    await this.notificationService.deleteNotification(data.notificationId);
-    this.server
-      .to(data.userId.toString())
-      .emit('notificationDeleted', data.notificationId);
-  }
+  // @SubscribeMessage('deleteNotification')
+  // async handleDeleteNotification(
+  //   @MessageBody() data: { notificationId: number; userId: number },
+  // ): Promise<void> {
+  //   await this.notificationService.deleteNotification(data.notificationId);
+  //   this.server
+  //     .to(data.userId.toString())
+  //     .emit('notificationDeleted', data.notificationId);
+  // }
 
   async sendNotificationToUser(userId: number, notificationId: number) {
     const notification = await this.prisma.notification.findUnique({

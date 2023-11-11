@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -41,7 +42,21 @@ export class NotificationService {
     });
   }
 
-  async deleteNotification(notificationId: number) {
+  async deleteNotification(notificationId: number, userId: number) {
+    const existingNotification = await this.prisma.notification.findUnique({
+      where: {
+        id: notificationId,
+      },
+    });
+
+    if (!existingNotification) {
+      throw new NotFoundException('알림을 찾을 수 없습니다.');
+    }
+
+    if (existingNotification.userId !== userId) {
+      throw new ForbiddenException('알림을 삭제할 권한이 없습니다.');
+    }
+
     return this.prisma.notification.delete({
       where: {
         id: notificationId,

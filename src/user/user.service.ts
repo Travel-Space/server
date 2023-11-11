@@ -465,7 +465,8 @@ export class UserService {
     });
 
     if (isCurrentlySuspended) {
-      const content = `활동이 ${suspendUserDto.suspensionEndDate}까지 제한됩니다.`;
+      const content = `${updatedUser.nickName} 님의 활동 내용이 아래와 같은 사유로 해당 계정에 ${suspendUserDto.suspensionEndDate}까지 회원 정보 수정 및 회원 탈퇴를 제외한 활동 제한 조치가 이루어졌습니다. 
+      사유 : ${updatedUser.suspensionReason} `;
       const notification = await this.prisma.notification.create({
         data: {
           userId: userId,
