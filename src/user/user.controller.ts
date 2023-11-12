@@ -102,14 +102,14 @@ export class UserController {
     };
   }
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @Delete(':userId')
+  @Delete('admin/:userId')
   @ApiOperation({ summary: '유저 정보 삭제하기' })
   async deleteUserByAdmin(@Param('userId') userId: string) {
     return await this.userService.deleteUserByAdmin(userId);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @Put(':userId')
+  @Put('admin/:userId')
   @ApiOperation({ summary: '유저 정보 수정하기' })
   async updateUser(@Param('userId') userId: string, @Body() updateData: any) {
     return await this.userService.updateUser(userId, updateData);
