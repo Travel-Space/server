@@ -106,12 +106,12 @@ model PlanetMembership {
 model Comment {
   id        Int       @id @default(autoincrement())
   content   String
-  authorId  Int
+  authorId  Int?
   articleId Int
   parentId  Int?
   createdAt DateTime  @default(now())
   article   Article   @relation(fields: [articleId], references: [id])
-  author    User      @relation(fields: [authorId], references: [id])
+  author    User?     @relation(fields: [authorId], references: [id])
   parent    Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
   children  Comment[] @relation("CommentToComment")
   notification Notification[]
