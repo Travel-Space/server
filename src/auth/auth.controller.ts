@@ -80,7 +80,7 @@ export class AuthController {
     description: '로그인 성공',
   })
   async login(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const { id, access_token, refresh_token, memberships, role } =
+    const { id, access_token, refresh_token, memberships, role, nickName } =
       await this.authService.login(req);
 
     res.cookie('ACCESS_TOKEN', access_token, {
@@ -93,7 +93,7 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { success: true, id, memberships, role };
+    return { success: true, id, memberships, role, nickName };
   }
 
   @Post('refresh')

@@ -120,6 +120,7 @@ export class AuthService {
     refresh_token: string;
     memberships: any;
     role: string;
+    nickName: string;
   }> {
     const { email, password } = req.body;
 
@@ -174,6 +175,7 @@ export class AuthService {
       refresh_token: refreshToken,
       memberships: memberships,
       role: user.role,
+      nickName: user.nickName,
     };
   }
 
