@@ -749,12 +749,24 @@ export class PlanetService {
       include: { planet: true },
     });
 
+    const bookmarkedPlanetsWithMemberCount = await Promise.all(
+      bookmarkedPlanets.map(async (bookmark) => {
+        const memberCount = await this.prisma.planetMembership.count({
+          where: { planetId: bookmark.planetId },
+        });
+        return {
+          ...bookmark,
+          memberCount,
+        };
+      }),
+    );
+
     const totalCount = await this.prisma.planetBookmark.count({
       where: whereClause,
     });
 
     return {
-      bookmarkedPlanets,
+      bookmarkedPlanets: bookmarkedPlanetsWithMemberCount,
       totalCount,
     };
   }

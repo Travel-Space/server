@@ -472,8 +472,13 @@ export class UserController {
         page,
         limit,
       );
+
+    const notMutualFollowers = followers.filter(
+      (follower) => !follower.isMutual,
+    );
+
     return {
-      data: followers,
+      data: notMutualFollowers,
       total,
       searchTotal,
       page,
