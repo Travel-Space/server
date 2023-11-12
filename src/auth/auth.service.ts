@@ -189,6 +189,7 @@ export class AuthService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('유효하지 않은 크레덴셜입니다.');
     }
 
@@ -196,11 +197,70 @@ export class AuthService {
       throw new NotFoundException('해당하는 유저를 찾을 수 없습니다.');
     }
 
-    if (user.provider === 'LOCAL') {
-      const isPasswordValid = await argon.verify(user.password, password);
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
-      }
+    const isPasswordValid = await argon.verify(user.password, password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
+    }
+
+    const payload = { userId: user.id, userEmail: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: 'refreshTokenSecret',
+      expiresIn: '7d',
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: refreshToken },
+    });
+
+    const memberships = {
+      planets: user.planetsMembership.map((pm) => ({
+        planetId: pm.planetId,
+        role: pm.role,
+      })),
+      spaceships: user.spaceshipMemberships.map((sm) => ({
+        spaceshipId: sm.spaceshipId,
+        role: sm.role,
+      })),
+    };
+
+    return {
+      id: user.id,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      memberships: memberships,
+      role: user.role,
+      nickName: user.nickName,
+    };
+  }
+
+  async loginWithGoogle(req): Promise<{
+    id: number;
+    access_token: string;
+    refresh_token: string;
+    memberships: any;
+    role: string;
+    nickName: string;
+  }> {
+    const { email } = req.user;
+
+    let user: UserWithMemberships | null;
+    try {
+      user = await this.prisma.user.findUnique({
+        where: { email: email },
+        include: {
+          planetsMembership: true,
+          spaceshipMemberships: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('유효하지 않은 크레덴셜입니다.');
+    }
+
+    if (!user) {
+      throw new NotFoundException('해당하는 유저를 찾을 수 없습니다.');
     }
 
     const payload = { userId: user.id, userEmail: user.email, role: user.role };

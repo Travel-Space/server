@@ -176,7 +176,7 @@ export class AuthController {
 
     if (user) {
       const { id, access_token, refresh_token, memberships, role, nickName } =
-        await this.authService.login(req);
+        await this.authService.loginWithGoogle(req);
 
       res.cookie('ACCESS_TOKEN', access_token, {
         httpOnly: true,
