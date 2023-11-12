@@ -110,7 +110,7 @@ model Comment {
   articleId Int
   parentId  Int?
   createdAt DateTime  @default(now())
-  article   Article   @relation(fields: [articleId], references: [id])
+  article   Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
   author    User?     @relation(fields: [authorId], references: [id])
   parent    Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
   children  Comment[] @relation("CommentToComment")
@@ -221,14 +221,14 @@ model Location {
   latitude  Float
   longitude Float
   articleId Int
-  article   Article @relation(fields: [articleId], references: [id])
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
 
 model Image {
   id        Int      @id @default(autoincrement())
   url       String?
   articleId Int?
-  article   Article? @relation(fields: [articleId], references: [id])
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
 
 model ViewCount {
@@ -237,7 +237,7 @@ model ViewCount {
   count     Int      @default(0)
   articleId Int?
   planetId  Int?
-  article   Article? @relation(fields: [articleId], references: [id])
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
   planet    Planet?  @relation(fields: [planetId], references: [id], onDelete: Cascade)
 
   @@unique([date, articleId, planetId])
