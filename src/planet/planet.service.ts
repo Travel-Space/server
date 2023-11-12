@@ -253,6 +253,13 @@ export class PlanetService {
       },
     });
 
+    await this.prisma.chatMembership.create({
+      data: {
+        chatRoomId: newPlanet.chatRoom.id,
+        userId: userId,
+      },
+    });
+
     return newPlanet;
   }
 
@@ -495,6 +502,7 @@ export class PlanetService {
       },
       select: {
         ownerId: true,
+        chatRoomId: true,
       },
     });
 
@@ -514,6 +522,14 @@ export class PlanetService {
     if (!existingMembership) {
       throw new NotFoundException('해당 행성에 가입되어 있지 않습니다.');
     }
+
+    await this.prisma.chatMembership.deleteMany({
+      where: {
+        chatRoomId: planet.chatRoomId,
+        userId: userId,
+      },
+    });
+
     await this.prisma.planetMembership.delete({
       where: {
         planetId_userId: {
@@ -525,7 +541,6 @@ export class PlanetService {
   }
 
   async listPlanetMembers(planetId: number) {
-    // 행성 멤버십을 찾아옵니다.
     const memberships = await this.prisma.planetMembership.findMany({
       where: { planetId: planetId },
       include: { user: true },

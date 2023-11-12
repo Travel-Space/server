@@ -64,18 +64,13 @@ export class SpaceshipService {
         startDate: new Date(dto.startDate),
         endDate: new Date(dto.endDate),
         ownerId: userId,
+        chatRoom: {
+          create: {},
+        },
       },
-    });
-
-    const chatRoom = await this.prisma.chatRoom.create({
-      data: {
-        spaceshipId: spaceship.id,
+      include: {
+        chatRoom: true,
       },
-    });
-
-    await this.prisma.spaceship.update({
-      where: { id: spaceship.id },
-      data: { chatRoomId: chatRoom.id },
     });
 
     await this.prisma.spaceshipMember.create({
@@ -83,6 +78,13 @@ export class SpaceshipService {
         spaceshipId: spaceship.id,
         userId: userId,
         role: 'OWNER',
+      },
+    });
+
+    await this.prisma.chatMembership.create({
+      data: {
+        chatRoomId: spaceship.chatRoom.id,
+        userId: userId,
       },
     });
 
@@ -161,6 +163,13 @@ export class SpaceshipService {
     if (existingMember) {
       throw new ForbiddenException('이미 이 우주선에 탑승했습니다.');
     }
+    await this.prisma.chatMembership.create({
+      data: {
+        chatRoomId: spaceship.chatRoomId,
+        userId: userId,
+      },
+    });
+
     return this.prisma.spaceshipMember.create({
       data: {
         spaceshipId: spaceshipId,
@@ -188,6 +197,13 @@ export class SpaceshipService {
     if (!member) {
       throw new NotFoundException('이 우주선에 탑승한 기록이 없습니다.');
     }
+
+    await this.prisma.chatMembership.deleteMany({
+      where: {
+        chatRoomId: spaceship.chatRoomId,
+        userId: userId,
+      },
+    });
 
     return this.prisma.spaceshipMember.delete({
       where: {

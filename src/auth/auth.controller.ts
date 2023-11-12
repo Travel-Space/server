@@ -27,11 +27,9 @@ import {
   CreateUserGoogleDto,
 } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import * as argon2 from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Request } from 'express';
 import { User } from '@prisma/client';
 import { LoggedInGuard } from './guard';
 import { AuthGuard } from '@nestjs/passport';
