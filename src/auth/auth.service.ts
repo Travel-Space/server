@@ -7,7 +7,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto, CreateUserResponse, UpdateUserDto } from './dto';
+import {
+  CreateUserDto,
+  CreateUserGoogleDto,
+  CreateUserResponse,
+  UpdateUserDto,
+} from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   PlanetMembership,
@@ -85,6 +90,50 @@ export class AuthService {
       });
 
       await this.deleteVerificationCode(userData.email);
+
+      return {
+        statusCode: 201,
+        message: '회원가입 성공',
+        user: { id: newUser.id.toString(), email: newUser.email },
+      };
+    } catch (error) {
+      if (error.code === 'P2002') {
+        if (error.meta.target.includes('email')) {
+          throw new ConflictException('이미 존재하는 이메일입니다.');
+        } else if (error.meta.target.includes('nickname')) {
+          throw new ConflictException('이미 존재하는 닉네임입니다.');
+        }
+      }
+      throw new BadRequestException('회원가입 실패');
+    }
+  }
+
+  async registerWithGoogle(
+    createUserGoogleDto: CreateUserGoogleDto,
+  ): Promise<CreateUserResponse> {
+    const { ...userData } = createUserGoogleDto;
+
+    const existingEmail = await this.prisma.user.findUnique({
+      where: { email: userData.email },
+    });
+    if (existingEmail) {
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
+
+    const existingNickName = await this.prisma.user.findFirst({
+      where: { nickName: userData.nickName },
+    });
+    if (existingNickName) {
+      throw new ConflictException('이미 존재하는 닉네임입니다.');
+    }
+
+    try {
+      const newUser: User = await this.prisma.user.create({
+        data: {
+          ...userData,
+          provider: SocialProvider.GOOGLE,
+        },
+      });
 
       return {
         statusCode: 201,

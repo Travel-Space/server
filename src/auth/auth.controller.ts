@@ -24,6 +24,7 @@ import {
   LoginDto,
   ChangePasswordDto,
   UpdateUserDto,
+  CreateUserGoogleDto,
 } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
@@ -67,6 +68,26 @@ export class AuthController {
     }
 
     const response = await this.authService.register(createUserDto);
+    return response;
+  }
+
+  @HttpCode(201)
+  @Post('register/google')
+  @ApiOperation({
+    summary: '구글 계정으로 회원가입 API',
+    description: '구글 계정으로 회원가입을 진행한다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '회원가입 성공',
+    type: CreateUserResponse,
+  })
+  @ApiBody({ type: CreateUserGoogleDto })
+  async registerWithGoogle(
+    @Body() createUserGoogleDto: CreateUserGoogleDto,
+  ): Promise<CreateUserResponse> {
+    const response =
+      await this.authService.registerWithGoogle(createUserGoogleDto);
     return response;
   }
 
