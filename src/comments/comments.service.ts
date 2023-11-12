@@ -58,6 +58,7 @@ export class CommentsService {
             commentId: data.parentId,
             articleId,
             planetId: article.planetId,
+            type: 'SUB_COMMENT',
           },
         });
         this.notificationGateway.sendNotificationToUser(
@@ -85,6 +86,7 @@ export class CommentsService {
           commentId: newComment.id,
           articleId,
           planetId: article.planetId,
+          type: 'COMMENT',
         },
       });
       this.notificationGateway.sendNotificationToUser(

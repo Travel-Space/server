@@ -908,7 +908,7 @@ export class PlanetService {
       throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
 
-    const transaction = await this.prisma.$transaction([
+    await this.prisma.$transaction([
       this.prisma.planetMembership.create({
         data: {
           userId: targetUserId,
@@ -928,12 +928,23 @@ export class PlanetService {
     ]);
 
     const content = `${inviter.nickName}님이 회원님을 ${planet.name} 행성에 초대했어요.`;
+    const invitation = await this.prisma.invitation.create({
+      data: {
+        planetId: planetId,
+        inviterId: inviterUserId,
+        inviteeId: targetUserId,
+        status: 'PENDING',
+      },
+    });
+
     const notification = await this.prisma.notification.create({
       data: {
         userId: targetUserId,
         content,
         userNickName: inviter.nickName,
         planetId: planetId,
+        invitationId: invitation.id,
+        type: 'PLANET_INVITE',
       },
     });
 

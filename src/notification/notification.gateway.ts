@@ -69,6 +69,9 @@ export class NotificationGateway {
       id: notification.id,
       content: notification.content,
       articleId: notification.articleId,
+      invitationId: notification.invitationId,
+      planetId: notification.planetId,
+      type: notification.type,
     };
 
     this.server.emit('notifications', notificationData);
@@ -97,39 +100,10 @@ export class NotificationGateway {
       id: notification.id,
       content: notification.content,
       articleId: notification.articleId,
+      type: notification.type,
     };
 
     this.server.emit('notifications', notificationData);
     // this.server.to(userId.toString()).emit('notification', notificationData);
-  }
-
-  async sendCommentNotificationToUser(
-    commentAuthorId: number,
-    content: string,
-    commentId: number,
-    articleId: number,
-    planetId: number,
-  ) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: commentAuthorId },
-    });
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    }
-
-    const notificationData = await this.notificationService.createNotification({
-      content,
-      userId: commentAuthorId,
-      userNickName: user.nickName,
-      commentId,
-      articleId,
-      planetId,
-    });
-
-    // this.server
-    //   .to(commentAuthorId.toString())
-    //   .emit('notification', notificationData);
-
-    this.server.emit('notifications', notificationData);
   }
 }

@@ -197,6 +197,7 @@ export class UserService {
         userId: friendId,
         content,
         userNickName: user.nickName,
+        type: 'FOLLOW',
       },
     });
 
@@ -503,6 +504,7 @@ export class UserService {
         data: {
           userId: userId,
           content,
+          type: 'ACTIVITY_RESTRICTION',
         },
       });
 

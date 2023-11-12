@@ -134,6 +134,8 @@ model Notification {
   commentId Int?
   userNickName String?
   planetId  Int?
+  type      NotificationType?
+  invitationId Int?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comment   Comment? @relation(fields: [commentId], references: [id])
@@ -358,4 +360,14 @@ enum ReportStatus {
 enum SpaceshipRole {
   MEMBER
   OWNER
+}
+
+enum NotificationType {
+  ARTICLE
+  COMMENT
+  SUB_COMMENT
+  PLANET_INVITE
+  ACTIVITY_RESTRICTION
+  LIKE
+  FOLLOW
 }

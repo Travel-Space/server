@@ -391,6 +391,7 @@ export class ArticlesService {
             userNickName: user.nickName,
             articleId: newArticle.id,
             planetId: dto.planetId,
+            type: 'ARTICLE',
           },
         });
 
@@ -552,6 +553,7 @@ export class ArticlesService {
 
     const article = await this.prisma.article.findUnique({
       where: { id: articleId },
+      include: { planet: true },
     });
 
     if (!article) {
@@ -572,6 +574,8 @@ export class ArticlesService {
         content,
         userNickName: user.nickName,
         articleId: articleId,
+        planetId: article.planet?.id,
+        type: 'LIKE',
       },
     });
 
