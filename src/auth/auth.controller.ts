@@ -188,7 +188,7 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return { success: true, id, memberships, role, nickName };
+      res.json({ success: true, id, memberships, role, nickName });
     }
 
     res.redirect(`http://localhost:3000/signup?email=${email}&name=${name}`);
