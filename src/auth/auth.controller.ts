@@ -33,6 +33,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Request } from 'express';
 import { User } from '@prisma/client';
 import { LoggedInGuard } from './guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('auth API')
 @Controller('auth')
@@ -97,6 +98,15 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @UseGuards(JwtAuthGuard, LoggedInGuard)
+  @ApiOperation({
+    summary: '리프레시 토큰으로 토큰 재발급 API',
+    description: '리프레시 토큰으로 액세스 토큰을 재발급한다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '토큰 발급 성공',
+  })
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const oldRefreshToken = req.cookies['REFRESH_TOKEN'];
     if (!oldRefreshToken) {
@@ -127,18 +137,40 @@ export class AuthController {
     };
   }
 
-  @Post('google-login')
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleLogin() {}
+
+  @Get('google/redirect')
   @ApiOperation({
-    summary: 'Google 로그인 API',
-    description: 'Google 계정으로 로그인한다.',
+    summary: '구글 로그인 API',
+    description:
+      '구글 로그인을 했을때 회원가입 여부를 판단하고 로그인 또는 회원가입 페이지로 리다이렉트 한다.',
   })
-  @ApiResponse({
-    status: 200,
-    description: '로그인 성공',
-    type: String,
-  })
-  async googleLogin(@Req() req: any): Promise<{ access_token: string }> {
-    return this.authService.googleLogin(req);
+  @UseGuards(AuthGuard('google'))
+  async googleLoginRedirect(@Req() req, @Res() res) {
+    const { email, name } = req.user;
+
+    const user = await this.authService.findUserByEmail(email);
+
+    if (user) {
+      const { id, access_token, refresh_token, memberships, role, nickName } =
+        await this.authService.login(req);
+
+      res.cookie('ACCESS_TOKEN', access_token, {
+        httpOnly: true,
+        maxAge: 3600000,
+      });
+
+      res.cookie('REFRESH_TOKEN', refresh_token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return { success: true, id, memberships, role, nickName };
+    }
+
+    res.redirect(`http://localhost:3000/signup?email=${email}&name=${name}`);
   }
 
   @Delete('logout')
@@ -178,83 +210,6 @@ export class AuthController {
       throw new UnauthorizedException('유효하지 않은 인증코드입니다.');
     }
     return { success: true };
-  }
-
-  @ApiOperation({
-    summary: 'Google API',
-    description: 'Google 인증을 시작하는 엔드포인트',
-  })
-  @Get('google')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuth(@Req() req) {}
-
-  @ApiOperation({
-    summary: 'Google Auth Callback',
-    description: 'Google 로그인 후 콜백 처리를 위한 엔드포인트',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Google 로그인 후 콜백 처리 성공',
-    type: String,
-  })
-  @Get('google/callback')
-  @UseGuards(GoogleAuthGuard)
-  async googleAuthRedirect(
-    @Req() req,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { access_token } = await this.authService.googleLogin(req);
-    res.cookie('ACCESS_TOKEN', access_token, {
-      httpOnly: true,
-      maxAge: 36000000,
-    });
-    // res.redirect('https://your-frontend-domain.com/success-page');
-  }
-
-  @Get('google/callback')
-  @ApiOperation({
-    summary: 'Google 로그인 콜백 API',
-    description: 'Google 로그인 후에 콜백 처리를 합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Google 로그인 성공',
-    type: String,
-  })
-  async googleLoginCallback(@Req() req): Promise<any> {
-    try {
-      const user = await this.authService.googleLoginCallback(req.user.profile);
-      console.log(req.user.profile);
-      return this.authService.googleLogin(req);
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw new HttpException('추가 정보를 입력해주세요.', 401);
-      }
-      throw error;
-    }
-  }
-
-  @Post('register-with-google')
-  @ApiOperation({
-    summary: 'Google을 사용하여 회원가입 API',
-    description: 'Google 프로필 정보와 함께 회원가입을 합니다.',
-  })
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Google을 사용한 회원가입 성공',
-    type: CreateUserResponse,
-  })
-  async registerWithGoogle(
-    @Body() createUserDto: CreateUserDto,
-    @Req() req,
-  ): Promise<any> {
-    if (!req.user?.profile) {
-      throw new HttpException('Google 사용자 정보가 필요합니다.', 400);
-    }
-
-    const profile = req.user.profile;
-    return this.authService.registerWithGoogle(profile, createUserDto);
   }
 
   @ApiBody({ type: EmailDto })

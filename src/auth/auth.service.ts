@@ -255,28 +255,6 @@ export class AuthService {
     };
   }
 
-  async googleLogin(req): Promise<{ access_token: string }> {
-    let user = await this.findUserByEmail(req.user.email);
-
-    if (!user) {
-      const createUserDto = {
-        email: req.user.email,
-        nickName: '',
-        name: req.user.name || '',
-        password: '',
-        nationality: '',
-        nationImage: '',
-      };
-
-      user = await this.registerWithoutEmailVerification(createUserDto);
-    }
-
-    const payload = { userId: user.id, userEmail: user.email };
-    const accessToken = this.jwtService.sign(payload);
-
-    return { access_token: accessToken };
-  }
-
   async sendVerificationCode(email: string): Promise<void> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -392,104 +370,12 @@ export class AuthService {
     });
   }
 
-  async googleLoginCallback(profile: any): Promise<any> {
-    const user = await this.userService.findByEmail(profile.email);
-
-    if (user) {
-      return user;
-    } else {
-      throw new UnauthorizedException('추가 정보를 입력해주세요.');
-    }
-  }
-
-  async registerWithGoogle(
-    profile: any,
-    createUserDto: CreateUserDto,
-  ): Promise<User> {
-    const finalUserInfo = {
-      email: profile.email,
-      name: profile.name,
-      ...createUserDto,
-    };
-
-    const existingEmail = await this.prisma.user.findUnique({
-      where: { email: finalUserInfo.email },
-    });
-    if (existingEmail) {
-      throw new ConflictException('이미 존재하는 이메일입니다.');
-    }
-
-    const existingNickName = await this.prisma.user.findFirst({
-      where: { nickName: finalUserInfo.nickName },
-    });
-    if (existingNickName) {
-      throw new ConflictException('이미 존재하는 닉네임입니다.');
-    }
-
-    try {
-      return await this.userService.createUser(finalUserInfo);
-    } catch (error) {
-      if (error.code === 'P2002') {
-        if (error.meta.target.includes('email')) {
-          throw new ConflictException('이미 존재하는 이메일입니다.');
-        } else if (error.meta.target.includes('nickname')) {
-          throw new ConflictException('이미 존재하는 닉네임입니다.');
-        }
-      }
-      throw new BadRequestException('회원가입 실패');
-    }
-  }
-
   async validateToken(token: string): Promise<any> {
     try {
       const decoded = this.jwtService.verify(token);
       return decoded;
     } catch (error) {
       throw new UnauthorizedException('토큰이 유효하지 않습니다.');
-    }
-  }
-
-  async registerWithoutEmailVerification(
-    createUserDto: CreateUserDto,
-  ): Promise<User> {
-    const { password, ...userData } = createUserDto;
-
-    const existingEmail = await this.prisma.user.findUnique({
-      where: { email: userData.email },
-    });
-
-    if (existingEmail) {
-      throw new ConflictException('이미 존재하는 이메일입니다.');
-    }
-
-    const existingNickName = await this.prisma.user.findFirst({
-      where: { nickName: userData.nickName },
-    });
-
-    if (existingNickName) {
-      throw new ConflictException('이미 존재하는 닉네임입니다.');
-    }
-
-    try {
-      const hashedPassword: string = await argon.hash(password);
-      const newUser: User = await this.prisma.user.create({
-        data: {
-          ...userData,
-          password: hashedPassword,
-          provider: SocialProvider.GOOGLE,
-        },
-      });
-
-      return newUser;
-    } catch (error) {
-      if (error.code === 'P2002') {
-        if (error.meta.target.includes('email')) {
-          throw new ConflictException('이미 존재하는 이메일입니다.');
-        } else if (error.meta.target.includes('nickname')) {
-          throw new ConflictException('이미 존재하는 닉네임입니다.');
-        }
-      }
-      throw new BadRequestException('회원가입 실패');
     }
   }
 

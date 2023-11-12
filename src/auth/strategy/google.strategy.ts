@@ -15,10 +15,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
   async validate(accessToken: string, refreshToken: string, profile) {
-    const { id, name, emails, photos } = profile;
-    const password = await argon.hash(id);
+    const { name, emails } = profile;
     const payload = {
-      password,
       name: name.givenName,
       email: emails[0].value,
       accessToken,
