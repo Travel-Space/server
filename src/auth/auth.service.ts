@@ -23,6 +23,12 @@ type UserWithMemberships = User & {
   planetsMembership?: PlanetMembership[];
   spaceshipMemberships?: SpaceshipMember[];
 };
+
+interface DecodedToken {
+  userId: number;
+  userEmail: string;
+  role: string;
+}
 @Injectable()
 export class AuthService {
   private transporter;
@@ -179,20 +185,43 @@ export class AuthService {
     };
   }
 
-  async refreshToken(userId: number, oldRefreshToken: string): Promise<string> {
+  async refreshToken(oldRefreshToken: string): Promise<{
+    id: number;
+    accessToken: string;
+    refreshToken: string;
+    memberships: any;
+    role: string;
+    nickName: string;
+  }> {
+    const decoded = this.jwtService.decode(oldRefreshToken) as DecodedToken;
+    if (!decoded || !decoded.userId) {
+      throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
+    }
+
+    const userId = decoded.userId;
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        planetsMembership: true,
+        spaceshipMemberships: true,
+      },
     });
 
     if (!user || user.refreshToken !== oldRefreshToken) {
       throw new UnauthorizedException('리프레시 토큰이 유효하지 않습니다.');
     }
 
-    const newRefreshToken = this.jwtService.sign({
-      userId: user.id,
-      userEmail: user.email,
-      role: user.role,
-    });
+    const newRefreshToken = this.jwtService.sign(
+      {
+        userId: user.id,
+        userEmail: user.email,
+        role: user.role,
+      },
+      {
+        secret: 'refreshTokenSecret',
+        expiresIn: '7d',
+      },
+    );
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -205,7 +234,25 @@ export class AuthService {
       role: user.role,
     });
 
-    return newAccessToken;
+    const memberships = {
+      planets: user.planetsMembership.map((pm) => ({
+        planetId: pm.planetId,
+        role: pm.role,
+      })),
+      spaceships: user.spaceshipMemberships.map((sm) => ({
+        spaceshipId: sm.spaceshipId,
+        role: sm.role,
+      })),
+    };
+
+    return {
+      id: user.id,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      memberships: memberships,
+      role: user.role,
+      nickName: user.nickName,
+    };
   }
 
   async googleLogin(req): Promise<{ access_token: string }> {

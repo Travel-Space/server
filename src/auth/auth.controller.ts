@@ -97,27 +97,34 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @UseGuards(JwtAuthGuard, LoggedInGuard)
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const oldRefreshToken = req.cookies['REFRESH_TOKEN'];
-    const userId = req.user.userId;
-    if (!oldRefreshToken || !userId) {
-      throw new UnauthorizedException(
-        '리프레시 토큰 또는 유저 아이디가 유효하지 않습니다.',
-      );
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
     }
 
-    const newAccessToken = await this.authService.refreshToken(
-      userId,
-      oldRefreshToken,
-    );
+    const { accessToken, refreshToken, id, nickName, memberships, role } =
+      await this.authService.refreshToken(oldRefreshToken);
 
-    res.cookie('ACCESS_TOKEN', newAccessToken, {
+    res.cookie('ACCESS_TOKEN', accessToken, {
       httpOnly: true,
       maxAge: 3600000,
     });
 
-    return { success: true, access_token: newAccessToken };
+    res.cookie('REFRESH_TOKEN', refreshToken, {
+      httpOnly: true,
+      maxAge: 604800000,
+    });
+
+    return {
+      success: true,
+      id: id,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      nickName: nickName,
+      memberships: memberships,
+      role: role,
+    };
   }
 
   @Post('google-login')
