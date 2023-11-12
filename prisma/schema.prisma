@@ -39,7 +39,7 @@ model User {
   planetsMembership    PlanetMembership[]
   reportsMade          Report[]
   spaceshipMemberships SpaceshipMember[]
-  friendedBy           UserFriend[]       @relation("FriendToUser")
+  friendedBy           UserFriend[]       @relation("FriendToUser") 
   friends              UserFriend[]       @relation("UserToFriend")
   invitationsSent     Invitation[] @relation("InviterRelation")
   invitationsReceived Invitation[] @relation("InviteeRelation")
@@ -162,7 +162,7 @@ model Report {
   deletedAt      DateTime?        @map("deleted_at")
   status         ReportStatus     @default(RECEIVED)
   processingDate DateTime?
-  reporter       User             @relation(fields: [reporterId], references: [id])
+  reporter       User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
 }
 
 model PlanetBookmark {
@@ -260,7 +260,7 @@ model Message {
   chatRoomId Int
   createdAt  DateTime @default(now())
   chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
-  sender     User     @relation("UserMessages", fields: [senderId], references: [id])
+  sender     User     @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([chatRoomId], map: "idx_chatRoomId")
 }
@@ -269,7 +269,7 @@ model ChatMembership {
   chatRoomId Int
   userId     Int
   chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([chatRoomId, userId])
 }
@@ -282,9 +282,9 @@ model Invitation {
   status        InvitationStatus @default(PENDING)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  planet        Planet   @relation("PlanetToInvitation", fields: [planetId], references: [id])
-  inviter       User     @relation("InviterRelation", fields: [inviterId], references: [id])
-  invitee       User     @relation("InviteeRelation", fields: [inviteeId], references: [id])
+  planet        Planet   @relation("PlanetToInvitation", fields: [planetId], references: [id], onDelete: Cascade)
+  inviter       User     @relation("InviterRelation", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee       User     @relation("InviteeRelation", fields: [inviteeId], references: [id], onDelete: Cascade)
 
   @@unique([planetId, inviteeId])
 }
