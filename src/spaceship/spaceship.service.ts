@@ -17,11 +17,25 @@ export class SpaceshipService {
   }
 
   async getSpaceshipsByPlanet(planetId: number) {
-    return this.prisma.spaceship.findMany({
+    const spaceships = await this.prisma.spaceship.findMany({
       where: {
         planetId: planetId,
       },
     });
+
+    const spaceshipsWithMemberCount = await Promise.all(
+      spaceships.map(async (spaceship) => {
+        const memberCount = await this.prisma.spaceshipMember.count({
+          where: { spaceshipId: spaceship.id },
+        });
+        return {
+          ...spaceship,
+          memberCount,
+        };
+      }),
+    );
+
+    return spaceshipsWithMemberCount;
   }
 
   async getSpaceshipById(spaceshipId: number) {
