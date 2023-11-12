@@ -473,9 +473,22 @@ export class UserController {
         limit,
       );
 
-    const notMutualFollowers = followers.filter(
-      (follower) => !follower.isMutual,
-    );
+    let notMutualFollowers = followers.filter((follower) => !follower.isMutual);
+
+    if (notMutualFollowers.length === 0) {
+      const randomUsers = await this.userService.getRandomUsers(
+        limit,
+        currentUserId,
+      );
+
+      notMutualFollowers = randomUsers.map((user) => ({
+        user,
+        isMutual: false,
+        isFollowing: false,
+        userId: currentUserId,
+        friendId: user.id,
+      }));
+    }
 
     return {
       data: notMutualFollowers,
