@@ -144,7 +144,7 @@ export class AuthService {
       if (error.code === 'P2002') {
         if (error.meta.target.includes('email')) {
           throw new ConflictException('이미 존재하는 이메일입니다.');
-        } else if (error.meta.target.includes('nickname')) {
+        } else if (error.meta.target.includes('nickName')) {
           throw new ConflictException('이미 존재하는 닉네임입니다.');
         }
       }
@@ -196,9 +196,11 @@ export class AuthService {
       throw new NotFoundException('해당하는 유저를 찾을 수 없습니다.');
     }
 
-    const isPasswordValid = await argon.verify(user.password, password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
+    if (user.provider === 'LOCAL') {
+      const isPasswordValid = await argon.verify(user.password, password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('유효하지 않은 크레덴셜입니다.');
+      }
     }
 
     const payload = { userId: user.id, userEmail: user.email, role: user.role };
