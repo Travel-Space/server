@@ -311,6 +311,9 @@ export class PlanetService {
     }
 
     return this.prisma.$transaction(async (prisma) => {
+      await prisma.invitation.deleteMany({
+        where: { planetId: planetId },
+      });
       await prisma.spaceshipMember.deleteMany({
         where: { spaceship: { planetId: planetId } },
       });
@@ -908,42 +911,34 @@ export class PlanetService {
       throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
 
-    await this.prisma.$transaction([
-      this.prisma.planetMembership.create({
+    const transaction = await this.prisma.$transaction(async (prisma) => {
+      await prisma.planetMembership.create({
         data: {
           userId: targetUserId,
           planetId: planetId,
           status: 'PENDING',
           role: 'GUEST',
         },
-      }),
-      this.prisma.invitation.create({
+      });
+
+      return prisma.invitation.create({
         data: {
           planetId: planetId,
           inviterId: inviterUserId,
           inviteeId: targetUserId,
           status: 'PENDING',
         },
-      }),
-    ]);
-
-    const content = `${inviter.nickName}님이 회원님을 ${planet.name} 행성에 초대했어요.`;
-    const invitation = await this.prisma.invitation.create({
-      data: {
-        planetId: planetId,
-        inviterId: inviterUserId,
-        inviteeId: targetUserId,
-        status: 'PENDING',
-      },
+      });
     });
 
+    const content = `${inviter.nickName}님이 회원님을 ${planet.name} 행성에 초대했어요.`;
     const notification = await this.prisma.notification.create({
       data: {
         userId: targetUserId,
         content,
         userNickName: inviter.nickName,
         planetId: planetId,
-        invitationId: invitation.id,
+        invitationId: transaction.id,
         type: 'PLANET_INVITE',
       },
     });
