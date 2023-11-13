@@ -227,22 +227,17 @@ export class PlanetService {
   }
 
   async createPlanet(dto: CreatePlanetDto, userId: number) {
+    const chatRoom = await this.prisma.chatRoom.create({});
+
     const newPlanet = await this.prisma.planet.create({
       data: {
         ...dto,
+        chatRoomId: chatRoom.id,
         owner: {
           connect: { id: userId },
         },
-        chatRoom: {
-          create: {},
-        },
-      },
-      include: {
-        chatRoom: true,
       },
     });
-
-    newPlanet.chatRoomId = newPlanet.chatRoom.id;
 
     await this.prisma.planetMembership.create({
       data: {
@@ -255,7 +250,7 @@ export class PlanetService {
 
     await this.prisma.chatMembership.create({
       data: {
-        chatRoomId: newPlanet.chatRoom.id,
+        chatRoomId: chatRoom.id,
         userId: userId,
       },
     });
