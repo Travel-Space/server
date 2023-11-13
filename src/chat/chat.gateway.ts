@@ -86,7 +86,9 @@ export class ChatGateway {
             members,
             maxMembers: room.planet
               ? room.planet.memberLimit
-              : room.spaceship.maxMembers,
+              : room.spaceship
+              ? room.spaceship.maxMembers
+              : null,
             messages,
           };
         }),
