@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  frontend:
+  client:
     build:
       context: ../client
       dockerfile: Dockerfile
@@ -16,7 +16,7 @@ services:
       - ./data/certbot/www:/var/www/certbot
     container_name: client_container
 
-  backend:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
