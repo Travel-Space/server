@@ -164,34 +164,35 @@ export class AuthController {
   @ApiOperation({
     summary: '구글 로그인 API',
     description:
-      '구글 로그인을 했을때 회원가입 여부를 판단하고 로그인 또는 회원가입 페이지로 리다이렉트 한다.',
+      '구글 로그인 후 사용자 데이터 처리 및 프론트엔드로 리디렉트한다.',
   })
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req, @Res() res) {
+    console.log('Google Login Redirect Request Received');
     const { email, name } = req.user;
-
     const user = await this.authService.findUserByEmail(email);
-
+    console.log('Found User: ', user);
     if (user) {
       const { id, access_token, refresh_token, memberships, role, nickName } =
         await this.authService.loginWithGoogle(req);
-
+      console.log('Login with Google: ', { id, memberships, role, nickName });
       res.cookie('ACCESS_TOKEN', access_token, {
         httpOnly: true,
         maxAge: 3600000,
       });
-
       res.cookie('REFRESH_TOKEN', refresh_token, {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      res.json({ success: true, id, memberships, role, nickName });
+      const membershipsString = encodeURIComponent(JSON.stringify(memberships));
+      res.redirect(
+        `http://localhost:3000/login-success?id=${id}&role=${role}&nickName=${nickName}&memberships=${membershipsString}`,
+      );
+    } else {
+      res.redirect(`http://localhost:3000/signup?email=${email}&name=${name}`);
     }
-
-    res.redirect(`http://localhost:3000/signup?email=${email}&name=${name}`);
   }
-
   @Delete('logout')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
