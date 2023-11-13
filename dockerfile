@@ -22,7 +22,7 @@ RUN npm install
 
 
 # TypeScript 빌드
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # 애플리케이션 실행
 CMD ["pm2-runtime", "start", "npm", "--name", "travelSpace", "--", "run", "start"]
