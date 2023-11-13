@@ -42,16 +42,29 @@ export class ChatGateway {
       const roomsWithDetails = await Promise.all(
         rooms.map(async (room) => {
           const members = room.chatMemberships.map((membership) => {
-            const planetMembership = room.planet
-              ? room.planet.members.find(
-                  (member) => member.userId === membership.userId,
-                )
-              : null;
-            const spaceshipMember = room.spaceship
-              ? room.spaceship.members.find(
-                  (member) => member.userId === membership.userId,
-                )
-              : null;
+            let planetMembership = null;
+            let spaceshipMember = null;
+
+            try {
+              planetMembership = room.planet
+                ? room.planet.members.find(
+                    (member) => member.userId === membership.userId,
+                  )
+                : null;
+            } catch (error) {
+              console.error('Error fetching planetMember:', error);
+            }
+
+            try {
+              spaceshipMember = room.spaceship
+                ? room.spaceship.members.find(
+                    (member) => member.userId === membership.userId,
+                  )
+                : null;
+            } catch (error) {
+              console.error('Error fetching spaceshipMember:', error);
+            }
+
             return {
               nickname: membership.user.nickName,
               profileImage: membership.user.profileImage,
