@@ -18,9 +18,7 @@ WORKDIR /root/expressapp/
 COPY ./ ./
 
 # npm 패키지 설치 및 보안 패치
-RUN npm install \
-    && npm audit fix \
-    && npm install -g pm2
+RUN npm install 
 
 
 # TypeScript 빌드
