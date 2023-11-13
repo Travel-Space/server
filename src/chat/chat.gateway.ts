@@ -42,29 +42,16 @@ export class ChatGateway {
       const roomsWithDetails = await Promise.all(
         rooms.map(async (room) => {
           const members = room.chatMemberships.map((membership) => {
-            let planetMembership = null;
-            let spaceshipMember = null;
-
-            try {
-              planetMembership = room.planet
-                ? room.planet.members.find(
-                    (member) => member.userId === membership.userId,
-                  )
-                : null;
-            } catch (error) {
-              console.error('Error fetching planetMember:', error);
-            }
-
-            try {
-              spaceshipMember = room.spaceship
-                ? room.spaceship.members.find(
-                    (member) => member.userId === membership.userId,
-                  )
-                : null;
-            } catch (error) {
-              console.error('Error fetching spaceshipMember:', error);
-            }
-
+            const planetMembership = room.planet
+              ? room.planet.members.find(
+                  (member) => member.userId === membership.userId,
+                )
+              : null;
+            const spaceshipMember = room.spaceship
+              ? room.spaceship.members.find(
+                  (member) => member.userId === membership.userId,
+                )
+              : null;
             return {
               nickname: membership.user.nickName,
               profileImage: membership.user.profileImage,
@@ -99,9 +86,7 @@ export class ChatGateway {
             members,
             maxMembers: room.planet
               ? room.planet.memberLimit
-              : room.spaceship
-              ? room.spaceship.maxMembers
-              : null,
+              : room.spaceship.maxMembers,
             messages,
           };
         }),
