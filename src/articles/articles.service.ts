@@ -469,11 +469,8 @@ export class ArticlesService {
     if (article.authorId !== userId)
       throw new ForbiddenException('권한이 없습니다.');
 
-    return this.prisma.article.update({
+    return this.prisma.article.delete({
       where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
     });
   }
 
