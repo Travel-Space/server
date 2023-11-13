@@ -134,7 +134,7 @@ export class ChatGateway {
       data.senderId,
       data.content,
     );
-    this.server.emit('newMessage', message);
+    client.emit('newMessage', message);
     console.log(`Message sent to room ${data.chatRoomId}: ${data.content}`);
   }
 
