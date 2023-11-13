@@ -17,10 +17,11 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('TravleSpace')
-    .setDescription('The TravleSpace API description')
+    .setTitle('TravelSpace')
+    .setDescription('The TravelSpace API description')
     .setVersion('0.1')
-    .addTag('TravleSpace')
+    .addServer('/api')
+    .addTag('TravelSpace')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
