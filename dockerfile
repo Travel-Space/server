@@ -20,7 +20,7 @@ COPY ./ ./
 # npm 패키지 설치 및 보안 패치
 RUN npm install 
 
-
+RUN npx prisma migrate dev
 # TypeScript 빌드
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
