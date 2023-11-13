@@ -665,11 +665,8 @@ export class ArticlesService {
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('게시글을 찾을 수 없습니다.');
 
-    await this.prisma.article.update({
+    return this.prisma.article.delete({
       where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
     });
   }
 }
