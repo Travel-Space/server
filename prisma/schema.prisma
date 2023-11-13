@@ -248,8 +248,8 @@ model ChatRoom {
   planetId        Int?             @unique
   spaceshipId     Int?             @unique
   chatMemberships ChatMembership[]
-  planet          Planet?          @relation("PlanetChatRoom", fields: [planetId], references: [id])
-  spaceship       Spaceship?       @relation("SpaceshipChatRoom", fields: [spaceshipId], references: [id])
+  planet          Planet?          @relation("PlanetChatRoom", fields: [planetId], references: [id],onDelete: Cascade)
+  spaceship       Spaceship?       @relation("SpaceshipChatRoom", fields: [spaceshipId], references: [id],onDelete: Cascade)
   messages        Message[]
 }
 
