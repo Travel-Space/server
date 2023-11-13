@@ -86,9 +86,7 @@ export class ChatGateway {
             members,
             maxMembers: room.planet
               ? room.planet.memberLimit
-              : room.spaceship
-              ? room.spaceship.maxMembers
-              : null,
+              : room.spaceship.maxMembers,
             messages,
           };
         }),
@@ -136,7 +134,7 @@ export class ChatGateway {
       data.senderId,
       data.content,
     );
-    client.emit('newMessage', message);
+    this.server.emit('newMessage', message);
     console.log(`Message sent to room ${data.chatRoomId}: ${data.content}`);
   }
 
