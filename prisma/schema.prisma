@@ -76,7 +76,7 @@ model Planet {
   spaceshipLimit Int?
   published      Boolean?           @default(true)
   isActive       Boolean            @default(true)
-  shape          PlanetShape?
+  shape          String             @default("SHAPE1")
   hashtags       String[]
   chatRoomId     Int?               @unique
   createdAt      DateTime           @default(now())
@@ -300,12 +300,6 @@ enum SocialProvider {
   NAVER
   KAKAO
   LOCAL
-}
-
-enum PlanetShape {
-  SHAPE1
-  SHAPE2
-  SHAPE3
 }
 
 enum ReportTargetType {

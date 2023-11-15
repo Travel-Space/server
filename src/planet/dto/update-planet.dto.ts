@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PlanetShape } from '@prisma/client';
 import {
   IsString,
   IsOptional,
@@ -31,7 +30,7 @@ export class UpdatePlanetDto {
   @ApiProperty({ description: '행성 모양' })
   @IsOptional()
   @IsString()
-  shape?: PlanetShape;
+  shape?: string;
 
   @ApiProperty({ description: '행성 해시태그' })
   @IsOptional()
