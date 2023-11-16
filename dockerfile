@@ -10,6 +10,7 @@ RUN apt update && apt install -y \
     && apt install -y nodejs
 
 # 전역 npm 패키지 설치
+RUN npm install -g pm2
 RUN npm install -g typescript
 
 WORKDIR /root/expressapp/
