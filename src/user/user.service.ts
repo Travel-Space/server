@@ -191,7 +191,7 @@ export class UserService {
       },
     });
 
-    const content = `${user.nickName}님이 회원님을 팔로우 했어요.`;
+    const content = `${user.nickName} 님이 회원님을 팔로우 했어요.`;
     const notification = await this.prisma.notification.create({
       data: {
         userId: friendId,

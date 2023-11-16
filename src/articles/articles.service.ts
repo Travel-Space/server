@@ -564,7 +564,7 @@ export class ArticlesService {
       },
     });
 
-    const content = `${user.nickName}님이 회원님의 게시글을 좋아해요.`;
+    const content = `${user.nickName} 님이 회원님의 게시글을 좋아해요.`;
     const notification = await this.prisma.notification.create({
       data: {
         userId: article.authorId,

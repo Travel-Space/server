@@ -953,7 +953,7 @@ export class PlanetService {
       });
     });
 
-    const content = `${inviter.nickName}님이 회원님을 ${planet.name} 행성에 초대했어요.`;
+    const content = `${inviter.nickName} 님이 회원님을 ${planet.name} 행성에 초대했어요.`;
     const notification = await this.prisma.notification.create({
       data: {
         userId: targetUserId,
