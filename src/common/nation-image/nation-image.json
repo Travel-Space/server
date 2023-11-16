@@ -1,0 +1,1102 @@
+[
+  {
+    "country_eng_nm": "Ghana",
+    "country_nm": "가나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/15/20220318_161935687.gif"
+  },
+  {
+    "country_eng_nm": "Gabon",
+    "country_nm": "가봉",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/16/20220318_161654097.gif"
+  },
+  {
+    "country_eng_nm": "Guyana",
+    "country_nm": "가이아나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/17/20220318_162257006.gif"
+  },
+  {
+    "country_eng_nm": "Gambia",
+    "country_nm": "감비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/18/20220318_161955406.gif"
+  },
+  {
+    "country_eng_nm": "Bailiwick of Guernsey",
+    "country_nm": "건지",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/19/20220224_233512925.gif"
+  },
+  {
+    "country_eng_nm": "Guatemala",
+    "country_nm": "과테말라",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/21/20220318_162216873.gif"
+  },
+  {
+    "country_eng_nm": "Vatican",
+    "country_nm": "교황청",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/86/20220318_170654560.gif"
+  },
+  {
+    "country_eng_nm": "Grenada",
+    "country_nm": "그레나다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/23/20220318_161743288.gif"
+  },
+  {
+    "country_eng_nm": "Greece",
+    "country_nm": "그리스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/24/20220720_160223089.gif"
+  },
+  {
+    "country_eng_nm": "Greenland",
+    "country_nm": "그린란드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/25/20220224_233512915.gif"
+  },
+  {
+    "country_eng_nm": "Guinea",
+    "country_nm": "기니",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/26/20220318_162017525.gif"
+  },
+  {
+    "country_eng_nm": "Guinea-Bissau",
+    "country_nm": "기니비사우",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/27/20220318_162237661.gif"
+  },
+  {
+    "country_eng_nm": "Namibia",
+    "country_nm": "나미비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/28/20220318_164644084.gif"
+  },
+  {
+    "country_eng_nm": "Nauru",
+    "country_nm": "나우루",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/29/20220318_164920455.gif"
+  },
+  {
+    "country_eng_nm": "Nigeria",
+    "country_nm": "나이지리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/30/20220318_164733974.gif"
+  },
+  {
+    "country_eng_nm": "South Sudan",
+    "country_nm": "남수단",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/31/20220318_165928295.gif"
+  },
+  {
+    "country_eng_nm": "South Africa",
+    "country_nm": "남아프리카공화국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/32/20220318_170925392.gif"
+  },
+  {
+    "country_eng_nm": "Netherlands",
+    "country_nm": "네덜란드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/33/20220318_164807920.gif"
+  },
+  {
+    "country_eng_nm": "Nepal",
+    "country_nm": "네팔연방",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/35/20220318_164857163.gif"
+  },
+  {
+    "country_eng_nm": "Norway",
+    "country_nm": "노르웨이",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/36/20220318_164831540.gif"
+  },
+  {
+    "country_eng_nm": "New Caledonia",
+    "country_nm": "뉴 칼레도니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/37/20220224_233512725.gif"
+  },
+  {
+    "country_eng_nm": "New Zealand",
+    "country_nm": "뉴질랜드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/38/20220318_165002661.gif"
+  },
+  {
+    "country_eng_nm": "Niue",
+    "country_nm": "니우에",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/39/20220318_164944736.png"
+  },
+  {
+    "country_eng_nm": "Niger",
+    "country_nm": "니제르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/40/20220318_164713224.gif"
+  },
+  {
+    "country_eng_nm": "Nicaragua",
+    "country_nm": "니카라과",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/41/20220318_164751555.gif"
+  },
+  {
+    "country_eng_nm": "Taiwan",
+    "country_nm": "대만",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/211/20220329_142127768.gif"
+  },
+  {
+    "country_eng_nm": "Korea",
+    "country_nm": "대한민국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/241/20220224_233513043.gif"
+  },
+  {
+    "country_eng_nm": "Denmark",
+    "country_nm": "덴마크",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/42/20220318_160957995.gif"
+  },
+  {
+    "country_eng_nm": "Dominican Republic",
+    "country_nm": "도미니카공화국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/43/20220318_161126239.bmp"
+  },
+  {
+    "country_eng_nm": "Dominica",
+    "country_nm": "도미니카연방",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/44/20220318_161043324.gif"
+  },
+  {
+    "country_eng_nm": "Germany",
+    "country_nm": "독일",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/45/20220318_160907982.gif"
+  },
+  {
+    "country_eng_nm": "Timor-Leste",
+    "country_nm": "동티모르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/46/20220318_170256918.gif"
+  },
+  {
+    "country_eng_nm": "Laos",
+    "country_nm": "라오스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/47/20220318_163332591.gif"
+  },
+  {
+    "country_eng_nm": "Liberia",
+    "country_nm": "라이베리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/48/20220318_163516044.gif"
+  },
+  {
+    "country_eng_nm": "Latvia",
+    "country_nm": "라트비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/49/20220318_163629695.gif"
+  },
+  {
+    "country_eng_nm": "Russia",
+    "country_nm": "러시아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/50/20220729_092800113.png"
+  },
+  {
+    "country_eng_nm": "Lebanon",
+    "country_nm": "레바논",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/51/20220318_163352250.gif"
+  },
+  {
+    "country_eng_nm": "Lesotho",
+    "country_nm": "레소토",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/52/20220318_163534027.gif"
+  },
+  {
+    "country_eng_nm": "Romania",
+    "country_nm": "루마니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/54/20220318_165414526.gif"
+  },
+  {
+    "country_eng_nm": "Luxembourg",
+    "country_nm": "룩셈부르크",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/55/20220318_163613450.gif"
+  },
+  {
+    "country_eng_nm": "Rwanda",
+    "country_nm": "르완다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/56/20220318_165509439.gif"
+  },
+  {
+    "country_eng_nm": "Libya",
+    "country_nm": "리비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/57/20220318_163646072.gif"
+  },
+  {
+    "country_eng_nm": "Lithuania",
+    "country_nm": "리투아니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/58/20220318_163553668.gif"
+  },
+  {
+    "country_eng_nm": "Liechtenstein",
+    "country_nm": "리히텐슈타인",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/59/20220318_163436978.gif"
+  },
+  {
+    "country_eng_nm": "Madagascar",
+    "country_nm": "마다가스카르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/60/20220318_163839431.gif"
+  },
+  {
+    "country_eng_nm": "Marshall Islands",
+    "country_nm": "마셜제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/62/20220318_163922714.gif"
+  },
+  {
+    "country_eng_nm": "Federated States of Micronesia",
+    "country_nm": "마이크로네시아연방",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/64/20220318_161549155.gif"
+  },
+  {
+    "country_eng_nm": "Malawi",
+    "country_nm": "말라위",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/65/20220318_164519041.gif"
+  },
+  {
+    "country_eng_nm": "Malaysia",
+    "country_nm": "말레이시아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/66/20220318_164600046.gif"
+  },
+  {
+    "country_eng_nm": "Mali",
+    "country_nm": "말리",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/67/20220318_164251026.gif"
+  },
+  {
+    "country_eng_nm": "Isle of Man",
+    "country_nm": "맨 섬",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/68/20220224_233515279.gif"
+  },
+  {
+    "country_eng_nm": "Mexico",
+    "country_nm": "멕시코",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/69/20220318_164538562.gif"
+  },
+  {
+    "country_eng_nm": "Monaco",
+    "country_nm": "모나코",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/70/20220318_163730922.gif"
+  },
+  {
+    "country_eng_nm": "Morocco",
+    "country_nm": "모로코",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/71/20220318_163711153.gif"
+  },
+  {
+    "country_eng_nm": "Mauritius",
+    "country_nm": "모리셔스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/72/20220318_164439925.gif"
+  },
+  {
+    "country_eng_nm": "Mauritania",
+    "country_nm": "모리타니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/73/20220318_164400182.gif"
+  },
+  {
+    "country_eng_nm": "Mazambique",
+    "country_nm": "모잠비크",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/74/20220318_164624153.gif"
+  },
+  {
+    "country_eng_nm": "Montenegro",
+    "country_nm": "몬테네그로",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/75/20220318_163814816.gif"
+  },
+  {
+    "country_eng_nm": "Montserrat",
+    "country_nm": "몬트세랫",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/76/20220224_233515209.gif"
+  },
+  {
+    "country_eng_nm": "Moldova",
+    "country_nm": "몰도바",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/77/20220318_163755114.gif"
+  },
+  {
+    "country_eng_nm": "Maldives",
+    "country_nm": "몰디브",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/78/20220318_164502026.gif"
+  },
+  {
+    "country_eng_nm": "Malta",
+    "country_nm": "몰타",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/79/20220318_164417927.gif"
+  },
+  {
+    "country_eng_nm": "Mongolia",
+    "country_nm": "몽골",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/80/20220318_164338924.gif"
+  },
+  {
+    "country_eng_nm": "Myanmar",
+    "country_nm": "미얀마",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/82/20220318_164314751.gif"
+  },
+  {
+    "country_eng_nm": "United States of America",
+    "country_nm": "미합중국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/81/20220504_170107685.jpg"
+  },
+  {
+    "country_eng_nm": "Vanuatu",
+    "country_nm": "바누아투",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/83/20220318_170812151.gif"
+  },
+  {
+    "country_eng_nm": "Bahrain",
+    "country_nm": "바레인",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/84/20220318_155707078.gif"
+  },
+  {
+    "country_eng_nm": "Barbados",
+    "country_nm": "바베이도스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/85/20220318_155403259.gif"
+  },
+  {
+    "country_eng_nm": "Bahamas",
+    "country_nm": "바하마",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/87/20220318_155924675.gif"
+  },
+  {
+    "country_eng_nm": "Bangladesh",
+    "country_nm": "방글라데시",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/88/20220318_155428211.gif"
+  },
+  {
+    "country_eng_nm": "Bermuda",
+    "country_nm": "버뮤다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/89/20220224_233514561.gif"
+  },
+  {
+    "country_eng_nm": "Benin",
+    "country_nm": "베냉",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/90/20220318_155757028.gif"
+  },
+  {
+    "country_eng_nm": "Venezuela",
+    "country_nm": "베네수엘라볼리바르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/91/20220318_170734617.gif"
+  },
+  {
+    "country_eng_nm": "Vietnam",
+    "country_nm": "베트남",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/92/20220318_170753486.gif"
+  },
+  {
+    "country_eng_nm": "Belgium",
+    "country_nm": "벨기에",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/93/20220318_155559315.gif"
+  },
+  {
+    "country_eng_nm": "Belarus",
+    "country_nm": "벨라루스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/94/20220318_160027564.gif"
+  },
+  {
+    "country_eng_nm": "Belize",
+    "country_nm": "벨리즈",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/95/20220318_160049812.gif"
+  },
+  {
+    "country_eng_nm": "Bosnia-Herzegovina",
+    "country_nm": "보스니아헤르체고비나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/96/20220318_155341050.gif"
+  },
+  {
+    "country_eng_nm": "Botswana",
+    "country_nm": "보츠와나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/97/20220318_160006984.gif"
+  },
+  {
+    "country_eng_nm": "Bolivia",
+    "country_nm": "볼리비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/98/20220318_155840717.gif"
+  },
+  {
+    "country_eng_nm": "Burundi",
+    "country_nm": "부룬디",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/99/20220318_155734115.gif"
+  },
+  {
+    "country_eng_nm": "Burkina Faso",
+    "country_nm": "부르키나파소",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/100/20220318_155621283.gif"
+  },
+  {
+    "country_eng_nm": "Bhutan",
+    "country_nm": "부탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/101/20220318_155946652.gif"
+  },
+  {
+    "country_eng_nm": "Northern Mariana Islands",
+    "country_nm": "북마리아나 군도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/102/20220224_233514711.gif"
+  },
+  {
+    "country_eng_nm": "North Macedonia",
+    "country_nm": "북마케도니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/103/20220318_164221517.gif"
+  },
+  {
+    "country_eng_nm": "Bulgaria",
+    "country_nm": "불가리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/104/20220318_155644008.gif"
+  },
+  {
+    "country_eng_nm": "Brazil",
+    "country_nm": "브라질",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/105/20220318_155901021.gif"
+  },
+  {
+    "country_eng_nm": "Brunei",
+    "country_nm": "브루나이",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/106/20220318_155818223.gif"
+  },
+  {
+    "country_eng_nm": "Samoa",
+    "country_nm": "사모아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/107/20220318_170833187.gif"
+  },
+  {
+    "country_eng_nm": "Saudi Arabia",
+    "country_nm": "사우디아라비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/108/20220318_165528053.gif"
+  },
+  {
+    "country_eng_nm": "Cyprus",
+    "country_nm": "사이프러스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/109/20220318_160811530.gif"
+  },
+  {
+    "country_eng_nm": "San Marino",
+    "country_nm": "산마리노",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/111/20220318_165809508.gif"
+  },
+  {
+    "country_eng_nm": "Sâo Tomé & Principe",
+    "country_nm": "상투메프린시페",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/112/20220318_170013541.gif"
+  },
+  {
+    "country_eng_nm": "St. Pierre and Miquelon",
+    "country_nm": "생피에르·미클롱",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/113/20220224_233514623.gif"
+  },
+  {
+    "country_eng_nm": "Senegal",
+    "country_nm": "세네갈",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/114/20220318_165832649.gif"
+  },
+  {
+    "country_eng_nm": "Serbia",
+    "country_nm": "세르비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/115/20220318_165434935.gif"
+  },
+  {
+    "country_eng_nm": "Seychelles",
+    "country_nm": "세이셸",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/116/20220318_165605857.gif"
+  },
+  {
+    "country_eng_nm": "St Helena",
+    "country_nm": "세인트 헬레나 섬",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/120/20220224_233514526.gif"
+  },
+  {
+    "country_eng_nm": "St. Lucia",
+    "country_nm": "세인트루시아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/117/20220318_163413602.bmp"
+  },
+  {
+    "country_eng_nm": "St. Vincent & the Grenadines",
+    "country_nm": "세인트빈센트그레나딘",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/118/20220318_170716101.gif"
+  },
+  {
+    "country_eng_nm": "St. Kitts-Nevis",
+    "country_nm": "세인트키츠네비스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/119/20220318_163224847.gif"
+  },
+  {
+    "country_eng_nm": "Somalia",
+    "country_nm": "소말리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/121/20220318_165847410.gif"
+  },
+  {
+    "country_eng_nm": "Solomon Islands",
+    "country_nm": "솔로몬제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/122/20220318_165547449.gif"
+  },
+  {
+    "country_eng_nm": "Sudan",
+    "country_nm": "수단",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/123/20220318_165622650.gif"
+  },
+  {
+    "country_eng_nm": "Suriname",
+    "country_nm": "수리남",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/124/20220318_165905843.gif"
+  },
+  {
+    "country_eng_nm": "Sri Lanka",
+    "country_nm": "스리랑카",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/125/20220318_163456971.gif"
+  },
+  {
+    "country_eng_nm": "Sweden",
+    "country_nm": "스웨덴",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/126/20220318_165639907.gif"
+  },
+  {
+    "country_eng_nm": "Swiss",
+    "country_nm": "스위스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/127/20220318_160311962.gif"
+  },
+  {
+    "country_eng_nm": "Spain",
+    "country_nm": "스페인",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/128/20220318_161418873.gif"
+  },
+  {
+    "country_eng_nm": "Slovakia",
+    "country_nm": "슬로바키아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/129/20220318_165735565.gif"
+  },
+  {
+    "country_eng_nm": "Slovenia",
+    "country_nm": "슬로베니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/130/20220318_165717405.gif"
+  },
+  {
+    "country_eng_nm": "Syria",
+    "country_nm": "시리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/131/20220318_170052069.gif"
+  },
+  {
+    "country_eng_nm": "Sierra Leone",
+    "country_nm": "시에라리온",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/132/20220318_165752799.gif"
+  },
+  {
+    "country_eng_nm": "Singapore",
+    "country_nm": "싱가포르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/133/20220318_165655208.gif"
+  },
+  {
+    "country_eng_nm": "United Arab Emirates : UAE",
+    "country_nm": "아랍에미리트",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/134/20220318_154219608.gif"
+  },
+  {
+    "country_eng_nm": "Aruba",
+    "country_nm": "아루바",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/135/20220224_233514062.gif"
+  },
+  {
+    "country_eng_nm": "Armenia",
+    "country_nm": "아르메니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/136/20220318_154859591.gif"
+  },
+  {
+    "country_eng_nm": "Argentina",
+    "country_nm": "아르헨티나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/137/20220318_155042415.gif"
+  },
+  {
+    "country_eng_nm": "Iceland",
+    "country_nm": "아이슬란드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/138/20220318_162816057.gif"
+  },
+  {
+    "country_eng_nm": "Haiti",
+    "country_nm": "아이티",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/139/20220318_162444377.gif"
+  },
+  {
+    "country_eng_nm": "Ireland",
+    "country_nm": "아일랜드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/140/20220318_162604484.gif"
+  },
+  {
+    "country_eng_nm": "Azerbaijan",
+    "country_nm": "아제르바이잔",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/141/20220318_155301025.gif"
+  },
+  {
+    "country_eng_nm": "Afghanistan",
+    "country_nm": "아프가니스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/142/20220318_154306906.gif"
+  },
+  {
+    "country_eng_nm": "Andorra",
+    "country_nm": "안도라",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/143/20220318_154456298.gif"
+  },
+  {
+    "country_eng_nm": "Albania",
+    "country_nm": "알바니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/144/20220322_100356049.gif"
+  },
+  {
+    "country_eng_nm": "Algeria",
+    "country_nm": "알제리",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/145/20220318_161209334.gif"
+  },
+  {
+    "country_eng_nm": "Angola",
+    "country_nm": "앙골라",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/146/20220318_155000833.gif"
+  },
+  {
+    "country_eng_nm": "Antigua and Barbuda",
+    "country_nm": "앤티가바부다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/147/20220224_233514192.gif"
+  },
+  {
+    "country_eng_nm": "Anguilla",
+    "country_nm": "앵귈라",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/148/20220224_233514186.gif"
+  },
+  {
+    "country_eng_nm": "Eritrea",
+    "country_nm": "에리트레아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/149/20220318_161350250.gif"
+  },
+  {
+    "country_eng_nm": "Eswatini",
+    "country_nm": "에스와티니",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/150/20220720_144758176.gif"
+  },
+  {
+    "country_eng_nm": "Estonia",
+    "country_nm": "에스토니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/151/20220318_161257392.gif"
+  },
+  {
+    "country_eng_nm": "Ecuador",
+    "country_nm": "에콰도르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/152/20220318_161233228.gif"
+  },
+  {
+    "country_eng_nm": "ETC",
+    "country_nm": "에티오피아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/153/20220318_161440363.gif"
+  },
+  {
+    "country_eng_nm": "El Salvador",
+    "country_nm": "엘살바도르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/154/20220318_170034642.bmp"
+  },
+  {
+    "country_eng_nm": "United Kingdom",
+    "country_nm": "영국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/155/20220318_161717544.gif"
+  },
+  {
+    "country_eng_nm": "British Virgin Islands",
+    "country_nm": "영국령 버진 아일랜드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/157/20220224_233514081.gif"
+  },
+  {
+    "country_eng_nm": "British Indian Ocean Territory",
+    "country_nm": "영국령 인도양 제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/158/20220224_233514079.gif"
+  },
+  {
+    "country_eng_nm": "Yemen",
+    "country_nm": "예멘",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/159/20220318_170906846.gif"
+  },
+  {
+    "country_eng_nm": "Oman",
+    "country_nm": "오만",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/160/20220318_165025480.gif"
+  },
+  {
+    "country_eng_nm": "Austria",
+    "country_nm": "오스트리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/161/20220318_155125077.gif"
+  },
+  {
+    "country_eng_nm": "Honduras",
+    "country_nm": "온두라스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/162/20220323_174947970.jpg"
+  },
+  {
+    "country_eng_nm": "Wallis and Futuna",
+    "country_nm": "왈리스·퓌튀나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/163/20220224_233513758.gif"
+  },
+  {
+    "country_eng_nm": "Jordan",
+    "country_nm": "요르단",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/164/20220318_162932491.gif"
+  },
+  {
+    "country_eng_nm": "Uganda",
+    "country_nm": "우간다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/165/20220318_170547309.gif"
+  },
+  {
+    "country_eng_nm": "Uruguay",
+    "country_nm": "우루과이",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/166/20220318_170622175.gif"
+  },
+  {
+    "country_eng_nm": "Uzbekistan",
+    "country_nm": "우즈베키스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/167/20220318_170638365.gif"
+  },
+  {
+    "country_eng_nm": "Ukraine",
+    "country_nm": "우크라이나",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/168/20220729_092922428.gif"
+  },
+  {
+    "country_eng_nm": "European Union : EU",
+    "country_nm": "유럽연합",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/244/20220224_233513004.gif"
+  },
+  {
+    "country_eng_nm": "Iraq",
+    "country_nm": "이라크",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/169/20220318_162732536.gif"
+  },
+  {
+    "country_eng_nm": "Iran",
+    "country_nm": "이란",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/170/20220318_162755203.gif"
+  },
+  {
+    "country_eng_nm": "Israel",
+    "country_nm": "이스라엘",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/171/20220318_162634203.gif"
+  },
+  {
+    "country_eng_nm": "Egypt",
+    "country_nm": "이집트",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/172/20220318_161328692.gif"
+  },
+  {
+    "country_eng_nm": "Italia",
+    "country_nm": "이탈리아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/173/20220318_162836837.gif"
+  },
+  {
+    "country_eng_nm": "India",
+    "country_nm": "인도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/174/20220318_162705650.gif"
+  },
+  {
+    "country_eng_nm": "Indonesia",
+    "country_nm": "인도네시아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/175/20220318_162536716.gif"
+  },
+  {
+    "country_eng_nm": "Japan",
+    "country_nm": "일본",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/176/20220318_162955741.gif"
+  },
+  {
+    "country_eng_nm": "Jamaica",
+    "country_nm": "자메이카",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/177/20220318_162858284.gif"
+  },
+  {
+    "country_eng_nm": "Zambia",
+    "country_nm": "잠비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/178/20220318_170941997.gif"
+  },
+  {
+    "country_eng_nm": "Bailiwick of Jersey",
+    "country_nm": "저지",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/179/20220224_233513804.gif"
+  },
+  {
+    "country_eng_nm": "Equatorial Guinea",
+    "country_nm": "적도기니",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/180/20220318_162122008.gif"
+  },
+  {
+    "country_eng_nm": "Georgia",
+    "country_nm": "조지아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/181/20220318_161818196.gif"
+  },
+  {
+    "country_eng_nm": "China",
+    "country_nm": "중국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/182/20220329_151915812.gif"
+  },
+  {
+    "country_eng_nm": "Central African Republic",
+    "country_nm": "중앙아프리카",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/183/20220318_160205079.gif"
+  },
+  {
+    "country_eng_nm": "Djibouti",
+    "country_nm": "지부티",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/184/20220318_160928466.gif"
+  },
+  {
+    "country_eng_nm": "Gibraltar",
+    "country_nm": "지브롤터",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/185/20220224_233513712.gif"
+  },
+  {
+    "country_eng_nm": "Zimbabwe",
+    "country_nm": "짐바브웨",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/186/20220318_171000065.gif"
+  },
+  {
+    "country_eng_nm": "Chad",
+    "country_nm": "차드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/187/20220318_170138134.gif"
+  },
+  {
+    "country_eng_nm": "Czech",
+    "country_nm": "체코",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/188/20220318_160834593.gif"
+  },
+  {
+    "country_eng_nm": "Chile",
+    "country_nm": "칠레",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/189/20220318_160418259.gif"
+  },
+  {
+    "country_eng_nm": "Cameroon",
+    "country_nm": "카메룬",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/190/20220318_160445855.gif"
+  },
+  {
+    "country_eng_nm": "Cape Verde",
+    "country_nm": "카보베르데",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/191/20220318_160712353.gif"
+  },
+  {
+    "country_eng_nm": "Kazakhstan",
+    "country_nm": "카자흐스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/192/20220318_163310295.gif"
+  },
+  {
+    "country_eng_nm": "Qatar",
+    "country_nm": "카타르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/193/20220318_165353863.gif"
+  },
+  {
+    "country_eng_nm": "Cambodia",
+    "country_nm": "캄보디아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/194/20220318_163118134.jpg"
+  },
+  {
+    "country_eng_nm": "Canada",
+    "country_nm": "캐나다",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/195/20220318_160107913.gif"
+  },
+  {
+    "country_eng_nm": "Kenya",
+    "country_nm": "케냐",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/196/20220318_163022023.png"
+  },
+  {
+    "country_eng_nm": "Cayman Islands",
+    "country_nm": "케이맨제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/197/20220224_233513763.gif"
+  },
+  {
+    "country_eng_nm": "Comoros",
+    "country_nm": "코모로",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/198/20220318_163203199.gif"
+  },
+  {
+    "country_eng_nm": "Kosovo",
+    "country_nm": "코소보",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/199/20220318_170850786.gif"
+  },
+  {
+    "country_eng_nm": "Costa Rica",
+    "country_nm": "코스타리카",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/200/20220329_145838618.png"
+  },
+  {
+    "country_eng_nm": "Côte D'Ivoire",
+    "country_nm": "코트디부아르",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/201/20220318_160333923.gif"
+  },
+  {
+    "country_eng_nm": "Colombia",
+    "country_nm": "콜롬비아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/202/20220318_160540028.gif"
+  },
+  {
+    "country_eng_nm": "Congo",
+    "country_nm": "콩고",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/203/20220318_160245559.gif"
+  },
+  {
+    "country_eng_nm": "Democratic Republic of Congo",
+    "country_nm": "콩고민주공화국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/204/20220318_160137066.gif"
+  },
+  {
+    "country_eng_nm": "Cuba",
+    "country_nm": "쿠바",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/205/20220318_160637411.gif"
+  },
+  {
+    "country_eng_nm": "Kuwait",
+    "country_nm": "쿠웨이트",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/206/20220318_163249035.gif"
+  },
+  {
+    "country_eng_nm": "Cook Islands",
+    "country_nm": "쿡제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/207/20220318_160358554.gif"
+  },
+  {
+    "country_eng_nm": "Croatia",
+    "country_nm": "크로아티아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/208/20220318_162351871.gif"
+  },
+  {
+    "country_eng_nm": "Kyrgyz",
+    "country_nm": "키르기스스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/209/20220318_163048531.gif"
+  },
+  {
+    "country_eng_nm": "Kiribati",
+    "country_nm": "키리바시",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/210/20220318_163139369.gif"
+  },
+  {
+    "country_eng_nm": "Tajikistan",
+    "country_nm": "타지키스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/212/20220318_170239649.gif"
+  },
+  {
+    "country_eng_nm": "Tanzania",
+    "country_nm": "탄자니아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/213/20220318_170507002.gif"
+  },
+  {
+    "country_eng_nm": "Thailand",
+    "country_nm": "태국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/214/20220318_170222070.gif"
+  },
+  {
+    "country_eng_nm": "Turks and Caicos Islands",
+    "country_nm": "터크스·케이커스 제도",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/215/20220224_233513185.gif"
+  },
+  {
+    "country_eng_nm": "Togo",
+    "country_nm": "토고",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/217/20220318_170156335.gif"
+  },
+  {
+    "country_eng_nm": "Tonga",
+    "country_nm": "통가",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/218/20220318_170349528.gif"
+  },
+  {
+    "country_eng_nm": "Turkmenistan",
+    "country_nm": "투르크메니스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/219/20220318_170314338.gif"
+  },
+  {
+    "country_eng_nm": "Tuvalu",
+    "country_nm": "투발루",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/220/20220318_170446163.gif"
+  },
+  {
+    "country_eng_nm": "Tunisia",
+    "country_nm": "튀니지",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/221/20220318_170333269.gif"
+  },
+  {
+    "country_eng_nm": "Republic of Turkiye",
+    "country_nm": "튀르키예공화국",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/216/20220318_170408650.gif"
+  },
+  {
+    "country_eng_nm": "Trinidad & Tobago",
+    "country_nm": "트리니다드토바고",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/222/20220318_170425254.gif"
+  },
+  {
+    "country_eng_nm": "Panama",
+    "country_nm": "파나마",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/223/20220318_165042149.gif"
+  },
+  {
+    "country_eng_nm": "Paraguay",
+    "country_nm": "파라과이",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/224/20220318_165336804.gif"
+  },
+  {
+    "country_eng_nm": "Pakistan",
+    "country_nm": "파키스탄",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/225/20220318_165158778.gif"
+  },
+  {
+    "country_eng_nm": "Papua New Guinea : PNG",
+    "country_nm": "파푸아뉴기니",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/226/20220318_165120997.gif"
+  },
+  {
+    "country_eng_nm": "Palau",
+    "country_nm": "팔라우",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/227/20220318_165320463.gif"
+  },
+  {
+    "country_eng_nm": "Palestine",
+    "country_nm": "팔레스타인",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/228/20220318_165237143.gif"
+  },
+  {
+    "country_eng_nm": "Peru",
+    "country_nm": "페루",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/229/20220318_165102133.gif"
+  },
+  {
+    "country_eng_nm": "Portugal",
+    "country_nm": "포르투갈",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/230/20220318_165302991.gif"
+  },
+  {
+    "country_eng_nm": "Poland",
+    "country_nm": "폴란드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/231/20220318_165216491.png"
+  },
+  {
+    "country_eng_nm": "France",
+    "country_nm": "프랑스",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/232/20220318_161621275.gif"
+  },
+  {
+    "country_eng_nm": "French Polynesia",
+    "country_nm": "프랑스령 폴리네시아",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/234/20220224_233513129.gif"
+  },
+  {
+    "country_eng_nm": "Fiji",
+    "country_nm": "피지",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/235/20220318_161522119.gif"
+  },
+  {
+    "country_eng_nm": "Finland",
+    "country_nm": "핀란드",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/236/20220318_161502305.gif"
+  },
+  {
+    "country_eng_nm": "Philippines",
+    "country_nm": "필리핀",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/237/20220318_165139676.gif"
+  },
+  {
+    "country_eng_nm": "Pitcairn Islands",
+    "country_nm": "핏케언 섬",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/238/20220224_233513073.gif"
+  },
+  {
+    "country_eng_nm": "Hungary",
+    "country_nm": "헝가리",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/239/20220318_162505062.gif"
+  },
+  {
+    "country_eng_nm": "Australia",
+    "country_nm": "호주",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/240/20220318_155159510.gif"
+  },
+  {
+    "country_eng_nm": "Hongkong",
+    "country_nm": "홍콩",
+    "download_url": "https://opendata.mofa.go.kr:8444/fileDownload/images/country_images/flags/250/20220224_233512982.gif"
+  }
+]
