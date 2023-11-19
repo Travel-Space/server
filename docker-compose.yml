@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  client:
     build:
       context: ../client
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     command: /bin/sh -c "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx && npm start"
-    container_name: app_container
+    container_name: client_container
 
   server:
     build:
