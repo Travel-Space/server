@@ -14,7 +14,7 @@ services:
   client-nginx:
     build:
       context: ../client
-      dockerfile: Dockerfile.nginx
+      dockerfile: dockerfile.nginx
     ports:
       - '80:80'
       - '443:443'
