@@ -47,7 +47,7 @@ export class AuthService {
       service: 'naver',
       host: 'smtp.naver.com',
       port: 587,
-      secure: false,
+      secure: true,
       auth: {
         user: process.env.NAVER_EMAIL,
         pass: process.env.NAVER_PASSWORD,
