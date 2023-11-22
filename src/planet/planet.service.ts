@@ -248,6 +248,11 @@ export class PlanetService {
       },
     });
 
+    await this.prisma.chatRoom.update({
+      where: { id: chatRoom.id },
+      data: { planetId: newPlanet.id },
+    });
+
     await this.prisma.chatMembership.create({
       data: {
         chatRoomId: chatRoom.id,
