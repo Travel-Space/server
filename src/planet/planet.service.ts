@@ -321,6 +321,29 @@ export class PlanetService {
       await prisma.invitation.deleteMany({
         where: { planetId: planetId },
       });
+
+      const spaceships = await prisma.spaceship.findMany({
+        where: { planetId: planetId },
+      });
+
+      for (const spaceship of spaceships) {
+        await prisma.chatMembership.deleteMany({
+          where: { chatRoomId: spaceship.chatRoomId },
+        });
+
+        await prisma.chatRoom.delete({
+          where: { id: spaceship.chatRoomId },
+        });
+      }
+
+      await prisma.chatMembership.deleteMany({
+        where: { chatRoomId: planet.chatRoomId },
+      });
+
+      await prisma.chatRoom.delete({
+        where: { id: planet.chatRoomId },
+      });
+
       await prisma.spaceshipMember.deleteMany({
         where: { spaceship: { planetId: planetId } },
       });
