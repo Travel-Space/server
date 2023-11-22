@@ -187,10 +187,12 @@ export class AuthController {
 
       const membershipsString = encodeURIComponent(JSON.stringify(memberships));
       res.redirect(
-        `http://localhost:3000/login-success?id=${id}&role=${role}&nickName=${nickName}&memberships=${membershipsString}`,
+        `https://travelspace.world/login-success?id=${id}&role=${role}&nickName=${nickName}&memberships=${membershipsString}`,
       );
     } else {
-      res.redirect(`http://localhost:3000/signup?email=${email}&name=${name}`);
+      res.redirect(
+        `https://travelspace.world/signup?email=${email}&name=${name}`,
+      );
     }
   }
   @Delete('logout')
