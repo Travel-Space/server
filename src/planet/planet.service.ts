@@ -393,6 +393,25 @@ export class PlanetService {
       throw new NotFoundException('행성을 찾을 수 없습니다.');
     }
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    const content = `${user.nickName} 님이 ${planet.name} 행성에 가입 신청을 했습니다.`;
+    const notification = await this.prisma.notification.create({
+      data: {
+        userId: planet.ownerId,
+        content,
+        userNickName: user.nickName,
+        planetId,
+        type: 'PLANET_JOIN_REQUEST',
+      },
+    });
+
+    this.notificationGateway.server
+      .to(planet.ownerId.toString())
+      .emit('notifications', notification);
+
     const membershipStatus = MembershipStatus.PENDING;
 
     await this.prisma.planetMembership.create({

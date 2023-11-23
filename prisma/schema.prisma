@@ -364,4 +364,5 @@ enum NotificationType {
   ACTIVITY_RESTRICTION
   LIKE
   FOLLOW
+  PLANET_JOIN_REQUEST
 }
