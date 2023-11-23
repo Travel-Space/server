@@ -65,6 +65,9 @@ export class CommentsService {
           parentComment.authorId,
           notification.id,
         );
+        this.notificationGateway.server
+          .to(parentComment.authorId.toString())
+          .emit('notifications', notification);
       }
     }
 
@@ -93,6 +96,9 @@ export class CommentsService {
         article.authorId,
         notification.id,
       );
+      this.notificationGateway.server
+        .to(article.authorId.toString())
+        .emit('notifications', notification);
     }
 
     return newComment;

@@ -28,17 +28,6 @@ export class NotificationGateway {
     private prisma: PrismaService,
   ) {}
 
-  // @SubscribeMessage('createNotification')
-  // async handleCreateNotification(
-  //   @MessageBody() data: { userId: number; content: string },
-  // ): Promise<void> {
-  //   const notification = await this.notificationService.createNotification(
-  //     data.content,
-  //     data.userId,
-  //   );
-  //   this.server.to(data.userId.toString()).emit('notification', notification);
-  // }
-
   @SubscribeMessage('subscribeToNotifications')
   async handleSubscribeToNotifications(
     @ConnectedSocket() client: Socket,
@@ -49,16 +38,6 @@ export class NotificationGateway {
     client.join(data.userId.toString());
     client.emit('notifications', notifications);
   }
-
-  // @SubscribeMessage('deleteNotification')
-  // async handleDeleteNotification(
-  //   @MessageBody() data: { notificationId: number; userId: number },
-  // ): Promise<void> {
-  //   await this.notificationService.deleteNotification(data.notificationId);
-  //   this.server
-  //     .to(data.userId.toString())
-  //     .emit('notificationDeleted', data.notificationId);
-  // }
 
   async sendNotificationToUser(userId: number, notificationId: number) {
     const notification = await this.prisma.notification.findUnique({
