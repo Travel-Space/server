@@ -796,9 +796,13 @@ export class PlanetService {
         const memberCount = await this.prisma.planetMembership.count({
           where: { planetId: bookmark.planetId },
         });
+        const totalMemberCount = await this.prisma.planetMembership.count({
+          where: { planetId: bookmark.planetId },
+        });
         return {
           ...bookmark,
           memberCount,
+          totalMemberCount,
         };
       }),
     );
