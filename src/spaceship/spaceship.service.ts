@@ -184,20 +184,28 @@ export class SpaceshipService {
       },
     });
 
-    if (existingMember) {
+    if (existingMember && existingMember.role === SpaceshipRole.OWNER) {
       throw new ForbiddenException('이미 이 우주선에 탑승했습니다.');
     }
-    await this.prisma.chatMembership.create({
-      data: {
-        chatRoomId: spaceship.chatRoomId,
-        userId: userId,
-      },
-    });
+    if (!existingMember || existingMember.role !== SpaceshipRole.OWNER) {
+      await this.prisma.chatMembership.create({
+        data: {
+          chatRoomId: spaceship.chatRoomId,
+          userId: userId,
+        },
+      });
 
-    return this.prisma.spaceshipMember.create({
-      data: {
+      await this.prisma.spaceshipMember.create({
+        data: {
+          spaceshipId: spaceshipId,
+          userId: userId,
+        },
+      });
+    }
+
+    return this.prisma.spaceshipMember.findMany({
+      where: {
         spaceshipId: spaceshipId,
-        userId: userId,
       },
     });
   }
