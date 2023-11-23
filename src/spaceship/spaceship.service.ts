@@ -184,28 +184,20 @@ export class SpaceshipService {
       },
     });
 
-    if (existingMember && existingMember.role === SpaceshipRole.OWNER) {
+    if (existingMember) {
       throw new ForbiddenException('이미 이 우주선에 탑승했습니다.');
     }
-    if (!existingMember || existingMember.role !== SpaceshipRole.OWNER) {
-      await this.prisma.chatMembership.create({
-        data: {
-          chatRoomId: spaceship.chatRoomId,
-          userId: userId,
-        },
-      });
+    await this.prisma.chatMembership.create({
+      data: {
+        chatRoomId: spaceship.chatRoomId,
+        userId: userId,
+      },
+    });
 
-      await this.prisma.spaceshipMember.create({
-        data: {
-          spaceshipId: spaceshipId,
-          userId: userId,
-        },
-      });
-    }
-
-    return this.prisma.spaceshipMember.findMany({
-      where: {
+    return this.prisma.spaceshipMember.create({
+      data: {
         spaceshipId: spaceshipId,
+        userId: userId,
       },
     });
   }
@@ -250,10 +242,25 @@ export class SpaceshipService {
     newOwnerId: number,
   ) {
     return this.prisma.$transaction(async (prisma) => {
+      const spaceship = await prisma.spaceship.findUnique({
+        where: {
+          id: spaceshipId,
+        },
+      });
+
       await prisma.spaceshipMember.delete({
         where: {
           spaceshipId_userId: {
             spaceshipId: spaceshipId,
+            userId: currentOwnerId,
+          },
+        },
+      });
+
+      await prisma.chatMembership.delete({
+        where: {
+          chatRoomId_userId: {
+            chatRoomId: spaceship.chatRoomId,
             userId: currentOwnerId,
           },
         },
