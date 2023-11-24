@@ -193,7 +193,7 @@ export class CommentsService {
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {
@@ -233,7 +233,7 @@ export class CommentsService {
       },
       take: pageSize,
       skip: skip,
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {

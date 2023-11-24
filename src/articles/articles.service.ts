@@ -84,7 +84,6 @@ export class ArticlesService {
       planetName: article.planet?.name,
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
-      // latitude와 longitude를 직접 반환합니다.
       latitude: article.latitude,
       longitude: article.longitude,
     }));
