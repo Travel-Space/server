@@ -134,6 +134,7 @@ model Notification {
   commentId Int?
   userNickName String?
   planetId  Int?
+  ownerId   Int?
   type      NotificationType?
   invitationId Int?
   createdAt DateTime @default(now())
