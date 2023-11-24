@@ -10,17 +10,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class LocationDto {
-  @ApiProperty({ description: '위도' })
-  @IsOptional()
-  @IsNumber()
-  latitude?: number;
-
-  @ApiProperty({ description: '경도' })
-  @IsNumber()
-  longitude?: number;
-}
-
 export class UpdateArticleDto {
   @ApiProperty({ description: '게시글 제목' })
   @IsString()
@@ -47,11 +36,13 @@ export class UpdateArticleDto {
   @IsString()
   address?: string;
 
-  @ApiProperty({ description: '게시글 위치 정보', type: [LocationDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => LocationDto)
-  locations?: LocationDto[];
+  @ApiProperty({ description: '위도' })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({ description: '경도' })
+  @IsNumber()
+  longitude: number;
 
   @ApiProperty({ description: '게시글 이미지 URL 목록' })
   @IsArray()

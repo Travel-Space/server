@@ -70,7 +70,6 @@ export class ArticlesService {
         },
         likes: true,
         comments: true,
-        locations: true,
         images: true,
       },
       orderBy: {
@@ -85,6 +84,9 @@ export class ArticlesService {
       planetName: article.planet?.name,
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
+      // latitude와 longitude를 직접 반환합니다.
+      latitude: article.latitude,
+      longitude: article.longitude,
     }));
 
     return {
@@ -101,7 +103,6 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
-        locations: true,
         images: true,
 
         spaceship: {
@@ -121,6 +122,8 @@ export class ArticlesService {
       likeCount: article.likes.length,
       isLiked: article.likes.some((like) => like.userId === userId),
       spaceshipName: article.spaceship?.name,
+      latitude: article.latitude,
+      longitude: article.longitude,
     };
   }
 
@@ -136,7 +139,6 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
-        locations: true,
         images: true,
       },
       orderBy: {
@@ -154,6 +156,8 @@ export class ArticlesService {
         ...article,
         likeCount: article.likes.length,
         isLiked: article.likes.some((like) => like.userId === userId),
+        latitude: article.latitude,
+        longitude: article.longitude,
       })),
     };
   }
@@ -193,7 +197,6 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
-        locations: true,
         images: true,
       },
       orderBy: {
@@ -215,6 +218,8 @@ export class ArticlesService {
         ...article,
         likeCount: article.likes.length,
         isLiked: article.likes.some((like) => like.userId === userId),
+        latitude: article.latitude,
+        longitude: article.longitude,
       })),
     };
   }
@@ -279,7 +284,6 @@ export class ArticlesService {
         planet: true,
         likes: true,
         comments: true,
-        locations: true,
         images: true,
       },
       orderBy: {
@@ -290,15 +294,13 @@ export class ArticlesService {
     });
 
     const filteredArticles = articles.filter((article) => {
-      return article.locations.some((location) => {
-        const distance = this.getDistanceFromLatLonInKm(
-          centerLatitude,
-          centerLongitude,
-          location.latitude,
-          location.longitude,
-        );
-        return distance <= radius;
-      });
+      const distance = this.getDistanceFromLatLonInKm(
+        centerLatitude,
+        centerLongitude,
+        article.latitude,
+        article.longitude,
+      );
+      return distance <= radius;
     });
 
     if (!filteredArticles.length) {
@@ -335,12 +337,8 @@ export class ArticlesService {
         spaceship: dto.spaceshipId
           ? { connect: { id: dto.spaceshipId } }
           : undefined,
-        locations: {
-          create: dto.locations.map((location) => ({
-            latitude: location.latitude,
-            longitude: location.longitude,
-          })),
-        },
+        latitude: dto.latitude,
+        longitude: dto.longitude,
         images:
           dto.imageUrls && dto.imageUrls.length > 0
             ? {
@@ -349,7 +347,6 @@ export class ArticlesService {
             : undefined,
       },
       include: {
-        locations: true,
         images: true,
         author: true,
         planet: true,
@@ -436,12 +433,8 @@ export class ArticlesService {
           : dto.spaceshipId === null
           ? { disconnect: true }
           : undefined,
-        locations: {
-          create: dto.locations?.map((location) => ({
-            latitude: location.latitude,
-            longitude: location.longitude,
-          })),
-        },
+        latitude: dto.latitude,
+        longitude: dto.longitude,
         images:
           dto.imageUrls && dto.imageUrls.length > 0
             ? {
@@ -450,7 +443,6 @@ export class ArticlesService {
             : undefined,
       },
       include: {
-        locations: true,
         images: true,
         author: true,
         planet: true,
@@ -508,7 +500,6 @@ export class ArticlesService {
           planet: true,
           likes: true,
           comments: true,
-          locations: true,
           images: true,
         },
       }),
@@ -522,6 +513,8 @@ export class ArticlesService {
         ...article,
         likeCount: article.likes.length,
         isLiked: article.likes.some((like) => like.userId === authorId),
+        latitude: article.latitude,
+        longitude: article.longitude,
       })),
       totalCount,
     };

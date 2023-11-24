@@ -8,7 +8,6 @@ import {
   ValidateNested,
   IsOptional,
 } from 'class-validator';
-import { LocationDto } from '.';
 import { Type } from 'class-transformer';
 
 export class ArticleDto {
@@ -50,14 +49,13 @@ export class ArticleDto {
   @IsString()
   address: string;
 
-  @ApiProperty({
-    description: '게시글에 설정된 위치 정보',
-    type: [LocationDto],
-  })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => LocationDto)
-  locations: LocationDto[];
+  @ApiProperty({ description: '위도' })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({ description: '경도' })
+  @IsNumber()
+  longitude: number;
 
   @ApiProperty({ description: '연관된 우주선 ID' })
   @IsOptional()
