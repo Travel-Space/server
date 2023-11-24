@@ -400,8 +400,8 @@ export class PlanetService {
     const content = `${user.nickName} 님이 ${planet.name} 행성에 가입 신청을 했습니다.`;
     const notification = await this.prisma.notification.create({
       data: {
-        ownerId: planet.ownerId,
-        userId: userId,
+        requestUserId: userId,
+        userId: planet.ownerId,
         content,
         userNickName: user.nickName,
         planetId,
