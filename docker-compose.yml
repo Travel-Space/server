@@ -10,6 +10,8 @@ services:
     depends_on:
       - server
     container_name: client_container
+    env_file:
+      - ../client/.env
 
   client-nginx:
     build:
