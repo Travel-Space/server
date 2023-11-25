@@ -17,8 +17,7 @@ services:
       - server
     container_name: client_container
     env_file:
-      - ../client/.env.production
-
+      - /home/ubuntu/client/.env.production
   client-nginx:
     build:
       context: ../client
