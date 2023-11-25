@@ -11,7 +11,7 @@ services:
       - server
     container_name: client_container
     env_file:
-      - ../client/.env
+      - ../client/.env.production
 
   client-nginx:
     build:
