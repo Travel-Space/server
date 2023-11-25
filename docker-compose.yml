@@ -33,3 +33,11 @@ services:
     ports:
       - '8080:8080'
     container_name: server_container
+
+certbot:
+  image: certbot/certbot
+  volumes:
+    - ./data/certbot/conf:/etc/letsencrypt
+    - ./data/certbot/www:/var/www/certbot
+  command: >
+    bash -c "trap exit TERM; while :; do certbot certonly --webroot --webroot-path=/var/www/certbot -d travelspace.world -d www.travelspace.world -n --agree-tos --email rlagusrb619@gmail.com --no-eff-email --keep-until-expiring; sleep 12h & wait $${!}; done;"
