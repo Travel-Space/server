@@ -5,6 +5,12 @@ services:
     build:
       context: ../client
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_GOOGLE_MAP_KEY: ${NEXT_PUBLIC_GOOGLE_MAP_KEY}
+        NEXT_PUBLIC_SOCKET_CHAT_URI: ${NEXT_PUBLIC_SOCKET_CHAT_URI}
+        NEXT_PUBLIC_SOCKET_NOTIFICATION_URI: ${NEXT_PUBLIC_SOCKET_NOTIFICATION_URI}
+        NEXT_PUBLIC_COUNTRY_API_KEY: ${NEXT_PUBLIC_COUNTRY_API_KEY}
+        GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
     ports:
       - '3000:3000'
     depends_on:
