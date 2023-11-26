@@ -7,8 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
-    env_file:
-      - ../client/.env.production
     depends_on:
       - server
     container_name: client_container
