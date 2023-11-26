@@ -10,11 +10,6 @@ services:
     depends_on:
       - server
     container_name: client_container
-    environment:
-      NEXT_PUBLIC_GOOGLE_MAP_KEY: 'AIzaSyD59CDhyuIwbEA1_xAewLGJab-z2SXVMWo'
-      NEXT_PUBLIC_SOCKET_CHAT_URI: 'https://travelspace.world/ws-chat'
-      NEXT_PUBLIC_SOCKET_NOTIFICATION_URI: 'https://travelspace.world/ws-notifications'
-      NEXT_PUBLIC_COUNTRY_API_KEY: 'sCpHMLPz%2FblcixtApQnF3nZPFJsIZH3AbF4f67%2BSbTTtFvQzHvZFufYkHaVZawgvV2%2B%2BnAyP7uiiO7HTnQNXoQ%3D%3D'
   client-nginx:
     build:
       context: ../client
