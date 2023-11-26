@@ -9,6 +9,8 @@ services:
       - '3000:3000'
     depends_on:
       - server
+    env_file:
+      - ../client/.env.production
     container_name: client_container
   client-nginx:
     build:
