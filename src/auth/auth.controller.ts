@@ -168,7 +168,7 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req, @Res() res) {
-    const { email, family_name, given_name } = req.user;
+    const { email, name } = req.user;
     const user = await this.authService.findUserByEmail(email);
     if (user) {
       const { id, access_token, refresh_token, memberships, role, nickName } =
@@ -189,7 +189,7 @@ export class AuthController {
       );
     } else {
       res.redirect(
-        `https://travelspace.world/signup?email=${email}&name=${family_name}${given_name}`,
+        `https://travelspace.world/signup?email=${email}&name=${name}`,
       );
     }
   }
