@@ -168,10 +168,8 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Req() req, @Res() res) {
-    console.log('Google Login Redirect Request Received');
-    const { email, name } = req.user;
+    const { email, family_name, given_name } = req.user;
     const user = await this.authService.findUserByEmail(email);
-    console.log('Found User: ', user);
     if (user) {
       const { id, access_token, refresh_token, memberships, role, nickName } =
         await this.authService.loginWithGoogle(req);
@@ -191,10 +189,11 @@ export class AuthController {
       );
     } else {
       res.redirect(
-        `https://travelspace.world/signup?email=${email}&name=${name}`,
+        `https://travelspace.world/signup?email=${email}&name=${family_name}${given_name}`,
       );
     }
   }
+
   @Delete('logout')
   @UseGuards(JwtAuthGuard, LoggedInGuard)
   @ApiOperation({
