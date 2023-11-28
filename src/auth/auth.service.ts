@@ -47,13 +47,9 @@ export class AuthService {
       service: 'naver',
       host: 'smtp.naver.com',
       port: 587,
-      secure: true,
       auth: {
         user: process.env.NAVER_EMAIL,
         pass: process.env.NAVER_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
       },
     });
   }
@@ -448,6 +444,7 @@ export class AuthService {
 
     this.transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
+        console.log('인증코드 전송 에러' + err);
         throw new InternalServerErrorException('인증코드 전송에 실패했습니다.');
       }
       this.transporter.close();
