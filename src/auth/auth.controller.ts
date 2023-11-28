@@ -129,12 +129,17 @@ export class AuthController {
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const oldRefreshToken = req.cookies['REFRESH_TOKEN'];
     if (!oldRefreshToken) {
-      throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+      throw new HttpException('리프레시 토큰이 제공되지 않았습니다.', 403);
     }
 
-    const { accessToken, refreshToken, id, nickName, memberships, role } =
-      await this.authService.refreshToken(oldRefreshToken);
+    let accessToken, refreshToken, id, nickName, memberships, role;
 
+    try {
+      ({ accessToken, refreshToken, id, nickName, memberships, role } =
+        await this.authService.refreshToken(oldRefreshToken));
+    } catch (e) {
+      throw new HttpException('리프레시 토큰이 유효하지 않습니다.', 401);
+    }
     res.cookie('ACCESS_TOKEN', accessToken, {
       httpOnly: true,
       maxAge: 3600000,

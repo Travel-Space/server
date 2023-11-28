@@ -509,6 +509,12 @@ export class PlanetService {
       throw new NotFoundException('유효하지 않은 가입 신청입니다.');
     }
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+
+    const planet = await this.getPlanetById(planetId);
+
     if (action === MembershipStatus.APPROVED) {
       await this.prisma.planetMembership.update({
         where: {
@@ -522,6 +528,23 @@ export class PlanetService {
           role: PlanetMemberRole.MEMBER,
         },
       });
+
+      const content = `${user.nickName} 님의 ${planet.name} 행성 가입 신청이 승인되었습니다.`;
+      const notification = await this.prisma.notification.create({
+        data: {
+          requestUserId: adminUserId,
+          userId: targetUserId,
+          content,
+          userNickName: user.nickName,
+          planetId,
+          type: 'PLANET_JOIN_APPROVED',
+        },
+      });
+
+      this.notificationGateway.server
+        .to(targetUserId.toString())
+        .emit('notifications', notification);
+
       return '가입 신청이 승인되었습니다.';
     } else if (action === MembershipStatus.REJECTED) {
       await this.prisma.planetMembership.delete({
@@ -532,12 +555,28 @@ export class PlanetService {
           },
         },
       });
+
+      const content = `${user.nickName} 님의 ${planet.name} 행성 가입 신청이 거절되었습니다.`;
+      const notification = await this.prisma.notification.create({
+        data: {
+          requestUserId: adminUserId,
+          userId: targetUserId,
+          content,
+          userNickName: user.nickName,
+          planetId,
+          type: 'PLANET_JOIN_REJECTED',
+        },
+      });
+
+      this.notificationGateway.server
+        .to(targetUserId.toString())
+        .emit('notifications', notification);
+
       return '가입 신청이 거절되었습니다.';
     } else {
       throw new Error('유효하지 않은 작업입니다.');
     }
   }
-
   async leavePlanet(userId: number, planetId: number): Promise<void> {
     const planet = await this.prisma.planet.findUnique({
       where: {
