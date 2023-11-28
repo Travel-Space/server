@@ -660,7 +660,7 @@ export class PlanetController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     const { planets, totalPlanets } =
-      await this.planetService.getMyOwnedPlanets(userId, page, limit);
+      await this.planetService.getOtherUserOwnedPlanets(userId, page, limit);
     return {
       data: planets,
       page,

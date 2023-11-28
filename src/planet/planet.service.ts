@@ -226,6 +226,72 @@ export class PlanetService {
     };
   }
 
+  async getOtherUserOwnedPlanets(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const planets = await this.prisma.planet.findMany({
+      where: {
+        ownerId: userId,
+        published: true,
+      },
+      skip,
+      take: limit,
+      include: {
+        articles: true,
+        owner: true,
+        planetBookMark: true,
+        members: true,
+        spaceships: true,
+        viewCount: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const [totalPlanets, viewCounts] = await Promise.all([
+      this.prisma.planet.count({
+        where: {
+          ownerId: userId,
+        },
+      }),
+      this.prisma.viewCount.groupBy({
+        by: ['planetId'],
+        where: {
+          planetId: {
+            in: planets.map((planet) => planet.id),
+          },
+        },
+        _sum: {
+          count: true,
+        },
+      }),
+    ]);
+
+    const planetViewCounts = viewCounts.reduce((acc, curr) => {
+      const planetId = curr.planetId;
+      const count = curr._sum.count || 0;
+      if (
+        !planets.some(
+          (planet) => planet.id === planetId && planet.articles.length > 0,
+        )
+      ) {
+        acc[planetId] = (acc[planetId] || 0) + count;
+      }
+      return acc;
+    }, {});
+
+    const planetsWithViewCounts = planets.map((planet) => ({
+      ...planet,
+      viewCountTotal: planetViewCounts[planet.id] || 0,
+    }));
+
+    return {
+      planets: planetsWithViewCounts,
+      totalPlanets,
+    };
+  }
+
   async createPlanet(dto: CreatePlanetDto, userId: number) {
     const chatRoom = await this.prisma.chatRoom.create({});
 
@@ -928,6 +994,7 @@ export class PlanetService {
             ownerId: {
               not: userId,
             },
+            published: true,
           },
         },
         skip,
