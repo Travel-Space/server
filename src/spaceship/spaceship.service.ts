@@ -72,7 +72,6 @@ export class SpaceshipService {
   }
 
   async createSpaceship(userId: number, dto: CreateSpaceshipDto) {
-    // 먼저 chatRoom을 생성합니다.
     const createdChatRoom = await this.prisma.chatRoom.create({
       data: {},
       include: {
@@ -106,6 +105,11 @@ export class SpaceshipService {
         chatRoomId: createdChatRoom.id,
         userId: userId,
       },
+    });
+
+    await this.prisma.chatRoom.update({
+      where: { id: createdChatRoom.id },
+      data: { spaceshipId: spaceship.id },
     });
 
     return spaceship;
