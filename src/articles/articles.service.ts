@@ -10,6 +10,26 @@ import { CreateArticleDto, UpdateArticleDto } from './dto';
 import { Article, PlanetMemberRole } from '@prisma/client';
 import { NotificationGateway } from 'src/notification/notification.gateway';
 
+function validateArticle(article) {
+  const { title, content, hashtags, search } = article;
+
+  if (title.length > 50) {
+    throw new BadRequestException('게시글 제목은 50자 이하이어야 합니다.');
+  }
+
+  if (content.length > 3000) {
+    throw new BadRequestException('게시글 본문은 3000자 이하이어야 합니다.');
+  }
+
+  if (hashtags.length > 8) {
+    throw new BadRequestException('해시태그는 최대 8개까지 가능합니다.');
+  }
+
+  if (search.length > 8) {
+    throw new BadRequestException('검색어는 8자 이하이어야 합니다.');
+  }
+}
+
 @Injectable()
 export class ArticlesService {
   constructor(
@@ -322,6 +342,8 @@ export class ArticlesService {
   }
 
   async createArticle(dto: CreateArticleDto, userId: number) {
+    validateArticle(dto);
+
     const newArticle = await this.prisma.article.create({
       data: {
         title: dto.title,
@@ -413,6 +435,8 @@ export class ArticlesService {
   }
 
   async updateArticle(id: number, dto: UpdateArticleDto, userId: number) {
+    validateArticle(dto);
+
     const article = await this.prisma.article.findUnique({ where: { id } });
     if (!article) throw new NotFoundException('게시글을 찾을 수 없습니다.');
     if (article.authorId !== userId)

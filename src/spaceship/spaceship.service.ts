@@ -2,11 +2,24 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSpaceshipDto } from './dto/create-spaceship.dto';
 import { UpdateSpaceshipDto } from './dto/update-spaceship.dto';
 import { SpaceshipRole, SpaceshipStatus } from '@prisma/client';
+
+function validateSpaceship(spaceship) {
+  const { name, description } = spaceship;
+
+  if (name.length > 6) {
+    throw new BadRequestException('우주선 이름은 6자 이하이어야 합니다.');
+  }
+
+  if (description.length > 100) {
+    throw new BadRequestException('우주선 소개는 100자 이하이어야 합니다.');
+  }
+}
 
 @Injectable()
 export class SpaceshipService {
@@ -72,6 +85,8 @@ export class SpaceshipService {
   }
 
   async createSpaceship(userId: number, dto: CreateSpaceshipDto) {
+    validateSpaceship(dto);
+
     const createdChatRoom = await this.prisma.chatRoom.create({
       data: {},
       include: {
@@ -120,6 +135,8 @@ export class SpaceshipService {
     spaceshipId: number,
     data: UpdateSpaceshipDto,
   ) {
+    validateSpaceship(data);
+
     const spaceship = await this.getSpaceshipById(spaceshipId);
 
     if (spaceship.ownerId !== userId) {

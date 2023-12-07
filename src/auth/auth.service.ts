@@ -29,6 +29,26 @@ type UserWithMemberships = User & {
   spaceshipMemberships?: SpaceshipMember[];
 };
 
+function validateUser(user) {
+  const namePattern = /^(?=.*[a-zA-Z0-9가-힣])[a-zA-Z0-9가-힣\s]{2,15}$/;
+  const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const passwordPattern = /^(?=.[a-zA-Z])(?=.[!@#$%^+=-])(?=.*[0-9]).{8,}$/;
+
+  const { name, email, password } = user;
+
+  if (!namePattern.test(name)) {
+    throw new BadRequestException('이름이 유효하지 않습니다.');
+  }
+
+  if (!emailPattern.test(email)) {
+    throw new BadRequestException('이메일이 유효하지 않습니다.');
+  }
+
+  if (!passwordPattern.test(password)) {
+    throw new BadRequestException('비밀번호가 유효하지 않습니다.');
+  }
+}
+
 interface DecodedToken {
   userId: number;
   userEmail: string;
@@ -56,6 +76,8 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
     const { password, ...userData } = createUserDto;
+
+    validateUser(userData);
 
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: userData.email },
@@ -108,6 +130,8 @@ export class AuthService {
     createUserGoogleDto: CreateUserGoogleDto,
   ): Promise<CreateUserResponse> {
     const { ...userData } = createUserGoogleDto;
+
+    validateUser(userData);
 
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: userData.email },

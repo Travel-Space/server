@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -13,6 +14,34 @@ import {
 } from '@prisma/client';
 import { InvitationResponse, UpdatePlanetDto } from './dto';
 import { NotificationGateway } from 'src/notification/notification.gateway';
+
+function validatePlanet(planet) {
+  const { name, introduction, hashtags, passengers, spaceships } = planet;
+
+  if (name.length > 15) {
+    throw new BadRequestException('행성 이름은 15자 이하이어야 합니다.');
+  }
+
+  if (introduction.length > 200) {
+    throw new BadRequestException('행성 소개는 200자 이하이어야 합니다.');
+  }
+
+  if (hashtags.length > 5) {
+    throw new BadRequestException('해시태그는 최대 5개까지 가능합니다.');
+  }
+
+  if (hashtags.some((tag) => tag.length > 8)) {
+    throw new BadRequestException('각 해시태그는 8자 이하이어야 합니다.');
+  }
+
+  if (passengers > 50) {
+    throw new BadRequestException('탑승 인원수는 최대 50명까지 가능합니다.');
+  }
+
+  if (spaceships > 10) {
+    throw new BadRequestException('우주선 개수는 최대 10개까지 가능합니다.');
+  }
+}
 
 @Injectable()
 export class PlanetService {
@@ -293,6 +322,7 @@ export class PlanetService {
   }
 
   async createPlanet(dto: CreatePlanetDto, userId: number) {
+    validatePlanet(dto);
     const chatRoom = await this.prisma.chatRoom.create({});
 
     const newPlanet = await this.prisma.planet.create({
@@ -334,6 +364,8 @@ export class PlanetService {
     userId: number,
     data: Partial<UpdatePlanetDto>,
   ) {
+    validatePlanet(data);
+
     const planet = await this.prisma.planet.findUnique({
       where: { id: planetId },
     });
