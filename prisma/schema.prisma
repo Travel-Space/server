@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+  log      = ["query", "info", "warn", "error"]
 }
 
 datasource db {
@@ -11,10 +9,357 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  age Int
-  userId String
-  password String
+  id                   Int                @id @default(autoincrement())
+  name                 String
+  nickName             String             @unique
+  nationality          String
+  email                String             @unique
+  createdAt            DateTime           @default(now())
+  oauthId              String?
+  password             String?
+  profileImage         String?
+  nationImage          String            
+  refreshToken         String?
+  reportCount          Int?               @default(0)
+  provider             SocialProvider
+  status               UserStatus         @default(ACTIVE)
+  role                 UserRole           @default(MEMBER)
+  deletedAt            DateTime?          @map("deleted_at")
+  userSuspensionDate   DateTime?
+  isSuspended          Boolean?           @default(false)
+  suspensionReason     String?
+  posts                Article[]
+  chatMemberships      ChatMembership[]
+  comments             Comment[]
+  likedArticles        Like[]             @relation("LikeToUser")
+  messages             Message[]          @relation("UserMessages")
+  notifications        Notification[]
+  ownedPlanet          Planet[]
+  planetBookMark       PlanetBookmark[]
+  planetsMembership    PlanetMembership[]
+  reportsMade          Report[]
+  spaceshipMemberships SpaceshipMember[]
+  friendedBy           UserFriend[]       @relation("FriendToUser") 
+  friends              UserFriend[]       @relation("UserToFriend")
+  invitationsSent     Invitation[] @relation("InviterRelation")
+  invitationsReceived Invitation[] @relation("InviteeRelation")
+}
+
+model Article {
+  id          Int         @id @default(autoincrement())
+  title       String
+  content     String?
+  published   Boolean?    @default(true)
+  authorId    Int?
+  planetId    Int?
+  spaceshipId Int?
+  deletedAt   DateTime?   @map("deleted_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  hashtags    String[]
+  author      User?       @relation(fields: [authorId], references: [id])
+  planet      Planet?     @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  spaceship   Spaceship?  @relation(fields: [spaceshipId], references: [id])
+  comments    Comment[]
+  images      Image[]
+  likes       Like[]      @relation("LikeToArticle")
+  viewCount   ViewCount[]
+}
+
+model Planet {
+  id             Int                @id @default(autoincrement())
+  name           String
+  description    String?
+  ownerId        Int
+  memberLimit    Int?
+  spaceshipLimit Int?
+  published      Boolean?           @default(true)
+  isActive       Boolean            @default(true)
+  shape          String             @default("SHAPE1")
+  hashtags       String[]
+  chatRoomId     Int?               @unique
+  createdAt      DateTime           @default(now())
+  deletedAt      DateTime?          @map("deleted_at")
+  articles       Article[]
+  chatRoom       ChatRoom?          @relation("PlanetChatRoom")
+  owner          User               @relation(fields: [ownerId], references: [id])
+  planetBookMark PlanetBookmark[]
+  members        PlanetMembership[]
+  spaceships     Spaceship[]
+  viewCount      ViewCount[]
+  invitationsSent Invitation[] @relation("PlanetToInvitation")
+}
+
+model PlanetMembership {
+  planetId Int
+  userId   Int
+  joinedAt DateTime      @default(now())
+  role     PlanetMemberRole @default(GUEST)
+  status   MembershipStatus @default(PENDING)
+  planet   Planet           @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id])
+
+  @@id([planetId, userId])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  authorId  Int?
+  articleId Int
+  parentId  Int?
+  createdAt DateTime  @default(now())
+  article   Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author    User?     @relation(fields: [authorId], references: [id])
+  parent    Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  children  Comment[] @relation("CommentToComment")
+  notification Notification[]
+}
+
+model Like {
+  userId    Int
+  articleId Int
+  article   Article @relation("LikeToArticle", fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation("LikeToUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, articleId])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  articleId Int?
+  commentId Int?
+  userNickName String?
+  planetId  Int?
+  requestUserId   Int?
+  type      NotificationType?
+  invitationId Int?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id])
+}
+
+model UserFriend {
+  userId   Int
+  friendId Int
+  friend   User @relation("FriendToUser", fields: [friendId], references: [id], onDelete: Cascade)
+  user     User @relation("UserToFriend", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, friendId])
+}
+
+model Report {
+  id             Int              @id @default(autoincrement())
+  reason         String
+  approvalReason String?          @db.VarChar(255)
+  reporterId     Int
+  targetId       Int
+  targetType     ReportTargetType
+  imageUrl       String?
+  createdAt      DateTime         @default(now())
+  deletedAt      DateTime?        @map("deleted_at")
+  status         ReportStatus     @default(RECEIVED)
+  processingDate DateTime?
+  reporter       User             @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+}
+
+model PlanetBookmark {
+  userId   Int
+  planetId Int
+  createdAt DateTime  @default(now())
+  planet   Planet @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, planetId])
+}
+
+model Spaceship {
+  id          Int               @id @default(autoincrement())
+  name        String
+  image       String
+  description String?
+  maxMembers  Int
+  ownerId     Int
+  status      SpaceshipStatus   @default(UPCOMING)
+  startDate   DateTime
+  endDate     DateTime
+  planetId    Int
+  chatRoomId  Int?              @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  articles    Article[]
+  chatRoom    ChatRoom?         @relation("SpaceshipChatRoom")
+  planet      Planet            @relation(fields: [planetId], references: [id], onDelete: Cascade)
+  members     SpaceshipMember[]
+}
+
+model SpaceshipMember {
+  id          Int           @id @default(autoincrement())
+  spaceshipId Int
+  userId      Int
+  joinedAt    DateTime      @default(now())
+  role        SpaceshipRole @default(MEMBER)
+  spaceship   Spaceship     @relation(fields: [spaceshipId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@unique([spaceshipId, userId])
+}
+
+model VerificationCode {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  code       String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  isVerified Boolean  @default(false)
+}
+
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String?
+  articleId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
+
+model ViewCount {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  count     Int      @default(0)
+  articleId Int?
+  planetId  Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  planet    Planet?  @relation(fields: [planetId], references: [id], onDelete: Cascade)
+
+  @@unique([date, articleId, planetId])
+}
+
+model ChatRoom {
+  id              Int              @id @default(autoincrement())
+  planetId        Int?             @unique
+  spaceshipId     Int?             @unique
+  chatMemberships ChatMembership[]
+  planet          Planet?          @relation("PlanetChatRoom", fields: [planetId], references: [id],onDelete: Cascade)
+  spaceship       Spaceship?       @relation("SpaceshipChatRoom", fields: [spaceshipId], references: [id],onDelete: Cascade)
+  messages        Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String
+  senderId   Int
+  chatRoomId Int
+  createdAt  DateTime @default(now())
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  sender     User     @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([chatRoomId], map: "idx_chatRoomId")
+}
+
+model ChatMembership {
+  chatRoomId Int
+  userId     Int
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([chatRoomId, userId])
+}
+
+model Invitation {
+  id            Int      @id @default(autoincrement())
+  planetId      Int
+  inviterId     Int
+  inviteeId     Int
+  status        InvitationStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  planet        Planet   @relation("PlanetToInvitation", fields: [planetId], references: [id], onDelete: Cascade)
+  inviter       User     @relation("InviterRelation", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee       User     @relation("InviteeRelation", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  @@unique([planetId, inviteeId])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum SocialProvider {
+  GOOGLE
+  NAVER
+  KAKAO
+  LOCAL
+}
+
+enum ReportTargetType {
+  USER
+  ARTICLE
+  COMMENT
+  MESSAGE
+}
+
+enum SpaceshipStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELED
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PlanetMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  GUEST
+}
+
+enum ReportStatus {
+  RECEIVED
+  APPROVED
+  REJECTED
+}
+
+enum SpaceshipRole {
+  MEMBER
+  OWNER
+}
+
+enum NotificationType {
+  ARTICLE
+  COMMENT
+  SUB_COMMENT
+  PLANET_INVITE
+  ACTIVITY_RESTRICTION
+  LIKE
+  FOLLOW
+  PLANET_JOIN_REQUEST
+  PLANET_JOIN_APPROVED
+  PLANET_JOIN_REJECTED
 }
