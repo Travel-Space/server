@@ -3,10 +3,22 @@
 ![image](https://github.com/Travel-Space/server/assets/110807563/fba003c3-9a96-4c48-8cf0-030d01a8384b)
 
 # 🚀 프로젝트 소개 
-어쩌구 저쩌구
+**여행을 좋아하는 사람들을 위한 블로그 커뮤니티 플랫폼입니다.<br /><br />
+사용자들은 행성을 생성하고, 그룹을 형성하여 함께 여행을 떠날 동료들을 찾을 수 있습니다.<br /><br />
+이를 위해 우주선을 생성하고, 함께 여행을 계획하고 여행을 기록할 수 있는 기능을 제공하고 있습니다.<br /><br />
+여행을 위한 그룹을 만들거나 가입하여, 함께 여행을 떠날 인원들을 모집하고 여행 계획을 세울 수 있습니다.<br /><br /> 또한, 우주선을 만들어 여행을 함께 떠날 친구들을 초대하고 여행을 시작할 수 있습니다.<br /><br />
+더불어, 여행을 다녀온 후에는 여행 경험을 글과 사진으로 기록할 수 있습니다.<br /><br /> 이를 통해 사용자들은 자신의 여행 이야기를 공유하고, 다른 여행자들과 경험을 나누며 새로운 여행 아이디어를 얻을 수 있습니다<br /><br />**
+![캡처1](https://github.com/Travel-Space/server/assets/110807563/c7482505-ab38-44ed-93a1-48cf8b9cedce)
+![캡처2](https://github.com/Travel-Space/server/assets/110807563/69ec9e04-ca36-445f-a37e-cc9c960c3190)
+![캡처3](https://github.com/Travel-Space/server/assets/110807563/b8fb3177-038a-4848-92a2-c5d74078f039)
+![캡처4](https://github.com/Travel-Space/server/assets/110807563/cd8eef0b-553f-4a83-b3f7-5644852bdc03)
+![캡처6](https://github.com/Travel-Space/server/assets/110807563/46f3bc17-678a-49d0-b332-f112c724824a)
+![캡처5](https://github.com/Travel-Space/server/assets/110807563/4555c1ab-76a5-4de5-89ce-c1e8937ffec4)
 
-# 💡 프로젝트 기획 의도
-의도가 멀까? 후 진짜 머지
+
+
+
+
 
 # 팀 소개
 
