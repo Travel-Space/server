@@ -43,10 +43,6 @@ function validateUser(user) {
   if (!emailPattern.test(email)) {
     throw new BadRequestException('이메일이 유효하지 않습니다.');
   }
-
-  if (!passwordPattern.test(password)) {
-    throw new BadRequestException('비밀번호가 유효하지 않습니다.');
-  }
 }
 
 interface DecodedToken {
