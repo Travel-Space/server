@@ -16,13 +16,13 @@ import { InvitationResponse, UpdatePlanetDto } from './dto';
 import { NotificationGateway } from 'src/notification/notification.gateway';
 
 function validatePlanet(planet) {
-  const { name, introduction, hashtags, passengers, spaceships } = planet;
+  const { name, description, hashtags, memberLimit, spaceshipLimit } = planet;
 
   if (name.length > 15) {
     throw new BadRequestException('행성 이름은 15자 이하이어야 합니다.');
   }
 
-  if (introduction.length > 200) {
+  if (description.length > 200) {
     throw new BadRequestException('행성 소개는 200자 이하이어야 합니다.');
   }
 
@@ -34,11 +34,11 @@ function validatePlanet(planet) {
     throw new BadRequestException('각 해시태그는 8자 이하이어야 합니다.');
   }
 
-  if (passengers > 50) {
+  if (memberLimit > 50) {
     throw new BadRequestException('탑승 인원수는 최대 50명까지 가능합니다.');
   }
 
-  if (spaceships > 10) {
+  if (spaceshipLimit > 10) {
     throw new BadRequestException('우주선 개수는 최대 10개까지 가능합니다.');
   }
 }
